@@ -1,24 +1,25 @@
-import User from ".Model/User.js";
+import User from '../model/User.js';
 
 document.getElementById('formUser').addEventListener('submit', function(event){
-event.preventDefault();
-const user = new User(
-    document.getElementById("name-user").value,
-    document.getElementById("cpf-user").value,
-    document.getElementById("email-user").value,
-    document.getElementById("birthDate-user").value,
-    document.getElementById("password-user").value
-)
-resgisterUser(user);
+    event.preventDefault();
+    const user = new User(
+        document.getElementById("name-user").value,
+        document.getElementById("cpf-user").value,
+        document.getElementById("phone-user").value,
+        document.getElementById("email-user").value,
+        document.getElementById("password-user").value
+    )
+    console.log(user);  
+    registerUser(user);
 })
 
-function registerUser(user) {
-    fetch('https://localhost.com/users', {
+export function registerUser(user) {
+    fetch('http://localhost:3000/api/user', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(usuario)
+        body: JSON.stringify(user)
     })
     .then(response => {
         if (!response.ok) {

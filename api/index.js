@@ -12,6 +12,7 @@ const userRouter = require('./routes/userRoutes');
 const vehicleRouter = require('./routes/vehicleRoutes');
 
 app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
 
@@ -23,7 +24,6 @@ app.use('/api', [
     userRouter,
     vehicleRouter
 ]);
-
 
 sequelize.sync()
 .then(() => console.log('Database criado'))
