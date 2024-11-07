@@ -25,30 +25,31 @@
             </li>
     </div>
 
-
-    <div class="login">
-
-        <form action="" method="post" class="login-caixa" style="margin-top: 50px;">
+    <div class="container">
+        <form class="login-box" id="formUser">
             
             <div style="text-align: center;">
-                <h3>Cadastrar Veículo</h3>
+                <h3>Cadastrar</h3>
             </div>
             <label for="name">Nome</label>
-            <input type="text" id="name-driver" class="container-input" required>
+            <input type="text" id="name-user" class="container-input" placeholder="name" required>
 
-            <label for="cnh">Cnh</label>
-            <input type="text" id="cnh-driver" class="container-input" required>
+            <label for="cpf">CNH</label>
+            <input type="text" id="cnh-driver" class="container-input" placeholder="cnh" required>
 
             <label for="phone">Telefone</label>
-            <input type="phone" id="phone-driver" class="container-input" required>
+            <input type="tel" id="phone-driver" class="container-input" aria-placeholder="phone" placeholder="(XX) XXXXX-XXXX" required>
 
-            <label for="cep">CEP</label>
-            <input type="text" id="cep-driver" class="container-input" required>
+            <label for="birthDate">Data de Nascimento</label>
+            <input type="date" id="birthDate-driver" class="container-input" placeholder="birthDate" required>
 
-            <input type="submit" onclick="openHome()" value="Enviar" class="container-input" style="background-color: rgb(240, 240, 255);">
+            <input type="submit" class="button" value="Enviar">
 
         </form>
+        <div id="resultado"></div>
 
+
+        <script type="module" src="../src/controller/driverController.js"></script>
     </div>
 </body>
 </html>

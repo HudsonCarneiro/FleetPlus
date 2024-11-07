@@ -1,24 +1,24 @@
 import Driver from ".Model/driver.js";
 
 document.getElementById('formDriver').addEventListener('submit', function(event){
-event.preventDefault();
-const driver = new Driver(
-    document.getElementById("nome-motorista").value,
-    document.getElementById("cnh-motorista").value,
-    document.getElementById("telefone-motorista").value,
-    document.getElementById("cep-motorista").value,
-    document.getElementById("nascimento-motorista").value
-)
+    event.preventDefault();
+    const driver = new Driver(
+        document.getElementById("nome-motorista").value,
+        document.getElementById("cnh-motorista").value,
+        document.getElementById("telefone-motorista").value,
+        document.getElementById("nascimento-motorista").value
+    )
+    console.log(driver);  
     registerDriver(driver);
 })
 
 function registerDriver(driver) {
-    fetch('https://localhost.com/drivers', {
+    fetch('http://localhost:3000/api/driver', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(usuario)
+        body: JSON.stringify(driver)
     })
     .then(response => {
         if (!response.ok) {
@@ -27,7 +27,7 @@ function registerDriver(driver) {
         return response.json();
     })
     .then(data => {
-        document.getElementById('resultado').innerHTML = 'Usuário cadastrado com sucesso!';
+        document.getElementById('resultado').innerHTML = 'Motorista cadastrado com sucesso!';
     })
     .catch(error => {
         document.getElementById('resultado').innerHTML = 'Erro: ' + error.message;

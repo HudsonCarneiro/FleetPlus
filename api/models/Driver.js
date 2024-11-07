@@ -12,24 +12,6 @@ const Driver = sequelize.define('Driver', {
   phone:{
     type: DataTypes.STRING
   },
-  cep:{
-    type: DataTypes.STRING
-  },
-  street:{
-    type: DataTypes.STRING
-  },
-  number:{
-    type: DataTypes.STRING
-  },
-  neighborhood:{
-    type: DataTypes.STRING
-  },
-  city:{
-    type: DataTypes.STRING
-  },
-  uf:{
-    type: DataTypes.STRING
-  }
 });
 Driver.associate = (models) => {
   Driver.hasMany(models.Fueling, {
