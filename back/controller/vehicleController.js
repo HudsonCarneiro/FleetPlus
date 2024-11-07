@@ -3,11 +3,11 @@ import Vehicle from ".Model/Vehicle.js";
 document.getElementById('formVehicle').addEventListener('submit', function(event){
 event.preventDefault();
 const driver = new Driver(
-    document.getElementById("nome-motorista").value,
-    document.getElementById("cnh-motorista").value,
-    document.getElementById("telefone-motorista").value,
-    document.getElementById("cep-motorista").value,
-    document.getElementById("nascimento-motorista").value
+    document.getElementById("nome-veiculo").value,
+    document.getElementById("cnh-veiculo").value,
+    document.getElementById("telefone-veiculo").value,
+    document.getElementById("cep-veiculo").value,
+    document.getElementById("nascimento-veiculo").value
 )
     registerDriver(driver);
 })
