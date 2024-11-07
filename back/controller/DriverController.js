@@ -1,4 +1,4 @@
-import Driver from ".Model/driver.js";
+import Driver from ".Model/Driver.js";
 
 document.getElementById('formDriver').addEventListener('submit', function(event){
     event.preventDefault();

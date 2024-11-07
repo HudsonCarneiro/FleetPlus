@@ -1,6 +1,6 @@
-import Car from ".Model/Car.js";
+import Vehicle from ".Model/Vehicle.js";
 
-document.getElementById('formDriver').addEventListener('submit', function(event){
+document.getElementById('formVehicle').addEventListener('submit', function(event){
 event.preventDefault();
 const driver = new Driver(
     document.getElementById("nome-motorista").value,
@@ -27,7 +27,7 @@ function registerDriver(driver) {
         return response.json();
     })
     .then(data => {
-        document.getElementById('resultado').innerHTML = 'Usuário cadastrado com sucesso!';
+        document.getElementById('resultado').innerHTML = 'Veículo cadastrado com sucesso!';
     })
     .catch(error => {
         document.getElementById('resultado').innerHTML = 'Erro: ' + error.message;
