@@ -1,11 +1,23 @@
 import User from '../model/User.js';
+import Address from '../model/Address.js';
 
 document.getElementById('formUser').addEventListener('submit', function(event){
     event.preventDefault();
+    const address = new Address(
+        document.getElementById("cep-user").value,
+        document.getElementById("road-user").value,
+        document.getElementById("number-user").value,
+        document.getElementById("complement-user").value,
+        document.getElementById("city-user").value,
+        document.getElementById("state-user").value
+    )
+    console.log(address.getAddress());
+
     const user = new User(
         document.getElementById("name-user").value,
         document.getElementById("cpf-user").value,
         document.getElementById("phone-user").value,
+        address,
         document.getElementById("email-user").value,
         document.getElementById("password-user").value
     )
