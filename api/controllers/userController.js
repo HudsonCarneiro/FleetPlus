@@ -1,5 +1,11 @@
 const User = require('../models/User');
+import bcrypt from 'bcrypt';
 
+const createHashPassword = async (password) => {
+    const saltRounds = 10;
+    const hasgedPassword = await bcrypt.hash(password, saltRounds);
+    return hasgedPassword;
+}
 exports.getUserAll = async (req, res) => {
     try {
         const users = await User.findAll();
