@@ -1,7 +1,10 @@
-const { DataTypes } = require('sequelize');
+const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const bcrypt = require('bcrypt');
 
-const User = sequelize.define('User', {
+class User extends Model {}
+
+User = sequelize.define('User', {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -26,6 +29,21 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false
   },
+}, {
+    hooks: {
+      beforeCreate: async (user) => {
+        if(user.password){
+          const salt = await bcrypt.genSalt(10);
+          user.password = await bcrypt.hash(user.password, salt);
+        }
+      },
+      beforeUpdate: async (user) => {
+        if (user.password){
+          const salt = await bcrypt.genSalt(10);
+          user.password = await bcrypt.hash(user.password, salt);
+        }
+      },
+    },
 });
 
 User.associate = (models) => {
