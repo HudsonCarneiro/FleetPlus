@@ -1,10 +1,8 @@
-body {
-    background-image: url('../img/banner.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    
+
+body{
+    background-color: rgb(243, 243, 243);
 }
+  
 .title{
-    margin: 0px 150px;
+    margin: 30px 150px;
 }
