@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Fueling = sequelize.define('Fueling',{
-    userId:{
+const Fueling = sequelize.define('Fueling', {
+    userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
@@ -10,7 +10,7 @@ const Fueling = sequelize.define('Fueling',{
             key: 'id',
         }
     },
-    driverId:{
+    driverId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
@@ -18,7 +18,7 @@ const Fueling = sequelize.define('Fueling',{
             key: 'id',
         }
     },
-    vehicleId:{
+    vehicleId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
@@ -27,26 +27,27 @@ const Fueling = sequelize.define('Fueling',{
         }
     },
     liters: {
-      type: DataTypes.DECIMAL(10,2),
-      allowNull: false
-    },
-    price:{
-        type: DataTypes.DOUBLE(10,2),
+        type: DataTypes.DECIMAL(10, 2),
         allowNull: false
     },
-    mileage:{
-        type: DataTypes.DOUBLE(10,2),
+    price: {
+        type: DataTypes.DECIMAL(10, 2),
         allowNull: false
     },
-    dateFueling:{
-        type: DataTypes.DATE(10,2),
+    mileage: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false
+    },
+    dateFueling: {
+        type: DataTypes.DATE,
         allowNull: false
     }
 });
 
-Fueling.associate = (models)=> {
-    Fueling.belongsTo(models.Category,{
-        foreignKey: ['userId','driverId', 'vehicleId']
-    });
-}
-module.exports = User;
+Fueling.associate = (models) => {
+    Fueling.belongsTo(models.User, { foreignKey: 'userId' });
+    Fueling.belongsTo(models.Driver, { foreignKey: 'driverId' });
+    Fueling.belongsTo(models.Vehicle, { foreignKey: 'vehicleId' });
+};
+
+module.exports = Fueling;

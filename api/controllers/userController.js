@@ -29,7 +29,7 @@ exports.createUser = async (req, res) => {
         res.status(201).json(newUser)
     } catch (error){
         res.status(500).json({
-            error: 'Erro ao criar um usuário'
+            error: 'Erro ao criar usuário'
         })
     }
 }
@@ -62,5 +62,24 @@ exports.deleteUser = async (req, res) => {
         }
     }catch (error){
         res.status(500).json({error: 'Erro ao deletar usuário'});
+    }
+}
+exports.loginUser = async (req, res) => {
+    try{
+        const { email, password } = req.body;
+        const user = await User.findOne({ were: { email } });
+        
+        if(!user){
+            return res.status(404).json({ error: 'Usuário não encontrado'});
+        }
+        
+        const isMatch = await bcrypt.compare(senha, user.senha);
+
+        if(!isMatch){
+            return res.status(401).json({ error: 'Senha Incorreta'});
+        }
+        res.status(200).json({ message: 'Login concluido com sucesso'});
+    }catch(error){
+        res.status(500).json({ error: 'Erro ao fazer login'});
     }
 }
