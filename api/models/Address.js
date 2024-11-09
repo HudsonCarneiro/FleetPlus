@@ -2,15 +2,20 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Address = sequelize.define('Address', {
-    cep:{
-        type: DataTypes.STRING
-      },
+    cep: {
+        type: DataTypes.STRING(9), 
+        allowNull: false,
+        validate: {
+            is: /^\d{5}-\d{3}$/, 
+        }
+    },
     number: {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    road:{
-    type: DataTypes.STRING
+    road: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
     state: {
         type: DataTypes.STRING,
@@ -20,16 +25,27 @@ const Address = sequelize.define('Address', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    complement:{
+    complement: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true 
     }
+});
+
+Address.associate = (models) => {
+    Address.hasMany(models.User, {
+        foreignKey: 'addressId',
+        as: 'users' 
     });
 
-    Address.associate = (models) => {
-    Address.hasMany(models.User,Client,Driver, {
-    foreignKey: 'addressId'
-    })
-    }
+    Address.hasMany(models.Client, {
+    foreignKey: 'addressId',
+    as: 'clients'
+    });
+
+    Address.hasMany(models.Driver, {
+        foreignKey: 'addressId',
+        as: 'drivers'
+    });
+};
 
 module.exports = Address;
