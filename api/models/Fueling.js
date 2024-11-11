@@ -28,11 +28,17 @@ const Fueling = sequelize.define('Fueling', {
     },
     liters: {
         type: DataTypes.DECIMAL(10, 2),
-        allowNull: false
+        allowNull: false,
+        validate: {
+            min: 0.01 // Garantir que a quantidade de litros seja positiva
+        }
     },
     price: {
         type: DataTypes.DECIMAL(10, 2),
-        allowNull: false
+        allowNull: false,
+        validate: {
+            min: 0.01 // Garantir que o preço seja positivo
+        }
     },
     mileage: {
         type: DataTypes.DECIMAL(10, 2),
