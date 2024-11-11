@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
 
@@ -8,31 +7,32 @@ const sequelize = require('./config/database');
 const addressRouter = require('./routes/addressRoutes');
 const clientRouter = require('./routes/clientRoutes');
 const driverRouter = require('./routes/driverRoutes');
+const fuelingRouter = require('./routes/fuelingRoutes');
 const userRouter = require('./routes/userRoutes');
 const vehicleRouter = require('./routes/vehicleRoutes');
 
-app.use(cors());
-app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.urlencoded());
-app.use(bodyParser.json());
+app.use(cors());  // CORS para permitir requisições de diferentes origens
+app.use(express.urlencoded({ extended: true })); // Para aceitar dados codificados em URL
+app.use(express.json());  // Express lida com JSON, não é necessário body-parser
 
-app.use(express.json());
-app.use('/api', [
-    addressRouter,
-    clientRouter,
-    driverRouter,
-    userRouter,
-    vehicleRouter
-]);
+// Rotas do API
+app.use('/api/address', addressRouter);
+app.use('/api/client', clientRouter);
+app.use('/api/driver', driverRouter);
+app.use('/api/fueling', fuelingRouter);
+app.use('/api/user', userRouter);
+app.use('/api/vehicle', vehicleRouter);
 
+// Sincronização com o banco de dados
 sequelize.sync()
-.then(() => console.log('Database criado'))
-.catch(err => console.log('Erro ao criar o banco: '+err));
+    .then(() => console.log('Banco de dados criado com sucesso!'))
+    .catch(err => console.log('Erro ao criar o banco: ' + err));
 
+// Rota de saúde para verificar o status do servidor
 app.get('/', (req, res) => {
-    res.send('Hello World')
-})
+    res.send('API está rodando!');
+});
 
 app.listen(port, () => {
-    console.log('Servidor na porta: ' + port);
-})
+    console.log('Servidor rodando na porta: ' + port);
+});

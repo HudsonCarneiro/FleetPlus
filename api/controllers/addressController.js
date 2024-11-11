@@ -4,7 +4,7 @@ const Address = require('../models/Address');
 exports.getAddressById = async (req, res) =>{
     try{
         const address = await Address.findByPk(req.params.id);
-        if(client){
+        if(address){
             res.json(address);
         }else{
             res.status(404).json({error: 'Endereço não encontrado.'})

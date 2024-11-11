@@ -58,7 +58,7 @@ exports.deleteVehicle = async (req, res) => {
             })
             res.status(204).send();
         }else{
-            res.status(204).json({error: "Veiculo não encontrado"})
+            res.status(404).json({error: "Veiculo não encontrado"})
         }
     }catch (error){
         res.status(500).json({error: 'Erro ao deletar veiculo'});
