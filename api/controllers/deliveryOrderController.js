@@ -1,23 +1,24 @@
-const DeliveryOrder = require('../models/DeliveryOrder'); 
+const DeliveryOrder = require('../models/DeliveryOrder');
 
-
-exports.getDeliveryAll = async (req, res) => {
+// Lista todas as ordens de entrega
+exports.getDeliveryOrderAll = async (req, res) => {
     try {
-        const deliveries  = await DeliveryOrder.findAll(); 
-        res.status(200).json(deliveries); 
+        const deliveries = await DeliveryOrder.findAll();
+        res.status(200).json(deliveries);
     } catch (error) {
         res.status(500).json({
-            error: 'Erro ao listar entregas',
+            error: 'Erro ao listar ordens de entrega',
             details: error.message
         });
     }
 };
 
+// Busca uma ordem de entrega por ID
 exports.getDeliveryOrderById = async (req, res) => {
     try {
-        const delivery = await DeliveryOrder.findByPk(req.params.id); 
+        const delivery = await DeliveryOrder.findByPk(req.params.id);
         if (delivery) {
-            res.json(delivery);
+            res.status(200).json(delivery);
         } else {
             res.status(404).json({ error: 'Ordem de entrega não encontrada.' });
         }
@@ -29,10 +30,10 @@ exports.getDeliveryOrderById = async (req, res) => {
     }
 };
 
-
+// Cria uma nova ordem de entrega
 exports.createDeliveryOrder = async (req, res) => {
     try {
-        const newDelivery = await DeliveryOrder.create(req.body); 
+        const newDelivery = await DeliveryOrder.create(req.body);
         res.status(201).json(newDelivery);
     } catch (error) {
         res.status(500).json({
@@ -42,13 +43,13 @@ exports.createDeliveryOrder = async (req, res) => {
     }
 };
 
-
+// Atualiza uma ordem de entrega por ID
 exports.updateDeliveryOrder = async (req, res) => {
     try {
-        const delivery = await DeliveryOrder.findByPk(req.params.id); 
+        const delivery = await DeliveryOrder.findByPk(req.params.id);
         if (delivery) {
             await delivery.update(req.body);
-            res.json(delivery);
+            res.status(200).json(delivery);
         } else {
             res.status(404).json({ error: 'Ordem de entrega não encontrada' });
         }
@@ -60,17 +61,17 @@ exports.updateDeliveryOrder = async (req, res) => {
     }
 };
 
-
+// Deleta uma ordem de entrega por ID
 exports.deleteDeliveryOrder = async (req, res) => {
     try {
-        const delivery = await DeliveryOrder.findByPk(req.params.id); 
+        const delivery = await DeliveryOrder.findByPk(req.params.id);
         if (delivery) {
             await DeliveryOrder.destroy({
                 where: { id: req.params.id }
             });
             res.status(204).send();
         } else {
-            res.status(404).json({ error: "Ordem de entrega não encontrada" });
+            res.status(404).json({ error: 'Ordem de entrega não encontrada' });
         }
     } catch (error) {
         res.status(500).json({
