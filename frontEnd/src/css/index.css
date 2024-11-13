@@ -39,21 +39,6 @@
     background-color: #0b5ed7; /* Um tom mais escuro ao passar o mouse */
 }
 
-/* Navbar */
-.navbar-brand {
-    font-weight: bold;
-    color: #0d6efd;
-}
-
-.nav-link {
-    color: #0d6efd !important;
-    font-weight: 500;
-}
-
-.nav-link:hover {
-    color: #0b5ed7 !important;
-}
-
 /* Para dispositivos móveis */
 @media (max-width: 768px) {
     .hero-section {
