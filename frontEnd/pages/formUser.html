@@ -38,6 +38,15 @@
         <div class="card p-4">
             <div class="card-body">
                 <h3 class="text-center">Cadastrar Usuário</h3>
+
+                <!-- Ícone de carregamento (spinner) -->
+                <div id="loading" class="text-center" style="display: none;">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Enviando...</span>
+                    </div>
+                    <p>Enviando...</p>
+                </div>
+
                 <form id="formUser" class="mt-4">
                     <div class="mb-3">
                         <label for="name-user" class="form-label">Nome</label>
