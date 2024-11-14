@@ -1,0 +1,58 @@
+.botao-add-motorista{
+    border: none;
+}
+.janela-modal{
+    width: 100vw;
+    height: 100vw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #00000067;
+    display: none;
+    justify-content: center;
+    z-index: -1;
+}
+
+.modal-form{
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    background-color: rgba(230, 230, 230, 0.678);
+    backdrop-filter: blur(10px);
+    width: 40%;
+    min-width: 300px;
+    margin-top: 8%;
+    padding:20px;
+    border-radius: 15px;
+
+}
+.fechar{
+    position: absolute;
+    border: none;
+    top: -10px;
+    right: -10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 20px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.motoristas-caixa{
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+    width: 300px;
+    background-color: rgb(230, 230, 230);
+    padding: 20px;
+    position: relative;
+}
+ul{
+    list-style-type: none; 
+    margin: 0;
+    padding: 0 !important;
+}
+.janela-modal.abrir{
+    display: flex;
+}
