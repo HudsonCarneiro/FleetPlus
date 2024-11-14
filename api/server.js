@@ -3,7 +3,7 @@ const cors = require('cors');
 const app = express();
 const port = 3000;
 
-const sequelize = require('./config/database');
+const initializeSequelize = require('./config/database');
 const addressRouter = require('./routes/addressRoutes');
 const clientRouter = require('./routes/clientRoutes');
 const deliveryOrderRouter = require('./routes/deliveryOrderRoutes');
@@ -24,10 +24,22 @@ app.use('/api/', fuelingRouter);
 app.use('/api/', userRouter);
 app.use('/api/', vehicleRouter);
 
-sequelize.sync()
-    .then(() => console.log('Banco de dados criado com sucesso!'))
-    .catch(err => console.log('Erro ao criar o banco: ' + err));
-
+initializeSequelize()
+    .then((sequelize) => {
+        // Sincroniza os modelos/tabelas e inicia o servidor após a sincronização
+        return sequelize.sync();
+    })
+    .then(() => {
+        console.log('Banco de dados sincronizado com sucesso!');
+        // Inicia o servidor somente após a sincronização bem-sucedida do banco
+        app.listen(port, () => {
+            console.log('Servidor rodando na porta: ' + port);
+        });
+    })
+    .catch(err => {
+        console.log('Erro ao sincronizar o banco de dados: ' + err);
+    });
+    
 // Rota de saúde para verificar o status do servidor
 app.get('/', (req, res) => {
     res.send('API está rodando!');

@@ -1,5 +1,5 @@
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const initializeSequelize = require('../config/database');
 const bcrypt = require('bcrypt');
 
 class User extends Model {}
@@ -43,7 +43,7 @@ User.init({
     allowNull: false
   }
 }, {
-  sequelize,
+  initializeSequelize,
   modelName: 'User',
   hooks: {
     beforeCreate: async (user) => {

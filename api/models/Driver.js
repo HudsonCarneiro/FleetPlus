@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const initializeSequelize = require('../config/database');
 
-const Driver = sequelize.define('Driver', {
+const Driver = initializeSequelize.define('Driver', {
     name: {
         type: DataTypes.STRING(100), // Limitação sugerida para o nome
         allowNull: false

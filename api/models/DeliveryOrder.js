@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const initializeSequelize = require('../config/database');
 
-const DeliveryOrder = sequelize.define('DeliveryOrder', {
+const DeliveryOrder = initializeSequelize.define('DeliveryOrder', {
     status: {
         type: DataTypes.ENUM('aguardando', 'enviado', 'finalizado'), 
         allowNull: false,

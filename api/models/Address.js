@@ -1,5 +1,5 @@
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const initializeSequelize = require('../config/database');
 
 class Address extends Model {} 
 
@@ -32,7 +32,7 @@ Address.init({
         allowNull: true 
     }
 },{
-    sequelize,
+    initializeSequelize,
     modelName: 'Address',
 });
 
