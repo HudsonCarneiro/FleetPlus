@@ -1,0 +1,51 @@
+/* Configuração do fundo */
+.background {
+    background-color: #1E2A38;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Estilo do container do formulário */
+.form-container {
+    width: 100% !important; /* Definindo 80% para reduzir em 20% */
+    max-width: 1000px !important; /* Mantendo um limite de 400px */
+    margin: auto;
+    padding: 20px;
+}
+
+/* Estilo do card de cadastro */
+.card {
+    border: none;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+/* Título do formulário */
+h3 {
+    font-weight: 700;
+    color: #343a40;
+    text-align: center;
+}
+
+/* Botão de envio */
+.btn-primary {
+    background-color: #0d6efd;
+    border: none;
+    width: 100%; /* O botão terá largura total do formulário */
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+}
+
+/* Ajustes para dispositivos móveis */
+@media (max-width: 768px) {
+    .form-container {
+        width: 90%; /* Para telas menores, permitir mais largura */
+        padding: 0 20px;
+    }
+}

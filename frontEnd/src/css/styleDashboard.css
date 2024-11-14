@@ -1,0 +1,109 @@
+@media screen and (max-width: 940px) {
+    .rodape{
+        display: block;
+        margin: 0px 0px !important;
+        align-items: center;
+    }
+    .container{
+        width: 100%;
+        margin: 0;
+    }
+    .login-box{
+        display: block;
+        width: 100%;
+    }
+    .login-box-sub{
+        display: block;
+        width: 100%;
+    }
+
+}
+body{
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+.rodape{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.rodape-texto{
+    color: rgb(17, 17, 17);
+}
+
+.container{
+    display: block;
+    margin: 0;
+}
+
+.login-box{
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    border: 2px solid rgb(145, 145, 179);
+    border-radius: 5px;
+    margin-top: 50px;
+    margin-bottom: 5px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 30px;
+    
+}
+.login-box-sub{
+    display: flex;
+    flex-direction: row;
+    width: 300px;
+    border: 2px solid rgb(145, 145, 179);
+    border-radius: 5px;
+    margin-top: 0;
+    margin-bottom: 5px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 5px 30px;
+    
+}
+
+
+.container-input{
+    padding: 3px;
+    margin: 4px 0;
+    border: 1px solid rgb(145, 145, 179);
+    border-radius: 2px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.button{
+    padding: 5px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    background-color: rgb(145, 145, 179);
+}
+
+.rec-senha{
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(230, 230, 230);
+    border-radius: 5px;
+    margin-top: 50px;
+    margin-left: 530px;
+    margin-right: 530px;
+    padding: 30px;
+}
+
+.sobre-caixa{
+    display: flex;
+    text-align: center;
+    background-color: rgb(230, 230, 230);
+    margin-left: 400px;
+    margin-right: 400px;
+    margin-bottom: auto;
+    padding-right: 25px;
+    padding-left: 25px ;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-radius: 5px;
+}
