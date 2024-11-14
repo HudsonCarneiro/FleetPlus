@@ -5,26 +5,26 @@ const Fueling = sequelize.define('Fueling', {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: 'User',
-            key: 'id',
-        }
+        // references: {
+        //     model: 'User',
+        //     key: 'id',
+        // }
     },
     driverId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: 'Driver',
-            key: 'id',
-        }
+        // references: {
+        //     model: 'Driver',
+        //     key: 'id',
+        // }
     },
     vehicleId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: 'Vehicle',
-            key: 'id',
-        }
+        // references: {
+        //     model: 'Vehicle',
+        //     key: 'id',
+        // }
     },
     liters: {
         type: DataTypes.DECIMAL(10, 2),

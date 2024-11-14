@@ -16,13 +16,13 @@ app.use(cors());  // CORS para permitir requisições de diferentes origens
 app.use(express.urlencoded({ extended: true })); // Para aceitar dados codificados em URL
 app.use(express.json());  // Express lida com JSON
 
-app.use('/api/address', addressRouter);
-app.use('/api/client', clientRouter);
-app.use('/api/deliveryOrder', deliveryOrderRouter);
-app.use('/api/driver', driverRouter);
-app.use('/api/fueling', fuelingRouter);
-app.use('/api/user', userRouter);
-app.use('/api/vehicle', vehicleRouter);
+app.use('/api/', addressRouter);
+app.use('/api/', clientRouter);
+app.use('/api/', deliveryOrderRouter);
+app.use('/api/', driverRouter);
+app.use('/api/', fuelingRouter);
+app.use('/api/', userRouter);
+app.use('/api/', vehicleRouter);
 
 sequelize.sync()
     .then(() => console.log('Banco de dados criado com sucesso!'))

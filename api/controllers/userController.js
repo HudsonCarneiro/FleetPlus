@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const bcrypt = require('bcrypt'); // Certifique-se de que o bcrypt está importado
+const bcrypt = require('bcrypt'); 
 
 // Listar todos os usuários
 exports.getUserAll = async (req, res) => {

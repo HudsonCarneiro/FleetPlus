@@ -14,30 +14,30 @@ const DeliveryOrder = sequelize.define('DeliveryOrder', {
     clientId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: 'Client',
-            key: 'id',
-        }
+        // references: {
+        //     model: 'Client',
+        //     key: 'id',
+        // }
     },
     driverId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: 'Driver',
-            key: 'id',
-        }
+        // references: {
+        //     model: 'Driver',
+        //     key: 'id',
+        // }
     },
     vehicleId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: 'Vehicle',
-            key: 'id',
-        }
+        // references: {
+        //     model: 'Vehicle',
+        //     key: 'id',
+        // }
     }
 });
 
-// Associações do modelo Delivery
+//Associações do modelo Delivery
 DeliveryOrder.associate = (models) => {
     DeliveryOrder.belongsTo(models.Client, { foreignKey: 'clientId' });
     DeliveryOrder.belongsTo(models.Driver, { foreignKey: 'driverId' });

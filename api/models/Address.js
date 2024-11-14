@@ -1,7 +1,9 @@
-const { DataTypes } = require('sequelize');
+const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Address = sequelize.define('Address', {
+class Address extends Model {} 
+
+Address.init({
     cep: {
         type: DataTypes.STRING(9),
         allowNull: false,
@@ -29,22 +31,22 @@ const Address = sequelize.define('Address', {
         type: DataTypes.STRING,
         allowNull: true 
     }
+},{
+    sequelize,
+    modelName: 'Address',
 });
 
 Address.associate = (models) => {
     Address.hasMany(models.User, {
-        foreignKey: 'addressId',
-        as: 'users' 
+        foreignKey: 'addressId'
     });
 
     Address.hasMany(models.Client, {
-        foreignKey: 'addressId',
-        as: 'clients'
+        foreignKey: 'addressId'
     });
 
     Address.hasMany(models.Driver, {
-        foreignKey: 'addressId',
-        as: 'drivers'
+        foreignKey: 'addressId'
     });
 };
 
