@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const initializeSequelize = require('../config/database');
+const sequelize = require('../config/database');
 
-const Driver = initializeSequelize.define('Driver', {
+const Driver = sequelize.define('Driver', {
     name: {
         type: DataTypes.STRING(100), // Limitação sugerida para o nome
         allowNull: false
@@ -15,10 +15,10 @@ const Driver = initializeSequelize.define('Driver', {
         }
     },
     phone: {
-        type: DataTypes.STRING(15), // Limite sugerido para o telefone
-        allowNull: true, // Pode ser nulo
+        type: DataTypes.STRING(15), // Limite telefone
+        allowNull: true, 
         validate: {
-            is: /^\(?\d{2}\)?[\s-]?[\s9]?\d{4}-?\d{4}$/ // Validação para telefone brasileiro
+            is: /^\(?\d{2}\)?[\s-]?[\s9]?\d{4}-?\d{4}$/ // Validação telefone 
         }
     },
 });

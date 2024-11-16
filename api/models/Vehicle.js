@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const initializeSequelize = require('../config/database');
+const sequelize = require('../config/database');
 
-const Vehicle = initializeSequelize.define('Vehicle', {
+const Vehicle = sequelize.define('Vehicle', {
     model: {
         type: DataTypes.STRING(100), // Limite de 100 caracteres
         allowNull: false
@@ -21,9 +21,6 @@ const Vehicle = initializeSequelize.define('Vehicle', {
     fuelType: {
         type: DataTypes.STRING(50), // Limite de 50 caracteres
         allowNull: true,
-        validate: {
-            isIn: [['Gasolina', 'Diesel', 'Etanol', 'Flex', 'Elétrico']] // Valores permitidos
-        }
     },
     mileage: {
         type: DataTypes.INTEGER,

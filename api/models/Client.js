@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const initializeSequelize = require('../config/database');
+const sequelize = require('../config/database');
 
-const Client = initializeSequelize.define('Client', {
+const Client = sequelize.define('Client', {
     businessName: {
         type: DataTypes.STRING(255), // Limite de 255 caracteres
         allowNull: false

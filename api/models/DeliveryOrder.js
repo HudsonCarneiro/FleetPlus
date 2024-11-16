@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const initializeSequelize = require('../config/database');
+const sequelize = require('../config/database');
 
-const DeliveryOrder = initializeSequelize.define('DeliveryOrder', {
+const DeliveryOrder = sequelize.define('DeliveryOrder', {
     status: {
         type: DataTypes.ENUM('aguardando', 'enviado', 'finalizado'), 
         allowNull: false,
@@ -14,26 +14,14 @@ const DeliveryOrder = initializeSequelize.define('DeliveryOrder', {
     clientId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        // references: {
-        //     model: 'Client',
-        //     key: 'id',
-        // }
     },
     driverId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        // references: {
-        //     model: 'Driver',
-        //     key: 'id',
-        // }
     },
     vehicleId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        // references: {
-        //     model: 'Vehicle',
-        //     key: 'id',
-        // }
     }
 });
 

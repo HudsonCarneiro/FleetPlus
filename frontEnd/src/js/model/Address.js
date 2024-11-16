@@ -1,10 +1,10 @@
 export default class Address{
-    constructor(cep, road, number, complement = '', city, state){
+    constructor(cep, number, road, complement, city, state){
         this.cep = cep;
-        this.road = road;
         this.number = number;
+        this.road = road;
+        this.complement = complement;
         this.city = city;
         this.state = state;
-        this.complement = complement;
     }
 }

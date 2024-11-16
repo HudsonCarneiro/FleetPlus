@@ -1,15 +1,12 @@
 import User from '../model/User.js';
 import Address from '../model/Address.js';
 import { validateUserData } from '../validators/userValidators.js';
-import { registerUser, dashboardOpen } from '../view/userView.js';
+import { registerUser } from '../services/userServices.js';
+import { registerAddress } from '../services/addressServices.js';
+import { dashboardOpen } from '../services/userServices.js';
 
-
-document.getElementById('formUser').addEventListener('submit', function(event) {
-    console.log('chegou aqui');
-    event.preventDefault();  // Impede o envio padrão do formulário
-    
-    // Exibe o spinner de carregamento
-    document.getElementById('loading').style.display = 'block';
+document.getElementById('formUser').addEventListener('submit', async function (event) {
+    event.preventDefault(); // Impede o envio padrão do formulário
 
     // Coleta os dados do formulário
     const name = document.getElementById('name-user').value;
@@ -25,26 +22,32 @@ document.getElementById('formUser').addEventListener('submit', function(event) {
     const password = document.getElementById('password-user').value;
 
     try {
+        // Valida os dados do usuário
         const validationErrors = validateUserData(name, cpf, phone, cep, road, number, state, city, email, password);
 
         if (validationErrors.length > 0) {
-            // Exibe os erros e interrompe a execução
-            console.error("Validation Errors:", validationErrors);
-            return;
+            console.error('Validation Errors:', validationErrors);
+            return false; // Interrompe o processo se houver erros
         }
 
-        // Cria o endereço e o usuário
-        const address = new Address(cep, road, number, complement, city, state);
-        const user = new User(name, cpf, phone, address, email, password);
+        // Cria o objeto Address
+        const address = new Address(cep, number, road, complement, city, state);
 
+        // Registra o Address no banco de dados
+        const addressId = await registerAddress(address);
+        console.log('Endereço criado com sucesso. ID:', addressId);
+
+        // Usa o addressId para criar o objeto User
+        const user = new User(name, cpf, phone, email, password);
         console.log(user);
+        // Depois registra o usuário com o ID do endereço
+        const newUser = await registerUser(user ,addressId);
 
-        // Envia o usuário para o backend
-        registerUser(user);
+        console.log('Usuário criado com sucesso:', newUser);
+
         dashboardOpen();
-
     } catch (error) {
-        console.log("Error:", error.message);
-        return false;  // Impede a execução do código
+        console.error('Erro no processo de criação:', error);
+        return false; // Interrompe a execução em caso de erro
     }
 });

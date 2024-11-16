@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const bcrypt = require('bcrypt'); 
+const bcrypt = require('bcrypt');
 
 // Listar todos os usuários
 exports.getUserAll = async (req, res) => {
@@ -9,7 +9,7 @@ exports.getUserAll = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             error: 'Erro ao listar usuários',
-            details: error.message
+            details: error.message,
         });
     }
 };
@@ -19,7 +19,7 @@ exports.getUserById = async (req, res) => {
     try {
         const user = await User.findByPk(req.params.id);
         if (user) {
-            res.json(user);
+            res.status(200).json(user);
         } else {
             res.status(404).json({ error: 'Usuário não encontrado.' });
         }
@@ -31,12 +31,20 @@ exports.getUserById = async (req, res) => {
 // Criar novo usuário
 exports.createUser = async (req, res) => {
     try {
-        const newUser = await User.create(req.body);
+        const { name, cpf, phone, email,  password, addressId } = req.body;
+
+        if (!name || !cpf | !phone | !email || !password, !addressId) {
+            return res.status(400).json({ error: 'Nome, cpf, phone, email, senha e endereço são obrigatórios.' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = await User.create({ ...req.body, password: hashedPassword });
+
         res.status(201).json(newUser);
     } catch (error) {
         res.status(500).json({
             error: 'Erro ao criar usuário',
-            details: error.message
+            details: error.message,
         });
     }
 };
@@ -47,7 +55,7 @@ exports.updateUser = async (req, res) => {
         const user = await User.findByPk(req.params.id);
         if (user) {
             await user.update(req.body);
-            res.json(user);
+            res.status(200).json(user);
         } else {
             res.status(404).json({ error: 'Usuário não encontrado' });
         }
@@ -61,10 +69,10 @@ exports.deleteUser = async (req, res) => {
     try {
         const user = await User.findByPk(req.params.id);
         if (user) {
-            await User.destroy({ where: { id: req.params.id } });
-            res.status(204).send(); // 204 significa que foi bem-sucedido, sem conteúdo
+            await user.destroy();
+            res.status(204).send();
         } else {
-            res.status(404).json({ error: "Usuário não encontrado" }); // Alterado para 404 em caso de não encontrado
+            res.status(404).json({ error: 'Usuário não encontrado' });
         }
     } catch (error) {
         res.status(500).json({ error: 'Erro ao deletar usuário', details: error.message });
@@ -75,20 +83,24 @@ exports.deleteUser = async (req, res) => {
 exports.loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ where: { email } }); // Corrigido de "were" para "where"
 
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email e senha são obrigatórios.' });
+        }
+
+        const user = await User.findOne({ where: { email } });
         if (!user) {
-            return res.status(404).json({ error: 'Usuário não encontrado' });
+            return res.status(404).json({ error: 'Usuário não encontrado.' });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password); // Corrigido de "senha" para "password"
-
+        const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(401).json({ error: 'Senha incorreta' });
+            return res.status(401).json({ error: 'Senha incorreta.' });
         }
 
-        res.status(200).json({ message: 'Login concluído com sucesso' });
+        // Retorne informações adicionais, como token JWT, se necessário
+        res.status(200).json({ message: 'Login bem-sucedido.', userId: user.id });
     } catch (error) {
-        res.status(500).json({ error: 'Erro ao fazer login', details: error.message });
+        res.status(500).json({ error: 'Erro ao fazer login.', details: error.message });
     }
 };
