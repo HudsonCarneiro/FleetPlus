@@ -10,8 +10,8 @@ document.getElementById('formUser').addEventListener('submit', async function (e
 
     // Coleta os dados do formulário
     const name = document.getElementById('name-user').value;
-    const cpf = document.getElementById('cpf-user').value;
-    const phone = document.getElementById('phone-user').value;
+    const cpf = document.getElementById('cpf-user').value.replace(/\D/g, "");
+    const phone = document.getElementById('phone-user').value.replace(/\D/g, "");
     const cep = document.getElementById('cep-user').value;
     const road = document.getElementById('road-user').value;
     const number = document.getElementById('number-user').value;
@@ -20,6 +20,8 @@ document.getElementById('formUser').addEventListener('submit', async function (e
     const state = document.getElementById('state-user').value;
     const email = document.getElementById('email-user').value;
     const password = document.getElementById('password-user').value;
+
+    cpf = cpf
 
     try {
         // Valida os dados do usuário

@@ -1,6 +1,3 @@
-import User from '../model/User.js';
-import Address from '../model/Address.js';
-
 document.getElementById('formLogin').addEventListener('submit', function(event){
     event.preventDefault();
     const user = document.getElementById(user).value;

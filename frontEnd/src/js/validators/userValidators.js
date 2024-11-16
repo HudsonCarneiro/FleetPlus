@@ -6,6 +6,9 @@ export function validateUserData(name, cpf, phone, cep, road, number, state, cit
     if (!name || !cpf || !phone || !cep || !road || !number || !state || !city || !email || !password) {
         errors.push('Todos os campos obrigatórios devem ser preenchidos.');
     }
+    if (cpf.length !== 11) {
+        errors.push('E-mail inválido. Por favor, insira um e-mail válido.');
+    }
     // Validação do e-mail
     const regexEmail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     if (!regexEmail.test(email)) {
