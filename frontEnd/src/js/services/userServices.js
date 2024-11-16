@@ -21,13 +21,4 @@ export async function registerUser(user, addressId) {
     }
 }
 
-// Função para redirecionar para o dashboard
-export function dashboardOpen() {
-    try {
-        window.location.href = '../pages/dashboard.html'; // Certifique-se que o caminho está correto
-    } catch (error) {
-        console.error("Falha ao acessar o dashboard:", error);
-    }
-}
-
 

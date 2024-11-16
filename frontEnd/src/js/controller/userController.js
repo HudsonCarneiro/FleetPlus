@@ -3,7 +3,7 @@ import Address from '../model/Address.js';
 import { validateUserData } from '../validators/userValidators.js';
 import { registerUser } from '../services/userServices.js';
 import { registerAddress } from '../services/addressServices.js';
-import { dashboardOpen } from '../services/userServices.js';
+import { dashboardOpen } from '../services/dashboardServices.js';
 
 document.getElementById('formUser').addEventListener('submit', async function (event) {
     event.preventDefault(); // Impede o envio padrão do formulário
