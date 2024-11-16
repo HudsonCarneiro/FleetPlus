@@ -21,8 +21,6 @@ document.getElementById('formUser').addEventListener('submit', async function (e
     const email = document.getElementById('email-user').value;
     const password = document.getElementById('password-user').value;
 
-    cpf = cpf
-
     try {
         // Valida os dados do usuário
         const validationErrors = validateUserData(name, cpf, phone, cep, road, number, state, city, email, password);
@@ -48,6 +46,9 @@ document.getElementById('formUser').addEventListener('submit', async function (e
         console.log('Usuário criado com sucesso:', newUser);
 
         dashboardOpen();
+
+        document.getElementById('formUser').reset();
+        
     } catch (error) {
         console.error('Erro no processo de criação:', error);
         return false; // Interrompe a execução em caso de erro

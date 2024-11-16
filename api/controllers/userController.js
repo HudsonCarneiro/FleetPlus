@@ -36,11 +36,16 @@ exports.createUser = async (req, res) => {
         if (!name || !cpf | !phone | !email || !password, !addressId) {
             return res.status(400).json({ error: 'Nome, cpf, phone, email, senha e endereço são obrigatórios.' });
         }
+        const existingUser = await User.findOne({ where: { email } });
+        if (existingUser) {
+            return res.status(400).json({ error: 'Usuário já registrado com este email.' });
+        }
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await User.create({ ...req.body, password: hashedPassword });
 
         res.status(201).json(newUser);
+        
     } catch (error) {
         res.status(500).json({
             error: 'Erro ao criar usuário',
