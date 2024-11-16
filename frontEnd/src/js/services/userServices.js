@@ -20,7 +20,7 @@ export async function registerUser(user, addressId) {
             localStorage.setItem('authToken', data.token);
         }
 
-        return data.user; // Retorna os dados do usuário criado
+        return data; // Retorna os dados do usuário criado
 
     } catch (error) {
         console.error('Erro ao registrar o usuário:', error);

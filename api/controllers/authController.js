@@ -12,7 +12,7 @@ exports.register = async (req, res) => {
         const { name, cpf, phone, email, password, addressId } = req.body;
 
         // Valida se todos os campos obrigatórios foram preenchidos
-        if (!name || !cpf || !phone || !email || !password || !addressId) {
+        if (!name | !cpf | !phone || !email | !password | !addressId) {
             return res.status(400).json({ error: 'Nome, cpf, phone, email, senha e endereço são obrigatórios.' });
         }
 
