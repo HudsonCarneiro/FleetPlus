@@ -10,7 +10,7 @@
 /* Estilo do container do formulário */
 .form-container {
     width: 100% !important; /* Definindo 80% para reduzir em 20% */
-    max-width: 1000px !important; /* Mantendo um limite de 400px */
+    max-width: 800px !important; /* Mantendo um limite de 400px */
     margin: auto;
     padding: 20px;
 }
