@@ -1,7 +1,7 @@
 const openModalBtn = document.getElementById("open-vehicleModal");
 
 // Selecionando o modal
-const modal = document.getElementById("myModal");
+const modal = document.getElementById("vehicleModalContainer");
 
 // Selecionando o botão de fechar (ícone de "X")
 const closeBtn = document.querySelector(".close");
