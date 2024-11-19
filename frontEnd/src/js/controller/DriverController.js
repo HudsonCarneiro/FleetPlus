@@ -1,35 +1,24 @@
-import Driver from ".Model/Driver.js";
+const openModalBtn = document.getElementById("openModalBtn");
 
-document.getElementById('formDriver').addEventListener('submit', function(event){
-    event.preventDefault();
-    const driver = new Driver(
-        document.getElementById("nome-motorista").value,
-        document.getElementById("cnh-motorista").value,
-        document.getElementById("telefone-motorista").value,
-        document.getElementById("nascimento-motorista").value
-    )
-    console.log(driver);  
-    registerDriver(driver);
-})
+// Selecionando o modal
+const modal = document.getElementById("myModal");
 
-function registerDriver(driver) {
-    fetch('http://localhost:3000/api/driver', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(driver)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Erro na requisição');
-        }
-        return response.json();
-    })
-    .then(data => {
-        document.getElementById('resultado').innerHTML = 'Motorista cadastrado com sucesso!';
-    })
-    .catch(error => {
-        document.getElementById('resultado').innerHTML = 'Erro: ' + error.message;
-    });
+// Selecionando o botão de fechar (ícone de "X")
+const closeBtn = document.querySelector(".close");
+
+// Função para abrir o modal
+openModalBtn.onclick = function () {
+    modal.style.display = "block"; // Torna o modal visível
+}
+
+// Função para fechar o modal quando o botão de fechar for clicado
+closeBtn.onclick = function () {
+    modal.style.display = "none"; // Torna o modal invisível
+}
+
+// Função para fechar o modal se o usuário clicar fora do conteúdo do modal
+window.onclick = function (event) {
+    if (event.target === modal) {
+        modal.style.display = "none"; // Torna o modal invisível
+    }
 }
