@@ -4,6 +4,9 @@
     border-radius: 4px;
     height: 100%;
     margin-left: 0 !important;
+    margin-top: 56px;
+    background-color: #e0e0e0 !important;
+    min-height: 55vw;
 }
 
 /* Marca do menu */
@@ -33,7 +36,7 @@
 #navbar-example3 .nav .nav-link {
     font-size: 1.0rem;
     padding-left: 10px;
-    color: #adb5bd; /* Cinza claro */
+    color: #53565a; /* Cinza claro */
 }
 
 /* Hover nos links de submenu */
