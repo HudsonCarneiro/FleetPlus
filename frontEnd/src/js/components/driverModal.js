@@ -1,23 +1,12 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FleetPlus-Cadastro</title>
-    <link rel="stylesheet" href="..\css\form.css">
-    <link rel="stylesheet" href="..\css\navbar.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" 
-    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-</head>
-<body class="background">
-    <div id="navbar-static"></div>
-
-    <!-- Formulário de Cadastro -->
-    <div class="container form-container mt-5 pt-5">
-        <div class="card p-4">
-            <div class="card-body">
-                <h3 class="text-center">Cadastrar Motorista</h3>
-
+function loadDriverModal() {
+    const modalHTML = `
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cadastrar Motorista</h5>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
                 <form id="formDriver" class="mt-4">
                     <div class="mb-3">
                         <label for="name-driver" class="form-label">Nome</label>
@@ -63,14 +52,15 @@
                         <label for="state-driver" class="form-label">Estado</label>
                         <input type="text" id="state-driver" class="form-control" placeholder="Estado" required>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Enviar</button>
+
+                    <button type="submit" class="btn btn-primary w-100">Cadastrar</button>
                 </form>
             </div>
         </div>
     </div>
-    <script type="module" src="../js/controller/driverController.js"></script>
-    <script type="module" src="../js/components/navBar.js"></script>
-    <script type="module" src="../js/utils/cepUtils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    `;
+
+    document.getElementById('driverModalContainer').innerHTML = modalHTML;
+}
+
+loadDriverModal();

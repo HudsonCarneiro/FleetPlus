@@ -3,19 +3,19 @@ function loadDriverModal() {
     <div id="myModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Cadastrar Motorista</h5>
+                <h5 class="modal-title">Cadastrar Vehicle</h5>
                 <span class="close">&times;</span>
             </div>
             <div class="modal-body">
-                <form id="formDriver" class="mt-4">
+                <form id="formVehicle" class="mt-4">
                     <div class="mb-3">
-                        <label for="name-driver" class="form-label">Nome</label>
-                        <input type="text" id="name-driver" class="form-control" placeholder="Nome completo" required>
+                        <label for="model-vehicle" class="form-label">Modelo</label>
+                        <input type="text" id="model-vehicle" class="form-control" placeholder="Modelo do Veiculo" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="cnh-driver" class="form-label">CNH</label>
-                        <input type="text" id="cnh-driver" class="form-control" placeholder="000.000.000-00">
+                        <label for="automaker-vehicle" class="form-label">Montadora</label>
+                        <input type="text" id="automaker-vehicle" class="form-control" placeholder="000.000.000-00">
                     </div>
 
                     <div class="mb-3">
@@ -60,7 +60,7 @@ function loadDriverModal() {
     </div>
     `;
 
-    document.getElementById('modalContainer').innerHTML = modalHTML;
+    document.getElementById('driverModalContainer').innerHTML = modalHTML;
 }
 
 loadDriverModal();
