@@ -2,30 +2,3 @@
     background-color: #002958; 
     min-height: 100vh;
 }
-.container {
-    margin: 57px 0 0 0 !important;
-    display: flex;
-    flex-direction: row;
-    min-height: 100vh;
-}
-.control-panel {
-    background-color: #ffffff; /* Fundo branco para o painel */
-    margin-left: 260px;
-    border-radius: 4px;
-    width: 1000px;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-}
-
-/* Descrição inicial do painel */
-#panel-title {
-    padding-top: 20px;
-    text-align: center;
-}
-#panel-description {
-    font-size: 1.2rem;
-    color: #6c757d;
-    text-align: center;
-}
-

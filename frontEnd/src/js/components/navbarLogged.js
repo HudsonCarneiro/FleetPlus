@@ -1,6 +1,12 @@
-import { logout } from '../services/authServices';
-
+const importCSS = () => {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.type = 'text/css';
+  link.href = '../css/navbarLogged.css';
+  document.head.appendChild(link);
+};
 document.addEventListener('DOMContentLoaded', () => {
+  importCSS();
     const navbarHTML = `
       <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
         <div class="container-fluid">
@@ -25,5 +31,4 @@ document.addEventListener('DOMContentLoaded', () => {
       </nav>
     `;
     document.getElementById('navbarLogged-static').innerHTML = navbarHTML;
-    document.getElementById('logout-btn').addEventListener('click', logout);
 });
