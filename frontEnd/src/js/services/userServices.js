@@ -1,7 +1,7 @@
 export async function registerUser(user, addressId) {
     try {
         user.addressId = addressId; // Atribui o ID do endereço ao usuário
-        const response = await fetch('http://localhost:3000/api/register', {
+        const response = await fetch('http://localhost:3000/api/user', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -16,9 +16,6 @@ export async function registerUser(user, addressId) {
         }
 
         const data = await response.json(); // Aguarda os dados do backend
-        if (data.token) {
-            localStorage.setItem('authToken', data.token);
-        }
 
         return data; // Retorna os dados do usuário criado
 

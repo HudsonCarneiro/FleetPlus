@@ -3,6 +3,7 @@ import Address from '../model/Address.js';
 import { validateUserData } from '../validators/userValidators.js';
 import { registerUser } from '../services/userServices.js';
 import { registerAddress } from '../services/addressServices.js';
+import { logout } from '../services/authServices.js';
 import { dashboardOpen } from '../services/dashboardServices.js';
 
 document.getElementById('formUser').addEventListener('submit', async function (event) {
@@ -45,7 +46,7 @@ document.getElementById('formUser').addEventListener('submit', async function (e
 
         console.log('Usuário criado com sucesso:', newUser);
 
-        dashboardOpen();
+        logout();
 
         document.getElementById('formUser').reset();
         
