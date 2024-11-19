@@ -1,17 +1,27 @@
 document.addEventListener('DOMContentLoaded', () => {
   const navbarHTML = `
     <nav id="navbar-example3" class="navbar navbar-light bg-light flex-column align-items-stretch p-3">
-        <a class="navbar-brand" href="#">Menu</a>
+        <a class="navbar-brand" href="#" style="font-weight: bold;">Fleet Plus</a>
         <nav class="nav nav-pills flex-column">
+            <h6 class="text-muted">Meu Perfil</h6>
+            <a class="nav-link" href="#item-1">Ver Perfil</a>
+            <nav class="nav nav-pills flex-column">
+            <a class="nav-link"  href="#item-1-1">Editar Perfil</a>
+
+            <h6 class="text-muted">Ordem de Entrega</h6>
+            <a class="nav-link" href="#item-1">Ver Entregas</a>
+            <nav class="nav nav-pills flex-column">
+            <a class="nav-link"  href="#item-1-1">Criar Ordem de Entrega</a>
+
             <h6 class="text-muted">Motoristas</h6>
             <a class="nav-link" href="#item-1">Ver Motoristas</a>
             <nav class="nav nav-pills flex-column">
             <a class="nav-link"  href="#item-1-1">Cadastrar Motorista</a>
             
             <h6 class="text-muted">Veículos</h6>
-            <a class="nav-link" href="#item-1-2">Ver Veículos</a>
-            </nav>
-            <a class="nav-link" href="#item-2">Cadastrar Veículo</a>
+            <a class="nav-link" href="#item-3">Ver Veículos</a>
+            <nav class="nav nav-pills flex-column">
+            <a class="nav-link" href="#item-3-1">Cadastrar Veículo</a>
 
             <h6 class="text-muted">Clientes</h6>
             <a class="nav-link" href="#item-3">Ver Clientes</a>
