@@ -1,6 +1,5 @@
-/* Configuração do fundo */
 .background {
-    background-color: #002958;
+    background-color: #004fa8;
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -9,8 +8,8 @@
 
 /* Estilo do container do formulário */
 .form-container {
-    width: 100% !important; /* Definindo 80% para reduzir em 20% */
-    max-width: 800px !important; /* Mantendo um limite de 400px */
+    width: 100% !important; 
+    max-width: 800px !important; 
     margin: auto;
     padding: 20px;
 }
@@ -45,7 +44,7 @@ h3 {
 /* Ajustes para dispositivos móveis */
 @media (max-width: 768px) {
     .form-container {
-        width: 90%; /* Para telas menores, permitir mais largura */
+        width: 90%; 
         padding: 0 20px;
     }
 }

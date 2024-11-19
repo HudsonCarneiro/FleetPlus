@@ -1,6 +1,6 @@
 /* Estilo do fundo */
 .background {
-    background-color: #002958; /* Azul escuro para um visual moderno */
+    background-color: #004fa8; 
     min-height: 100vh;
     display: flex;
     flex-direction: column;
