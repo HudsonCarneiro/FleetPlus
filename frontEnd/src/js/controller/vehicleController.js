@@ -1,35 +1,24 @@
-import Vehicle from ".Model/Vehicle.js";
+const openModalBtn = document.getElementById("open-vehicleModal");
 
-document.getElementById('formVehicle').addEventListener('submit', function(event){
-event.preventDefault();
-const driver = new Driver(
-    document.getElementById("nome-veiculo").value,
-    document.getElementById("cnh-veiculo").value,
-    document.getElementById("telefone-veiculo").value,
-    document.getElementById("cep-veiculo").value,
-    document.getElementById("nascimento-veiculo").value
-)
-    registerDriver(driver);
-})
+// Selecionando o modal
+const modal = document.getElementById("myModal");
 
-function registerDriver(driver) {
-    fetch('https://localhost.com/drivers', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(usuario)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Erro na requisição');
-        }
-        return response.json();
-    })
-    .then(data => {
-        document.getElementById('resultado').innerHTML = 'Veículo cadastrado com sucesso!';
-    })
-    .catch(error => {
-        document.getElementById('resultado').innerHTML = 'Erro: ' + error.message;
-    });
+// Selecionando o botão de fechar (ícone de "X")
+const closeBtn = document.querySelector(".close");
+
+// Função para abrir o modal
+openModalBtn.onclick = function () {
+    modal.style.display = "block"; // Torna o modal visível
+}
+
+// Função para fechar o modal quando o botão de fechar for clicado
+closeBtn.onclick = function () {
+    modal.style.display = "none"; // Torna o modal invisível
+}
+
+// Função para fechar o modal se o usuário clicar fora do conteúdo do modal
+window.onclick = function (event) {
+    if (event.target === modal) {
+        modal.style.display = "none"; // Torna o modal invisível
+    }
 }

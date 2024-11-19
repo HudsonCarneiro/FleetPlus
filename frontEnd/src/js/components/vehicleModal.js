@@ -1,9 +1,9 @@
-function loadDriverModal() {
+function loadVehicleModal() {
     const modalHTML = `
     <div id="myModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Cadastrar Vehicle</h5>
+                <h5 class="modal-title">Cadastrar Veículo</h5>
                 <span class="close">&times;</span>
             </div>
             <div class="modal-body">
@@ -15,52 +15,39 @@ function loadDriverModal() {
 
                     <div class="mb-3">
                         <label for="automaker-vehicle" class="form-label">Montadora</label>
-                        <input type="text" id="automaker-vehicle" class="form-control" placeholder="000.000.000-00">
+                        <input type="text" id="automaker-vehicle" class="form-control" placeholder="000.000.000-00" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="phone-driver" class="form-label">Telefone</label>
-                        <input type="tel" id="phone-driver" class="form-control" placeholder="(XX) XXXXX-XXXX" required>
+                        <label for="year-vehicle" class="form-label">Ano</label>
+                        <input type="number" id="year-vehicle" class="form-control"  min="1900" max="2100" placeholder="Ano" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="cep-driver" class="form-label">CEP</label>
-                        <input type="text" id="cep-driver" class="form-control" placeholder="87200-000">
+                        <label for="fuelType-vehicle" class="form-label">Tipo de Combustível</label>
+                        <select id="fuelType-vehicle" class="form-select" required>
+                            <option value="" disabled selected>Selecione o tipo de combustível</option>
+                            <option value="gasolina">Gasolina</option>
+                            <option value="etanol">Etanol</option>
+                            <option value="diesel">Diesel</option>
+                        </select>
                     </div>
+
 
                     <div class="mb-3">
-                        <label for="road-driver" class="form-label">Rua</label>
-                        <input type="text" id="road-driver" class="form-control" placeholder="Nome da rua" required>
+                        <label for="mileage-vehicle" class="form-label">Quilometragem</label>
+                        <input type="number" id="quilometragem-vehicle" class="form-control" placeholder="000000" min="0" max="999999" step="1" required>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="complement-driver" class="form-label">Complemento</label>
-                        <input type="text" id="complement-driver" class="form-control" placeholder="Complemento">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="number-driver" class="form-label">Número</label>
-                        <input type="text" id="number-driver" class="form-control" placeholder="Número" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="city-driver" class="form-label">Cidade</label>
-                        <input type="text" id="city-driver" class="form-control" placeholder="Cidade" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="state-driver" class="form-label">Estado</label>
-                        <input type="text" id="state-driver" class="form-control" placeholder="Estado" required>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100">Cadastrar</button>
+                    <button type="submit" class="btn btn-primary w-100">Enviar</button>
                 </form>
             </div>
         </div>
     </div>
-    `;
+    `
+    ;
 
-    document.getElementById('driverModalContainer').innerHTML = modalHTML;
+    document.getElementById('vehicleModalContainer').innerHTML = modalHTML;
 }
 
 loadDriverModal();

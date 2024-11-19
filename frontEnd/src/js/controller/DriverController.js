@@ -1,4 +1,4 @@
-const openModalBtn = document.getElementById("openModalBtn");
+const openModalBtn = document.getElementById("open-driverModal");
 
 // Selecionando o modal
 const modal = document.getElementById("myModal");
