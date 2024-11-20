@@ -12,6 +12,7 @@ app.use(express.json());  // Express lida com JSON
 // Definir as rotas da API
 const addressRouter = require('./routes/addressRoutes');
 const clientRouter = require('./routes/clientRoutes');
+const dashboardRouter = require('./routes/dashboardRoutes');
 const deliveryOrderRouter = require('./routes/deliveryOrderRoutes');
 const driverRouter = require('./routes/driverRoutes');
 const fuelingRouter = require('./routes/fuelingRoutes');
@@ -20,6 +21,7 @@ const vehicleRouter = require('./routes/vehicleRoutes');
 
 app.use('/api/', addressRouter);
 app.use('/api/', clientRouter);
+app.use('/api/', dashboardRouter);
 app.use('/api/', deliveryOrderRouter);
 app.use('/api/', driverRouter);
 app.use('/api/', fuelingRouter);

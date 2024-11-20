@@ -1,20 +1,21 @@
 const jwt = require('jsonwebtoken');
 
+const JWT_SECRET = process.env.JWT_SECRET || 's3cR3t@123456789!minha-chave-segura-para-jwt';
+
 exports.authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Pega o token do cabeçalho Authorization
+  const token = req.headers['authorization']?.split(' ')[1]; // Obtém o token do header Authorization
 
-    if (!token) {
-        return res.status(401).json({ error: 'Acesso negado. Token não fornecido ou está ausente no cabeçalho de autorização.' });
-    }
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Token de autenticação não fornecido.' });
+  }
 
-    // Verifica a validade do token usando a chave secreta armazenada em uma variável de ambiente
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) {
-            return res.status(403).json({ error: 'Token inválido.' });
-        }
-
-        req.userId = decoded.userId; // Salva o ID do usuário para uso posterior
-        next(); // Permite que o fluxo da requisição continue
-    });
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET); // Verifica e decodifica o token
+    req.user = decoded; // Adiciona os dados do usuário no request
+    next(); // Permite que a requisição prossiga
+  } catch (error) {
+    res.status(403).json({ success: false, message: 'Token inválido ou expirado.' });
+  }
 };
+
+  

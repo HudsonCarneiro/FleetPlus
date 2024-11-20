@@ -1,10 +1,9 @@
 const express = require('express');
-const { authenticateToken } = require('../middlewares/authMiddleware');
-const dashboardController = require('../controllers/dashboardController');
-
 const router = express.Router();
+const { getDashboard } = require('../controllers/dashboardController');
+const { authenticateToken } = require('../middlewares/authMiddleware');
 
-// Rota para acessar o dashboard
-router.get('/dashboard', authenticateToken, dashboardController.getDashboard);
+// Rota protegida: o middleware é executado antes do controlador
+router.get('/dashboard', authenticateToken, getDashboard);
 
 module.exports = router;
