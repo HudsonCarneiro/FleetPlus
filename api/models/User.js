@@ -1,6 +1,5 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const bcrypt = require('bcryptjs');
 
 class User extends Model {}
 
@@ -36,6 +35,10 @@ User.init(
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    salt: {
+      type: DataTypes.STRING,
+      allowNull: false, // Salt será obrigatório
+    },
     addressId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -45,26 +48,12 @@ User.init(
       },
     },
   },
-    {
+  {
     sequelize,
     modelName: 'User',
-    hooks: {
-      beforeCreate: async (user) => {
-        if (user.password) {
-          console.log('Criptografando senha antes de criar o usuário.');
-          const salt = await bcrypt.genSalt(10);
-          user.password = await bcrypt.hash(user.password, salt);
-        }
-      },
-      beforeUpdate: async (user) => {
-        if (user.password && user.changed('password')) {
-          console.log('Criptografando senha antes de atualizar o usuário.');
-          const salt = await bcrypt.genSalt(10);
-          user.password = await bcrypt.hash(user.password, salt);
-        }
-      },
-    },
-  },
+    tableName: 'Users', // Nome da tabela no banco
+    timestamps: true, // createdAt e updatedAt
+  }
 );
 
 // Definindo associações
