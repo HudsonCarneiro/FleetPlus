@@ -1,5 +1,6 @@
 const User = require('../models/User');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
+const { use } = require('../routes/userRoutes');
 
 // Listar todos os usuários
 exports.getUserAll = async (req, res) => {
@@ -31,21 +32,32 @@ exports.getUserById = async (req, res) => {
 // Criar novo usuário
 exports.createUser = async (req, res) => {
     try {
-        const { name, cpf, phone, email,  password, addressId } = req.body;
+        const { name, cpf, phone, email, password, addressId } = req.body;
 
-        if (!name || !cpf | !phone | !email || !password, !addressId) {
+        if (!name || !cpf || !phone || !email || !password || !addressId) {
             return res.status(400).json({ error: 'Nome, cpf, phone, email, senha e endereço são obrigatórios.' });
         }
+
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
             return res.status(400).json({ error: 'Usuário já registrado com este email.' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await User.create({ ...req.body, password: hashedPassword });
+        // Gerando o salt com custo 10
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const newUser = await User.create({
+            name,
+            cpf,
+            phone,
+            email,
+            password: hashedPassword,
+            addressId,
+        });
 
         res.status(201).json(newUser);
-        
+
     } catch (error) {
         res.status(500).json({
             error: 'Erro ao criar usuário',
@@ -59,7 +71,16 @@ exports.updateUser = async (req, res) => {
     try {
         const user = await User.findByPk(req.params.id);
         if (user) {
-            await user.update(req.body);
+            const { password, ...updateData } = req.body;
+
+            if (password) {
+                // Gerando o salt com custo 10
+                const salt = await bcrypt.genSalt(10);
+                const hashedPassword = await bcrypt.hash(password, salt);
+                updateData.password = hashedPassword;
+            }
+
+            await user.update(updateData);
             res.status(200).json(user);
         } else {
             res.status(404).json({ error: 'Usuário não encontrado' });
@@ -84,28 +105,34 @@ exports.deleteUser = async (req, res) => {
     }
 };
 
-// Login do usuário
-exports.loginUser = async (req, res) => {
+exports.login = async (req, res) => {
     try {
-        const { email, password } = req.body;
-
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email e senha são obrigatórios.' });
-        }
-
-        const user = await User.findOne({ where: { email } });
-        if (!user) {
-            return res.status(404).json({ error: 'Usuário não encontrado.' });
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(401).json({ error: 'Senha incorreta.' });
-        }
-
-        // Retorne informações adicionais, como token JWT, se necessário
-        res.status(200).json({ message: 'Login bem-sucedido.', userId: user.id });
+      const { email, password } = req.body;
+  
+      // Encontrar o usuário pelo email
+      const user = await User.findOne({ where: { email } });
+  
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'Usuário não encontrado.' });
+      }
+  
+      // Verifique se a senha criptografada está sendo recuperada corretamente
+      console.log('Senha armazenada:', user.password);  // Para verificar a senha armazenada no banco
+      console.log('Senha fornecida:', password);        // Para verificar a senha fornecida no login
+  
+      // Comparar a senha fornecida com a senha criptografada no banco
+      const validation = await bcrypt.compare(password, user.password);
+  
+      console.log('Resultado da comparação de senha:', validation);  // Para verificar o resultado da comparação
+  
+      if (!validation) {
+        return res.status(401).json({ success: false, message: 'Senha incorreta.' });
+      }
+  
+      return res.status(200).json({ success: true, message: 'Login bem-sucedido!', user });
+  
     } catch (error) {
-        res.status(500).json({ error: 'Erro ao fazer login.', details: error.message });
+      console.error('Erro ao realizar o login:', error);
+      return res.status(500).json({ success: false, message: 'Ocorreu um erro. Tente novamente mais tarde.' });
     }
-};
+  };

@@ -1,4 +1,4 @@
-require('dotenv').config();
+/*require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
@@ -15,23 +15,25 @@ exports.login = async (req, res) => {
 
         // Verifica se a senha está correta
         const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return res.status(400).json({ error: 'Credenciais inválidas.' });
+        if (isPasswordValid) {
+            res.status(200).json({
+                statusCode: 200,
+                message: "Login realizado com sucesso",
+            });
+           // return res.status(400).json({ error: 'Credenciais inválidas.' });
         }
 
         // Gera o token de autenticação
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        /*const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        
 
         res.status(200).json({
             statusCode: 200,
             message: "Login realizado com sucesso",
-            data: {
-                token
-            }
         });
     } catch (error) {
         console.error('Erro no login:', error);
         res.status(500).json({ error: 'Erro no servidor.' });
     }
 };
-
+*/

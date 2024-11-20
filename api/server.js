@@ -9,25 +9,19 @@ app.use(express.urlencoded({ extended: true })); // Para aceitar dados codificad
 app.use(express.json());  // Express lida com JSON
 
 // Definir as rotas da API
-const authRouter = require('./routes/authRoutes');
 const addressRouter = require('./routes/addressRoutes');
 const clientRouter = require('./routes/clientRoutes');
-const dashboardRouter = require('./routes/dashboardRoutes');
 const deliveryOrderRouter = require('./routes/deliveryOrderRoutes');
 const driverRouter = require('./routes/driverRoutes');
 const fuelingRouter = require('./routes/fuelingRoutes');
-const protectedRouter = require('./routes/protectedRoutes');
 const userRouter = require('./routes/userRoutes');
 const vehicleRouter = require('./routes/vehicleRoutes');
 
 app.use('/api/', addressRouter);
-app.use('/api/', authRouter);
 app.use('/api/', clientRouter);
-app.use('./api/', dashboardRouter);
 app.use('/api/', deliveryOrderRouter);
 app.use('/api/', driverRouter);
 app.use('/api/', fuelingRouter);
-app.use('/api/', protectedRouter);
 app.use('/api/', userRouter);
 app.use('/api/', vehicleRouter);
 
@@ -45,7 +39,6 @@ sequelize.sync()
         console.log('Erro ao sincronizar o banco de dados: ' + err);
     });
 
-// Rota de saúde para verificar o status do servidor
 app.get('/', (req, res) => {
     res.send('API está rodando!');
 });

@@ -1,7 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const bcrypt = require('bcrypt');
-const Address = require('./Address');
+const bcrypt = require('bcryptjs');
 
 class User extends Model {}
 
@@ -34,7 +33,7 @@ User.init(
       },
     },
     password: {
-      type: DataTypes.STRING(55),
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     addressId: {
@@ -46,24 +45,26 @@ User.init(
       },
     },
   },
-  {
+    {
     sequelize,
     modelName: 'User',
     hooks: {
       beforeCreate: async (user) => {
         if (user.password) {
+          console.log('Criptografando senha antes de criar o usuário.');
           const salt = await bcrypt.genSalt(10);
           user.password = await bcrypt.hash(user.password, salt);
         }
       },
       beforeUpdate: async (user) => {
         if (user.password && user.changed('password')) {
+          console.log('Criptografando senha antes de atualizar o usuário.');
           const salt = await bcrypt.genSalt(10);
           user.password = await bcrypt.hash(user.password, salt);
         }
       },
     },
-  }
+  },
 );
 
 // Definindo associações
