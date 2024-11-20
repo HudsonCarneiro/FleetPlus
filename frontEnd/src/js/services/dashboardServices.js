@@ -1,40 +1,31 @@
-export function dashboardOpen() {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-        alert('Acesso negado. Você precisa estar logado para acessar esta página.');
-        return;
-    }
-
-    window.location.href = '../pages/dashboard.html';
-}
-
 export function protectDashboard() {
     const token = localStorage.getItem('authToken');
-    
+
     if (!token) {
         alert('Você precisa estar logado para acessar o dashboard.');
-        
-        window.location.href = '../pages/formLogin.html'; 
+        window.location.href = '../pages/formLogin.html';
         return;
     }
-   
+
+    // Validar o token com uma requisição ao backend
     fetch('http://localhost:3000/api/validateToken', {
         method: 'POST',
         headers: {
+            'Content-Type': 'application/json', // Especifica que estamos enviando JSON
             'Authorization': `Bearer ${token}`
         }
     })
     .then(response => {
         if (response.ok) {
-            return;
+            console.log('Token válido. Acesso permitido.');
+            return response.json(); // Opcional: Se precisar de dados adicionais do backend
         } else {
-            alert('Token inválido ou expirado. Faça login novamente.');
-            window.location.href = '../pages/formLogin.html';
+            throw new Error('Token inválido ou expirado.');
         }
     })
     .catch(error => {
-        console.error('Erro ao validar token:', error);
-        alert('Erro ao validar token. Faça login novamente.');
+        console.error('Erro ao validar token:', error.message);
+        alert('Token inválido ou expirado. Faça login novamente.');
         window.location.href = '../pages/formLogin.html';
     });
 }

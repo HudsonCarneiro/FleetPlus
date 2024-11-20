@@ -17,6 +17,7 @@ const deliveryOrderRouter = require('./routes/deliveryOrderRoutes');
 const driverRouter = require('./routes/driverRoutes');
 const fuelingRouter = require('./routes/fuelingRoutes');
 const userRouter = require('./routes/userRoutes');
+const validateTokenRouter = require('./routes/validateTokenRoutes');
 const vehicleRouter = require('./routes/vehicleRoutes');
 
 app.use('/api/', addressRouter);
@@ -26,6 +27,7 @@ app.use('/api/', deliveryOrderRouter);
 app.use('/api/', driverRouter);
 app.use('/api/', fuelingRouter);
 app.use('/api/', userRouter);
+app.use('/api', validateTokenRouter);
 app.use('/api/', vehicleRouter);
 
 
