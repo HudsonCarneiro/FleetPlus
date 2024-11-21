@@ -1,24 +1,16 @@
-export function protectDashboard() {
-    const token = localStorage.getItem('authToken');
-
-    if (!token) {
-        alert('Você precisa estar logado para acessar o dashboard.');
-        window.location.href = '../pages/formLogin.html';
-        return;
-    }
-
-    // Validar o token com uma requisição ao backend
-    fetch('http://localhost:3000/api/validateToken', {
+export function protectDashboard(token) {
+    return fetch('http://localhost:3000/api/validateToken', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json', // Especifica que estamos enviando JSON
+            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         }
     })
-    .then(response => {
+    .then(async (response) => {
         if (response.ok) {
-            console.log('Token válido. Acesso permitido.');
-            return response.json(); // Opcional: Se precisar de dados adicionais do backend
+            const data = await response.json();
+            console.log('Token válido. Acesso permitido.', data);
+            return data; // Retorna os dados do backend
         } else {
             throw new Error('Token inválido ou expirado.');
         }
@@ -26,6 +18,44 @@ export function protectDashboard() {
     .catch(error => {
         console.error('Erro ao validar token:', error.message);
         alert('Token inválido ou expirado. Faça login novamente.');
+        localStorage.removeItem('authToken'); // Limpa o token inválido
         window.location.href = '../pages/formLogin.html';
+        throw error; // Repropaga o erro
+    });
+}
+
+export function openDashboard(userData) {
+    console.log('Dados do usuário recebidos:', userData);
+    // Aqui você pode armazenar os dados em localStorage ou manipulá-los antes do redirecionamento
+    window.location.href = '../pages/dashboard.html';
+}
+
+
+// Função auxiliar para carregar dados do dashboard
+export function loadDashboardData() {
+    fetch('http://localhost:3000/api/dashboard', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Dados do dashboard:', data);
+        // Exemplo: Renderizar os dados na página
+        const welcomeMessage = document.getElementById('name-user');
+        if (welcomeMessage) {
+            welcomeMessage.textContent = `${userData.name}`;
+        }
+        const dashboardContainer = document.getElementById('dashboardContainer');
+        if (dashboardContainer) {
+            dashboardContainer.innerHTML = `
+                <p>${data.message}</p>
+                <pre>${JSON.stringify(data.user, null, 2)}</pre>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao carregar dados do dashboard:', error.message);
     });
 }

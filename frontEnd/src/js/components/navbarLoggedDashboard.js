@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   const navbarHTML = `
     <nav id="navbar-example3" class="navbar navbar-light bg-light flex-column align-items-stretch p-3">
-        <a class="navbar-brand" href="#" style="font-weight: bold;">Fleet Plus</a>
         <nav class="nav nav-pills flex-column">
+            <h6 class="text-muted" id="name-user"></h6>
             <h6 class="text-muted">Meu Perfil</h6>
             <a class="nav-link" href="#item-1">Ver Perfil</a>
             <nav class="nav nav-pills flex-column">
