@@ -4,6 +4,7 @@
     box-sizing: border-box;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
+html,body{height: 100%;}
 header{
     background-color: #73b4ff;
     padding: 8px 2%;
@@ -29,14 +30,28 @@ header{
 .icons-header{
     margin-left: 10px;
 }
-
-.background {
-    background-color: #002958; 
-    min-height: 100vh;
+.main{
+    display: flex;
+    flex-wrap: wrap;
+    height: 100%;
 }
-.container{
-    background-color: #ffff;
-    min-width: 100vw;
-    min-height: 55vw;
+.sidebar{
+    width: 20%;
+    background-color: white;
+    height: 100%;
+}
+.sidebar h3{
+    color: #333;
+    font-size: 20px;
+}
+.sidebar a{
+    display: block;
+    text-decoration: none;
+    margin-left:15px ;
+    margin-top: 10px;
+}
+.content{
+   width: 80%;
+   background-color: rgb(245, 245, 245);
 }
 

@@ -30,7 +30,6 @@ export function openDashboard(userData) {
     window.location.href = '../pages/dashboard.html';
 }
 
-
 // Função auxiliar para carregar dados do dashboard
 export function loadDashboardData() {
     fetch('http://localhost:3000/api/dashboard', {
@@ -42,18 +41,6 @@ export function loadDashboardData() {
     .then(response => response.json())
     .then(data => {
         console.log('Dados do dashboard:', data);
-        // Exemplo: Renderizar os dados na página
-        const welcomeMessage = document.getElementById('name-user');
-        if (welcomeMessage) {
-            welcomeMessage.textContent = `${userData.name}`;
-        }
-        const dashboardContainer = document.getElementById('dashboardContainer');
-        if (dashboardContainer) {
-            dashboardContainer.innerHTML = `
-                <p>${data.message}</p>
-                <pre>${JSON.stringify(data.user, null, 2)}</pre>
-            `;
-        }
     })
     .catch(error => {
         console.error('Erro ao carregar dados do dashboard:', error.message);

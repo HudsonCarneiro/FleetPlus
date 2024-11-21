@@ -3,8 +3,6 @@ import Address from '../model/Address.js';
 import { validateUserData } from '../validators/userValidators.js';
 import { registerUser } from '../services/userServices.js';
 import { registerAddress } from '../services/addressServices.js';
-import { logout } from '../services/authServices.js';
-import { dashboardOpen } from '../services/dashboardServices.js';
 
 document.getElementById('formUser').addEventListener('submit', async function (event) {
     event.preventDefault(); // Impede o envio padrão do formulário
@@ -45,10 +43,9 @@ document.getElementById('formUser').addEventListener('submit', async function (e
         const newUser = await registerUser(user ,addressId);
 
         console.log('Usuário criado com sucesso:', newUser);
+        window.location.href = '../pages/formLogin.html';
 
-        logout();
-
-        document.getElementById('formUser').reset();
+        //document.getElementById('formUser').reset();
         
     } catch (error) {
         console.error('Erro no processo de criação:', error);
