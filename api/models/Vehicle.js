@@ -29,11 +29,19 @@ const Vehicle = sequelize.define('Vehicle', {
             min: 0 // A quilometragem não pode ser negativa
         }
     },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      
+    }
 });
 
 Vehicle.associate = (models) => {
     Vehicle.hasMany(models.Fueling, {
         foreignKey: 'vehicleId'
+    });
+    Vehicle.belongsTo(models.User, { 
+        foreignKey: 'userId' 
     });
 };
 

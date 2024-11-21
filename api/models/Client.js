@@ -32,7 +32,16 @@ const Client = sequelize.define('Client', {
         validate: {
             isEmail: true // Garante que o valor é um email válido
         }
-    }
+    },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'Users',
+            key: 'id',
+          },
+      
+    },
 });
 
 Client.associate = (models) => {
@@ -42,6 +51,9 @@ Client.associate = (models) => {
     Client.belongsTo(models.Address, {
         foreignKey: 'addressId'
     });
+
+    Client.belongsTo(models.User, { foreignKey: 'userId' });
 };
+
 
 module.exports = Client;

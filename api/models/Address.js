@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // Certifique-se de estar importando a função corretamente
-
+const sequelize = require('../config/database'); 
 const Address = sequelize.define('Address', {
     id: {
         type: DataTypes.INTEGER,

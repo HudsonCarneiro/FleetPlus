@@ -58,14 +58,30 @@ User.init(
 
 // Definindo associações
 User.associate = (models) => {
+  User.hasMany(models.Client, {
+    foreignKey: 'userId',
+    as: 'clients',
+  });
+  User.hasMany(models.DeliveryOrder, {
+    foreignKey: 'userId',
+    as: 'deliveryOrders',
+  });
+  User.hasMany(models.Driver, {
+    foreignKey: 'userId',
+    as: 'drivers',
+  });
   User.hasMany(models.Fueling, {
     foreignKey: 'userId',
     as: 'fuelings',
   });
-
+  User.hasMany(models.Vehicle, {
+    foreignKey: 'userId',
+    as: 'vehicles',
+  });
+  
   User.belongsTo(models.Address, {
     foreignKey: 'addressId',
-    as: 'address',
+    as: 'addresses',
   });
 };
 

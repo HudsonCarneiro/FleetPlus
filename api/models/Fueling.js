@@ -5,7 +5,10 @@ const Fueling = sequelize.define('Fueling', {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-      
+        references: {
+            model: 'Users',
+            key: 'id',
+          },
     },
     driverId: {
         type: DataTypes.INTEGER,

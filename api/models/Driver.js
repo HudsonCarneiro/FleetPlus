@@ -18,6 +18,23 @@ const Driver = sequelize.define('Driver', {
         type: DataTypes.STRING(25), 
         allowNull: true, 
     },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'Users',
+            key: 'id',
+        },
+      
+    },
+    addressId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Addresses',
+          key: 'id',
+        },
+    },
 });
 
 Driver.associate = (models) => {
@@ -26,6 +43,9 @@ Driver.associate = (models) => {
     });
     Driver.belongsTo(models.Address, {
         foreignKey: 'addressId'
+    });
+    Driver.belongsTo(models.User, { 
+        foreignKey: 'userId' 
     });
 };
 
