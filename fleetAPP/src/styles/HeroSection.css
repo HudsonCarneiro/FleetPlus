@@ -1,0 +1,49 @@
+.background {
+    background-color: #002958; 
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.hero-section {
+    color: white;
+    padding: 100px 0;
+    text-align: center;
+}
+
+.title h1 {
+    font-weight: 700;
+    color: #f8f9fa;
+}
+
+.title p {
+    font-size: 1.25rem;
+    margin-top: 20px;
+    color: #dcdcdc;
+}
+
+.btn-primary {
+    background-color: #0d6efd; 
+    border: none;
+    padding: 12px 24px;
+    font-size: 1.2rem;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 40px 20px;
+    }
+
+    .title h1 {
+        font-size: 2rem;
+    }
+
+    .title p {
+        font-size: 1rem;
+    }
+}
