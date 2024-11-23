@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { fetchAddressByCep } from '../utils/CepUtils';
-import { registerUser, registerAddress } from '../services/userServices';
+import { handleUserRegistration } from '../controller/UserController';
 import "../styles/Form.css";
 
 const UserForm = () => {
@@ -23,48 +22,16 @@ const UserForm = () => {
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
-  const handleCepBlur = async () => {
-    if (formData.cep.length === 8) {
-      const address = await fetchAddressByCep(formData.cep);
-      if (address) {
-        setFormData((prevData) => ({
-          ...prevData,
-          road: address.logradouro,
-          city: address.localidade,
-          state: address.uf,
-        }));
-      }
-    } else {
-      alert('Digite um CEP válido com 8 números.');
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const addressId = await registerAddress({
-        cep: formData.cep,
-        number: formData.number,
-        road: formData.road,
-        complement: formData.complement,
-        city: formData.city,
-        state: formData.state,
-      });
-
-      const newUser = await registerUser({
-        name: formData.name,
-        cpf: formData.cpf,
-        phone: formData.phone,
-        email: formData.email,
-        password: formData.password,
-        addressId,
-      });
-
-      alert('Usuário cadastrado com sucesso!');
-      console.log('Usuário cadastrado:', newUser);
+      const success = await handleUserRegistration(formData);
+      if (success) {
+        alert('Usuário cadastrado com sucesso!');
+      }
     } catch (error) {
-      console.error('Erro ao cadastrar usuário:', error);
+      alert('Erro ao cadastrar usuário.');
+      console.error(error);
     }
   };
 
@@ -74,7 +41,6 @@ const UserForm = () => {
         <div className="card-body">
           <h3 className="text-center">Cadastrar Usuário</h3>
           <form onSubmit={handleSubmit} className="mt-4">
-            {/** Campos do formulário */}
             {Object.keys(formData).map((key) => (
               <div className="mb-3" key={key}>
                 <label htmlFor={key} className="form-label">
@@ -87,7 +53,6 @@ const UserForm = () => {
                   onChange={handleInputChange}
                   className="form-control"
                   placeholder={`Digite o ${key}`}
-                  onBlur={key === 'cep' ? handleCepBlur : null}
                 />
               </div>
             ))}
