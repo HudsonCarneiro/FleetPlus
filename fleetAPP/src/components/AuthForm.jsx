@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { handleLogin } from '../controller/AuthController'; // Importando o controller
 import "../styles/Form.css";
 
-const AuthForm = ({ handleLogin }) => {
+const AuthForm = () => {
+  const navigate = useNavigate(); // Hook para navegação
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -18,10 +20,9 @@ const AuthForm = ({ handleLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const success = await handleLogin(formData);
+      const success = await handleLogin(formData, navigate); // Chama o handleLogin do controller
       if (success) {
-        alert('Login realizado com sucesso!');
-        // Redirecionar para outra página, por exemplo: dashboard
+        console.log('Login realizado com sucesso!');
       } else {
         alert('Credenciais inválidas.');
       }

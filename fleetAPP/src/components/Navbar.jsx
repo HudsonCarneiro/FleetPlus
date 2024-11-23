@@ -1,9 +1,9 @@
 import React from "react";
-import "../styles/navbar.css";
+import "../styles/Navbar.css";
 
 export const Navbar = () => {
   return (
-    <nav className="navbar navbar-expand-lg navbar-light custom-bg fixed-top">
+    <nav className="navbar navbar-expand-lg navbar-light custom-bg fixed-top navbar-brand">
       <div className="container-fluid">
         <a className="navbar-brand" href="/">FleetPlus</a>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

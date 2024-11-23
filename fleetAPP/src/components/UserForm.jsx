@@ -1,30 +1,30 @@
 import React, { useState } from 'react';
 import { handleUserRegistration } from '../controller/UserController';
 import { fetchAddressByCep } from '../utils/CepUtils';
+import { useNavigate } from 'react-router-dom'; // Importando useNavigate
 import "../styles/Form.css";
 
 const UserForm = () => {
+  const navigate = useNavigate(); // Usando o hook useNavigate
   const [formData, setFormData] = useState({
     name: '',
     cpf: '',
     phone: '',
     cep: '',
+    number: '',
     road: '',
     complement: '',
-    number: '',
     city: '',
     state: '',
     email: '',
     password: '',
   });
 
-  // Atualiza o valor dos inputs no estado
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
-  // Busca o endereço pelo CEP
   const handleCepBlur = async () => {
     const cep = formData.cep;
     if (cep && cep.length === 8) {
@@ -42,18 +42,9 @@ const UserForm = () => {
     }
   };
 
-  // Envia o formulário
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const success = await handleUserRegistration(formData);
-      if (success) {
-        alert('Usuário cadastrado com sucesso!');
-      }
-    } catch (error) {
-      alert('Erro ao cadastrar usuário.');
-      console.error(error);
-    }
+    await handleUserRegistration(formData, navigate);
   };
 
   return (
@@ -65,16 +56,48 @@ const UserForm = () => {
             {Object.keys(formData).map((key) => (
               <div className="mb-3" key={key}>
                 <label htmlFor={key} className="form-label">
-                  {key.charAt(0).toUpperCase() + key.slice(1).replace('-', ' ')}
+                  {(() => {
+                    switch (key) {
+                      case 'name': return 'Nome';
+                      case 'cpf': return 'CPF';
+                      case 'phone': return 'Telefone';
+                      case 'cep': return 'CEP';
+                      case 'number': return 'Número';
+                      case 'road': return 'Rua';
+                      case 'complement': return 'Complemento';
+                      case 'city': return 'Cidade';
+                      case 'state': return 'Estado';
+                      case 'email': return 'E-mail';
+                      case 'password': return 'Senha';
+                      default: return key;
+                    }
+                  })()}
                 </label>
                 <input
                   type={key === 'password' ? 'password' : 'text'}
                   id={key}
                   value={formData[key]}
                   onChange={handleInputChange}
-                  onBlur={key === 'cep' ? handleCepBlur : null} // Adiciona o evento de blur ao CEP
+                  onBlur={key === 'cep' ? handleCepBlur : null}
                   className="form-control"
-                  placeholder={`Digite o ${key}`}
+                  placeholder={`Digite ${
+                    (() => {
+                      switch (key) {
+                        case 'name': return 'seu nome';
+                        case 'cpf': return 'seu CPF';
+                        case 'phone': return 'seu telefone';
+                        case 'cep': return 'seu CEP';
+                        case 'number': return 'seu número';
+                        case 'road': return 'sua rua';
+                        case 'complement': return 'seu complemento';
+                        case 'city': return 'sua cidade';
+                        case 'state': return 'seu estado';
+                        case 'email': return 'seu e-mail';
+                        case 'password': return 'sua senha';
+                        default: return key;
+                      }
+                    })()
+                  }`}
                 />
               </div>
             ))}
