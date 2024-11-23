@@ -1,45 +1,48 @@
-import { fetchAddressByCep } from '../utils/CepUtils';
-import { registerUser } from '../services/UserServices';
+import React, { useState } from 'react';
+import Address from '../model/Address';
+import User from '../model/User';
 import { registerAddress } from '../services/AddressServices';
+import { registerUser } from '../services/UserServices';
 
 export const handleUserRegistration = async (formData) => {
   try {
-    // Busca endereço pelo CEP
-    if (formData.cep.length === 8) {
-      const address = await fetchAddressByCep(formData.cep);
-      if (address) {
-        formData.road = address.logradouro || '';
-        formData.city = address.localidade || '';
-        formData.state = address.uf || '';
-      } else {
-        throw new Error('CEP inválido.');
-      }
+    // Extrai os dados de endereço
+    const address = new Address(
+      formData.cep,
+      formData.number,
+      formData.road,
+      formData.complement,
+      formData.city,
+      formData.state,
+    )   
+
+    const addressResponse = await registerAddress(address);
+
+    if (!addressResponse) {
+      throw new Error('Erro ao registrar endereço.');
     }
 
-    // Registra o endereço
-    const addressId = await registerAddress({
-      cep: formData.cep,
-      number: formData.number,
-      road: formData.road,
-      complement: formData.complement,
-      city: formData.city,
-      state: formData.state,
-    });
-
-    // Registra o usuário com o ID do endereço
-    const newUser = await registerUser({
-      name: formData.name,
-      cpf: formData.cpf,
-      phone: formData.phone,
-      email: formData.email,
-      password: formData.password,
-      addressId,
-    });
-
-    console.log('Usuário registrado com sucesso:', newUser);
-    return true; // Indica sucesso
-  } catch (error) {
-    console.error('Erro no registro do usuário:', error);
-    throw error; // Propaga o erro
-  }
+    const user = new User (
+      formData.name,
+      formData.cpf,
+      formData.phone,
+      formData.email,
+      formData.password,
+    )
+    if(user){
+      console.log('Objeto User Criado');
+    }
+      
+    const userResponse = await registerUser(user, addressResponse);
+    if (userResponse) {
+      console.log('Usuário cadastrado com sucesso'); 
+      return window.location.href = '../pages/formLogin.html';
+    } else {
+      throw new Error('Erro ao registrar usuário.');
+    }
+    } catch (error) {
+      console.error('Erro no registro do usuário:', error);
+      return false; 
+    }
 };
+

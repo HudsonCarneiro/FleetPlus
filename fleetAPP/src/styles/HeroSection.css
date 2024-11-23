@@ -23,16 +23,13 @@
     color: #dcdcdc;
 }
 
-.btn-primary {
-    background-color: #0d6efd; 
+.btn-primary{
     border: none;
-    padding: 12px 24px;
-    font-size: 1.2rem;
-
-}
-
-.btn-primary:hover {
-    background-color: #0b5ed7;
+    width: auto !important;
+    padding: 8px 25px !important; 
+    font-size: 1.5rem !important; 
+    border-radius: 5px; /* Adiciona cantos arredondados */
+    transition: background-color 0.3s ease; /* Efeito ao passar o mouse */
 }
 
 @media (max-width: 768px) {

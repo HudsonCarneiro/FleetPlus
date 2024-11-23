@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { handleUserRegistration } from '../controller/UserController';
+import { fetchAddressByCep } from '../utils/CepUtils';
 import "../styles/Form.css";
 
 const UserForm = () => {
@@ -17,11 +18,31 @@ const UserForm = () => {
     password: '',
   });
 
+  // Atualiza o valor dos inputs no estado
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
+  // Busca o endereço pelo CEP
+  const handleCepBlur = async () => {
+    const cep = formData.cep;
+    if (cep && cep.length === 8) {
+      const address = await fetchAddressByCep(cep);
+      if (address) {
+        setFormData((prevData) => ({
+          ...prevData,
+          road: address.logradouro || '',
+          city: address.localidade || '',
+          state: address.uf || '',
+        }));
+      }
+    } else {
+      alert('Digite um CEP válido com 8 números.');
+    }
+  };
+
+  // Envia o formulário
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -51,13 +72,14 @@ const UserForm = () => {
                   id={key}
                   value={formData[key]}
                   onChange={handleInputChange}
+                  onBlur={key === 'cep' ? handleCepBlur : null} // Adiciona o evento de blur ao CEP
                   className="form-control"
                   placeholder={`Digite o ${key}`}
                 />
               </div>
             ))}
             <button type="submit" className="btn btn-primary w-100">
-              Cadastrar
+              Enviar
             </button>
           </form>
         </div>

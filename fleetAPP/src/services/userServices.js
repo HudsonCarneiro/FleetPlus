@@ -1,14 +1,5 @@
-/**
- * Registra um novo usuário no sistema, associando-o a um endereço existente.
- *
- * @param {Object} user - Objeto contendo os dados do usuário.
- * @param {number} addressId - ID do endereço previamente registrado.
- * @returns {Promise<Object>} - Os dados do usuário criado retornados pelo backend.
- * @throws {Error} - Lança um erro caso a requisição falhe.
- */
 export async function registerUser(user, addressId) {
     try {
-      // Atribui o ID do endereço ao usuário
       user.addressId = addressId;
   
       // Faz a requisição ao backend
