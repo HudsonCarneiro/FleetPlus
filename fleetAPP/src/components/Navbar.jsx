@@ -18,7 +18,7 @@ export const Navbar = () => {
               <a className="nav-link" href="#">Sobre</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/formLogin" style={{ marginRight: "30px" }}>Login</a>
+              <a className="nav-link" href="/AuthForm" style={{ marginRight: "30px" }}>Login</a>
             </li>
           </ul>
         </div>

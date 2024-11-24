@@ -1,80 +1,114 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import '../styles/Dashboard.css';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import "../styles/Dashboard.css";
+import DriverTable from "./DriverTable";
+import ClientTable from "./ClientTable";
+import FuelingTable from "./FuelingTable";
+import DeliveryTable from "./DeliveryTable";
 
-const Sidebar = () => {
+const Sidebar = ({ activeSection, setActiveSection }) => {
+
+  const menuItems = [
+    { 
+      title: "Meu Perfil",
+      links: [
+        { label: "Ver Perfil", section: "verPerfil" },
+        { label: "Editar Perfil", section: "editarPerfil" },
+      ],
+    },
+    {
+      title: "Ordem de Entrega",
+      links: [
+        { label: "Ver Entregas", section: "verEntregas" },
+        { label: "Criar Ordem", section: "criarOrdem" },
+      ],
+    },
+    {
+      title: "Abastecimentos",
+      links: [
+        { label: "Ver Abastecimentos", section: "verAbastecimentos" },
+        { label: "Registrar Abastecimento", section: "registrarAbastecimento" },
+      ],
+    },
+    {
+      title: "Motoristas",
+      links: [
+        { label: "Ver Motoristas", section: "verMotoristas" },
+        { label: "Cadastrar Motorista", section: "cadastrarMotorista" },
+      ],
+    },
+    {
+      title: "Clientes",
+      links: [
+        { label: "Ver Clientes", section: "verClientes" },
+        { label: "Cadastrar Cliente", section: "cadastrarCliente" },
+      ],
+    },
+  ];
+
   return (
     <div className="sidebar">
-      <br />
-      <h5 class="text-muted title-font">Meu Perfil</h5>
-      <Link to="#" className='link-font'>Ver Perfil</Link>
-      <Link to="#" className='link-font'>Editar Perfil</Link>
-  
-      <div className='separator'></div>
-
-      <div className='sectionContainer'>
-        <h5 class="text-muted title-font">Ordem de Entrega</h5>
-        <Link to="#" className='link-font'>Ver Entregas</Link>
-        <Link to="#" className='link-font'>Criar Ordem</Link>
-      </div>
-
-      <div className='separator'></div>
-
-      <h5 class="text-muted title-font">Abastecimentos</h5>
-      <Link to="#" className='link-font'>Ver Abastecimentos</Link>
-      <Link to="#" className='link-font'>Registrar Abastecimento</Link>
-
-      <div className='separator'></div>
-    
-      <h5 class="text-muted title-font">Motoristas</h5>
-      <Link to="#" className='link-font'>Ver Motoristas</Link>
-      <Link to="#" className='link-font'>Cadastrar Motorista</Link>
-      
-      <div className='separator'></div>
-
-      <h5 class="text-muted title-font">Clientes</h5>
-      <Link to="#" className='link-font'>Ver Clientes</Link>
-      <Link to="#" className='link-font'>Cadastrar Cliente</Link>
-     
+      {menuItems.map((menu, index) => (
+        <div key={index} className="sectionContainer">
+          <h5 className="text-muted title-font">{menu.title}</h5>
+          {menu.links.map((link, linkIndex) => (
+            <Link
+              key={linkIndex}
+              to="#"
+              className={`link-font ${activeSection === link.section ? "active" : ""}`}
+              onClick={() => setActiveSection(link.section)}
+            >
+              {link.label}
+            </Link>
+          ))}
+          <div className="separator"></div>
+        </div>
+      ))}
     </div>
   );
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-  const buttons = document.querySelectorAll(".link-font");
+const Content = ({ activeSection }) => {
+  const renderContent = () => {
+    switch (activeSection) {
+      case "verPerfil":
+        return <h2>Exibindo o perfil...</h2>;
+      case "editarPerfil":
+        return <h2>Editando o perfil...</h2>;
+      case "verEntregas":
+        return <DeliveryTable />;
+      case "criarOrdem":
+        return <h2>Criando uma nova ordem...</h2>;
+      case "verAbastecimentos":
+        return <FuelingTable />;
+      case "registrarAbastecimento":
+        return <h2>Registrando um novo abastecimento...</h2>;
+      case "verMotoristas":
+        case "verMotoristas":
+        return <DriverTable />;
+      case "cadastrarMotorista":
+        return <h2>Cadastrando um motorista...</h2>;
+      case "verClientes":
+        return <ClientTable />;
+      case "cadastrarCliente":
+        return <h2>Cadastrando um cliente...</h2>;
+      default:
+        return <p>Selecione uma opção no menu para ver os detalhes.</p>;
+    }
+  };
 
-  buttons.forEach((button) => {
-    button.addEventListener("click", () => {
-      // Remove a classe "active" de todos os botões
-      buttons.forEach((btn) => btn.classList.remove("active"));
-      
-      // Adiciona a classe "active" apenas ao botão clicado
-      button.classList.add("active");
-    });
-  });
-});
-
-
-const Content = () => {
-  return (
-    <div className="content">
-      {/* Aqui virão as funcionalidades do dashboard */}
-      <h1>Bem-vindo ao FleetPlus</h1>
-      <p>Selecione uma opção no menu para ver os detalhes.</p>
-    </div>
-  );
+  return <div className="content">{renderContent()}</div>;
 };
 
 const Dashboard = () => {
+  const [activeSection, setActiveSection] = useState("");
+
   return (
-    <>
-      <section className="main">
-        <Sidebar />
-        <Content />
-      </section>
-    </>
+    <section className="main">
+      <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
+      <Content activeSection={activeSection} />
+    </section>
   );
 };
 
 export default Dashboard;
-
