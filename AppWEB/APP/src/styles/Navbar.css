@@ -1,0 +1,19 @@
+.navbar-brand {
+    font-weight: bold;
+    color: #ffffff !important; /* Cor branca para a marca */
+}
+
+.nav-link {
+    color: #ffffff !important; /* Cor branca para os links */
+    font-weight: 500; /* Peso da fonte */
+}
+
+.nav-link:hover {
+    color: #d1d1d1 !important; /* Cor mais clara ao passar o mouse */
+}
+
+.custom-bg {
+    background-color: #007bff !important; /* Azul padrão ou sua cor preferida */
+    width: 100%;
+    color: white; /* Texto branco */
+}
