@@ -2,6 +2,11 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Vehicle = sequelize.define('Vehicle', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+      },
     model: {
         type: DataTypes.STRING(100), // Limite de 100 caracteres
         allowNull: false
@@ -32,6 +37,10 @@ const Vehicle = sequelize.define('Vehicle', {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+            model: 'Users',
+            key: 'id',
+          },
       
     }
 });
