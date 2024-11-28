@@ -1,5 +1,7 @@
 import React from "react";
 import "../styles/Navbar.css";
+import { Link } from "react-router-dom";
+
 
 export const Navbar = () => {
   return (
@@ -15,10 +17,14 @@ export const Navbar = () => {
               <a className="nav-link active" aria-current="page" href="#">Home</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#">Sobre</a>
+              <Link className="nav-link" to="/about" >
+              Sobre
+              </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/AuthForm" style={{ marginRight: "30px" }}>Login</a>
+            <Link className="nav-link" to="/login" style={{ marginRight: "30px" }}>
+                Login
+            </Link>
             </li>
           </ul>
         </div>
