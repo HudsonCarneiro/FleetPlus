@@ -42,6 +42,14 @@ const Client = sequelize.define('Client', {
           },
       
     },
+    addressId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Addresses',
+          key: 'id',
+        },
+      },
 });
 
 Client.associate = (models) => {

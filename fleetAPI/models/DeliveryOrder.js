@@ -14,14 +14,27 @@ const DeliveryOrder = sequelize.define('DeliveryOrder', {
     clientId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+            model: 'Clients',
+            key: 'id',
+          },
     },
     driverId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+            model: 'Drivers',
+            key: 'id',
+          },
     },
     vehicleId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+            model: 'Vehicles',
+            key: 'id',
+          },
+        
     },
     userId: {
         type: DataTypes.INTEGER,
