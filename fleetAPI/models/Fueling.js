@@ -7,6 +7,28 @@ const Fueling = sequelize.define('Fueling', {
         autoIncrement: true,
         primaryKey: true,
       },
+    liters: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        validate: {
+            min: 0.01 // Garantir que a quantidade de litros seja positiva
+        }
+    },
+    price: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        validate: {
+            min: 0.01 // Garantir que o preço seja positivo
+        }
+    },
+    mileage: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false
+    },
+    dateFueling: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -30,29 +52,6 @@ const Fueling = sequelize.define('Fueling', {
             model: 'Vehicles',
             key: 'id',
           },
-   
-    },
-    liters: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false,
-        validate: {
-            min: 0.01 // Garantir que a quantidade de litros seja positiva
-        }
-    },
-    price: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false,
-        validate: {
-            min: 0.01 // Garantir que o preço seja positivo
-        }
-    },
-    mileage: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false
-    },
-    dateFueling: {
-        type: DataTypes.DATE,
-        allowNull: false
     }
 });
 

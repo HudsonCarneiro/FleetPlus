@@ -3,34 +3,34 @@ const sequelize = require('../config/database');
 
 const Client = sequelize.define('Client', {
     businessName: {
-        type: DataTypes.STRING(255), // Limite de 255 caracteres
+        type: DataTypes.STRING(255), 
         allowNull: false
     },
     companyName: {
-        type: DataTypes.STRING(255), // Limite de 255 caracteres
+        type: DataTypes.STRING(255), 
         allowNull: false
     },
     cnpj: {
-        type: DataTypes.STRING(14), // CNPJ tem 14 dígitos
+        type: DataTypes.STRING(14), 
         allowNull: false,
         validate: {
-            isNumeric: true, // Garante que só aceita números
-            len: [14, 14] // Exige exatamente 14 caracteres
+            isNumeric: true, 
+            len: [14, 14] 
         }
     },
     phone: {
-        type: DataTypes.STRING(15), // Limite para o telefone
+        type: DataTypes.STRING(15), 
         allowNull: true,
         validate: {
-            is: /^\(?\d{2}\)?[\s-]?[\s9]?\d{4}-?\d{4}$/ // Validação para telefone brasileiro
+            is: /^\(?\d{2}\)?[\s-]?[\s9]?\d{4}-?\d{4}$/ 
         }
     },
     email: {
-        type: DataTypes.STRING(100), // Limite de 100 caracteres para o email
+        type: DataTypes.STRING(100), 
         unique: true,
         allowNull: false,
         validate: {
-            isEmail: true // Garante que o valor é um email válido
+            isEmail: true 
         }
     },
     userId: {

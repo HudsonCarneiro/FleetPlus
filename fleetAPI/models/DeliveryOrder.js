@@ -2,14 +2,14 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const DeliveryOrder = sequelize.define('DeliveryOrder', {
+    deliveryDate: {
+        type: DataTypes.DATE, 
+        allowNull: true,
+    },
     status: {
         type: DataTypes.ENUM('aguardando', 'enviado', 'finalizado'), 
         allowNull: false,
         defaultValue: 'aguardando'
-    },
-    deliveryDate: {
-        type: DataTypes.DATE, // Data da entrega
-        allowNull: true,
     },
     clientId: {
         type: DataTypes.INTEGER,
