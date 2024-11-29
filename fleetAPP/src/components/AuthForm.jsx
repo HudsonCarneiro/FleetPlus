@@ -1,39 +1,42 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { handleLogin } from "../controller/AuthController"; // Importando o método do controller
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { handleLogin } from "../controller/AuthController"; 
 import "../styles/Form.css";
 
 const AuthForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [message, setMessage] = useState(location.state?.message || "");
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  // Atualiza o estado com os dados inseridos pelo usuário
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
-  // Processa o envio do formulário
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage(""); // Limpa mensagens anteriores
     try {
-      const success = await handleLogin(formData, navigate); // Chama o handleLogin do controller
+      const success = await handleLogin(formData, navigate);
       if (success) {
         console.log("Login realizado com sucesso!");
       } else {
-        alert("Credenciais inválidas.");
+        setMessage("Credenciais inválidas.");
       }
     } catch (error) {
       console.error("Erro ao realizar login:", error);
-      alert("Erro ao realizar login. Tente novamente.");
+      setMessage("Erro ao conectar ao servidor. Tente novamente mais tarde.");
     }
   };
 
   return (
     <div className="container form-container mt-5 pt-5">
+      {message && <p className="alert alert-warning">{message}</p>}
       <div className="card p-4">
         <div className="card-body">
           <h3 className="text-center">Entrar</h3>

@@ -1,6 +1,6 @@
 export const loginUser = async (formData) => {
   try {
-    const response = await fetch("http://localhost:3000/api/user/login", {
+    const response = await fetch("http://localhost:3000/user/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -8,16 +8,20 @@ export const loginUser = async (formData) => {
       body: JSON.stringify(formData),
     });
 
-    if (response.ok) {
-      const data = await response.json();
-      return data; // Retorna os dados em caso de sucesso
+    if (!response.ok) {
+      const errorDetails = await response.json();
+      throw new Error(errorDetails.message || "Erro ao autenticar.");
+    }
+
+    const data = await response.json();
+
+    if (data && data.token && data.userId) {
+      return data;
     } else {
-      alert("Erro ao autenticar. Verifique suas credenciais.");
-      return null; // Retorna null em caso de erro
+      throw new Error("Resposta inesperada do servidor.");
     }
   } catch (error) {
-    console.error("Erro no login:", error);
-    alert("Erro ao realizar login. Tente novamente mais tarde.");
-    return null; // Retorna null em caso de erro
+    console.error("Erro no login:", error.message);
+    throw error; // Repropaga o erro para o controller lidar
   }
 };
