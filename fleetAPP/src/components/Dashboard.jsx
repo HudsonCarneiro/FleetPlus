@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
 import DriverTable from "./DriverTable";
 import ClientTable from "./ClientTable";
 import FuelingTable from "./FuelingTable";
 import DeliveryTable from "./DeliveryTable";
 import { Sidebar } from "./Sidebar";
+import { fetchDashboardData } from "../controllers/DashboardController";
 
 const SECTIONS = {
   VIEW_PROFILE: "verPerfil",
@@ -52,11 +54,30 @@ const Content = ({ activeSection }) => {
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("");
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  // UseEffect para carregar os dados do dashboard
+  useEffect(() => {
+    fetchDashboardData(setUserData, setLoading, navigate);
+  }, [navigate]);
+
+  if (loading) {
+    return <p>Carregando...</p>;
+  }
+
+  if (!userData) {
+    return <p>Erro ao carregar os dados do usuário.</p>;
+  }
 
   return (
     <section className="main">
       <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
       <Content activeSection={activeSection} />
+      <footer>
+        <p>Bem-vindo ao Dashboard, {userData.name}!</p>
+      </footer>
     </section>
   );
 };
