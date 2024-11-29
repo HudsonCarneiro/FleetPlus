@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { handleLogin } from '../controller/AuthController'; // Importando o controller
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { handleLogin } from "../controller/AuthController"; // Importando o método do controller
 import "../styles/Form.css";
 
 const AuthForm = () => {
-  const navigate = useNavigate(); // Hook para navegação
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   // Atualiza o estado com os dados inseridos pelo usuário
@@ -22,13 +22,13 @@ const AuthForm = () => {
     try {
       const success = await handleLogin(formData, navigate); // Chama o handleLogin do controller
       if (success) {
-        console.log('Login realizado com sucesso!');
+        console.log("Login realizado com sucesso!");
       } else {
-        alert('Credenciais inválidas.');
+        alert("Credenciais inválidas.");
       }
     } catch (error) {
-      console.error('Erro ao realizar login:', error);
-      alert('Erro ao realizar login. Tente novamente.');
+      console.error("Erro ao realizar login:", error);
+      alert("Erro ao realizar login. Tente novamente.");
     }
   };
 
@@ -62,10 +62,12 @@ const AuthForm = () => {
                 required
               />
             </div>
-            <button type="submit" className="btn btn-primary w-100">Enviar</button>
+            <button type="submit" className="btn btn-primary w-100">
+              Enviar
+            </button>
             <p className="mb-3">
-              Não tem uma conta?{' '}
-              <Link to="/register" style={{ color: '#0d6efd', fontSize: '12px' }}>
+              Não tem uma conta?{" "}
+              <Link to="/register" style={{ color: "#0d6efd", fontSize: "12px" }}>
                 Cadastre-se
               </Link>
             </p>

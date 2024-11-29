@@ -1,39 +1,61 @@
-/*require('dotenv').config();
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+require('dotenv').config();
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+
+const JWT_SECRET = process.env.JWT_SECRET || 's3cR3t@123456789!minha-chave-segura-para-jwt';
+const JWT_EXPIRES_IN = '1h'; 
+
+// Função para validar senha
+async function validatePassword(password, hashedPassword, salt) {
+    const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+    return hash === hashedPassword;
+}
 
 exports.login = async (req, res) => {
     try {
-        const { email, password } = req.body;
-
-        // Verifica se o usuário existe
-        const user = await User.findOne({ where: { email } });
-        if (!user) {
-            return res.status(400).json({ error: 'Credenciais inválidas.' });
-        }
-
-        // Verifica se a senha está correta
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (isPasswordValid) {
-            res.status(200).json({
-                statusCode: 200,
-                message: "Login realizado com sucesso",
-            });
-           // return res.status(400).json({ error: 'Credenciais inválidas.' });
-        }
-
-        // Gera o token de autenticação
-        /*const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        
-
-        res.status(200).json({
-            statusCode: 200,
-            message: "Login realizado com sucesso",
-        });
+      const { email, password } = req.body;
+  
+      if (!email || !password) {
+        return res.status(400).json({ success: false, message: 'Email e senha são obrigatórios.' });
+      }
+  
+      // Procurar o usuário pelo email
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'Usuário não encontrado.' });
+      }
+  
+      // Validar a senha
+      const isValid = await validatePassword(password, user.password, user.salt);
+      if (!isValid) {
+        return res.status(401).json({ success: false, message: 'Senha incorreta.' });
+      }
+  
+      // Dados para incluir no token
+      const payload = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      };
+  
+      // Gerar o token
+      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  
+      // Excluir informações sensíveis do usuário antes de retornar
+      const { password: _, salt: __, ...userData } = user.toJSON();
+  
+      res.status(200).json({
+        success: true,
+        message: 'Login bem-sucedido!',
+        token, // Retornando o token gerado
+        user: userData,
+      });
     } catch (error) {
-        console.error('Erro no login:', error);
-        res.status(500).json({ error: 'Erro no servidor.' });
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao realizar login.',
+        details: error.message,
+      });
     }
-};
-*/
+  };

@@ -1,27 +1,19 @@
-import { saveAuthData } from '../utils/AuthUtils'; // Função para salvar os dados de autenticação
+import { loginUser } from "../services/AuthServices"; 
 
-export const handleLogin = async (formData, navigate) => {
+export const handleUserLogin = async (formData, navigate) => {
   try {
-    const response = await fetch('http://localhost:3000/api/user/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      saveAuthData(data.token, data.userId); // Armazena o token e ID do usuário
-      navigate('/dashboard'); // Redireciona para o dashboard
-      return true; // Retorna true para indicar que o login foi bem-sucedido
+    const response = await loginUser(formData); 
+    if (response) {
+      const { token, userId } = response; 
+      localStorage.setItem("token", token);
+      localStorage.setItem("userId", userId);
+      navigate("/dashboard"); 
+      return true; 
     } else {
-      alert('Erro ao autenticar. Verifique suas credenciais.');
-      return false; // Retorna false se o login falhar
+      return false; 
     }
   } catch (error) {
-    console.error('Erro no login:', error);
-    alert('Erro ao realizar login. Tente novamente mais tarde.');
-    return false; // Retorna false em caso de erro
+    console.error("Erro no login:", error);
+    return false; 
   }
 };

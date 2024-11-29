@@ -1,10 +1,12 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React from "react";
+import { Navigate } from "react-router-dom";
 
 const PrivateRoute = ({ children }) => {
-  const isAuthenticated = localStorage.getItem('token'); // Exemplo de verificação de token
-  
-  if (!isAuthenticated) {
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
+
+  // Verifica se o token e o ID do usuário existem
+  if (!token || !userId) {
     return <Navigate to="/login" replace />;
   }
 
