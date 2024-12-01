@@ -1,15 +1,22 @@
+html, body {
+    height: 100%; /* Garantir que o HTML e o body ocupem toda a altura da tela */
+    margin: 0; /* Remover margens padrão */
+    overflow: auto; /* Permitir rolagem */
+}
 .background {
     background-color: #002958;
-    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 100vh; /* Garantir que a altura seja ao menos igual à altura da viewport */
+    box-sizing: border-box; /* Incluir padding no cálculo da altura */
 }
 
 /* Estilo do container do formulário */
 .form-container {
     width: 100% !important; 
-    max-width: 800px !important; 
+    max-width: 800px !important;
+    height: auto;
     margin: auto;
     padding: 20px;
 }
