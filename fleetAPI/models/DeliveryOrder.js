@@ -11,6 +11,11 @@ const DeliveryOrder = sequelize.define('DeliveryOrder', {
         allowNull: false,
         defaultValue: 'aguardando'
     },
+    urgency: {
+        type: DataTypes.ENUM('verde', 'amarela', 'vermelha'), 
+        allowNull: false,
+        defaultValue: 'verde'
+    },
     clientId: {
         type: DataTypes.INTEGER,
         allowNull: false,

@@ -7,12 +7,17 @@ const Vehicle = sequelize.define('Vehicle', {
         autoIncrement: true,
         primaryKey: true,
       },
+    plate: {
+        type: DataTypes.STRING(7), 
+        allowNull: false,
+        unique: true,
+    },
     model: {
-        type: DataTypes.STRING(100), // Limite de 100 caracteres
+        type: DataTypes.STRING(100),
         allowNull: false
     },
     automaker: {
-        type: DataTypes.STRING(100), // Limite de 100 caracteres
+        type: DataTypes.STRING(100), 
         allowNull: true
     },
     year: {
@@ -24,7 +29,7 @@ const Vehicle = sequelize.define('Vehicle', {
         }
     },
     fuelType: {
-        type: DataTypes.STRING(50), // Limite de 50 caracteres
+        type: DataTypes.STRING(50), 
         allowNull: true,
     },
     mileage: {

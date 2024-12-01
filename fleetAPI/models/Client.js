@@ -13,6 +13,7 @@ const Client = sequelize.define('Client', {
     cnpj: {
         type: DataTypes.STRING(14), 
         allowNull: false,
+        unique: true,
         validate: {
             isNumeric: true, 
             len: [14, 14] 
@@ -21,9 +22,6 @@ const Client = sequelize.define('Client', {
     phone: {
         type: DataTypes.STRING(15), 
         allowNull: true,
-        validate: {
-            is: /^\(?\d{2}\)?[\s-]?[\s9]?\d{4}-?\d{4}$/ 
-        }
     },
     email: {
         type: DataTypes.STRING(100), 

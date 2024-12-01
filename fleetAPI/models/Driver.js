@@ -14,6 +14,7 @@ const Driver = sequelize.define('Driver', {
     cnh: {
         type: DataTypes.STRING(25), 
         allowNull: false,
+        unique: true,
         validate: {
             isNumeric: true, 
             len: [11, 11] 
