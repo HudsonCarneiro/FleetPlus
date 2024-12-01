@@ -6,7 +6,7 @@ import ClientTable from "./ClientTable";
 import FuelingTable from "./FuelingTable";
 import DeliveryTable from "./DeliveryTable";
 import { Sidebar } from "./Sidebar";
-import { fetchDashboardData } from "../controllers/DashboardController";
+import { fetchDashboardData } from "../controller/DashboardController.js";
 
 const SECTIONS = {
   VIEW_PROFILE: "verPerfil",

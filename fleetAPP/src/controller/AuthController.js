@@ -3,25 +3,27 @@ import { loginUser } from "../services/AuthServices";
 export const handleLogin = async (formData, navigate) => {
   try {
     const response = await loginUser(formData);
-    if (response && response.token && response.userId) {
-      const { token, userId } = response;
-      localStorage.setItem("token", token);
-      localStorage.setItem("userId", userId);
 
-      if (localStorage.getItem("token") === token && localStorage.getItem("userId") === userId) {
-        navigate("/dashboard"); // Redireciona apenas após confirmação
-        return true;
-      } else {
-        throw new Error("Falha ao salvar informações de autenticação.");
-      }
+    const { token, user, expiresIn } = response;
 
+    // Salva o token e os dados do usuário no localStorage
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("expiresAt", Date.now() + expiresIn * 1000); // Expira em milissegundos
+
+    // Verifica se as informações foram salvas corretamente
+    const savedToken = localStorage.getItem("token");
+    const savedUser = localStorage.getItem("user");
+    const savedExpiresAt = localStorage.getItem("expiresAt");
+
+    if (savedToken === token && savedUser && savedExpiresAt) {
+      navigate("/dashboard"); // Redireciona após sucesso
+      return true;
     } else {
-      console.error("Resposta inválida do servidor:", response);
-      return false;
+      throw new Error("Falha ao salvar informações de autenticação.");
     }
   } catch (error) {
-    console.error("Erro no login:", error.message);
+    console.error("Erro ao realizar login:", error.message);
     return false;
   }
 };
-
