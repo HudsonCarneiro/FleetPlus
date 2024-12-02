@@ -16,7 +16,7 @@ export const loginUser = async (formData) => {
 
     // Validação da resposta JSON
     const data = await response.json();
-    if (!data.success || !data.token || !data.user) {
+    if (!data.success || !data.token || !data.userId) {
       throw new Error("Resposta da API malformada ou incompleta.");
     }
 

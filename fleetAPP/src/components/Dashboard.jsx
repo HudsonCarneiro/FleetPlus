@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
-import UserProfile from "./UserProfile.jsx";
+import UserProfile from "./UserProfile";
+import UserModal from "./UserModal.jsx";
 import DriverTable from "./DriverTable";
 import ClientTable from "./ClientTable";
 import FuelingTable from "./FuelingTable";
@@ -22,14 +23,14 @@ const SECTIONS = {
   ADD_CLIENT: "cadastrarCliente",
 };
 
-const Content = ({ activeSection }) => {
+const Content = ({ activeSection, userData, openModal }) => {
   const renderContent = () => {
     switch (activeSection) {
-      
       case SECTIONS.VIEW_PROFILE:
-        return <UserProfile/>;
+        return <UserProfile userData={userData} />;
       case SECTIONS.EDIT_PROFILE:
-        return <h2>Editando o perfil...</h2>;
+        // Chamamos diretamente a função para abrir o modal
+        return openModal();
       case SECTIONS.VIEW_DELIVERIES:
         return <DeliveryTable />;
       case SECTIONS.CREATE_ORDER:
@@ -47,7 +48,12 @@ const Content = ({ activeSection }) => {
       case SECTIONS.ADD_CLIENT:
         return <h2>Cadastrando um cliente...</h2>;
       default:
-        return <p>Selecione uma opção no menu para ver os detalhes.</p>;
+        return (
+          <p>
+            Bem-vindo ao Painel de Controle, {userData?.name || "usuário"}! <br />
+            Selecione uma opção no menu para ver os detalhes.
+          </p>
+        );
     }
   };
 
@@ -56,14 +62,17 @@ const Content = ({ activeSection }) => {
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar o modal
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // UseEffect para carregar os dados do dashboard
   useEffect(() => {
     fetchDashboardData(setUserData, setLoading, navigate);
   }, [navigate]);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   if (loading) {
     return <p>Carregando...</p>;
@@ -76,10 +85,13 @@ const Dashboard = () => {
   return (
     <section className="main">
       <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
-      <Content activeSection={activeSection} />
-      <footer>
-        <p>Bem-vindo ao Dashboard, {userData.name}!</p>
-      </footer>
+      <Content activeSection={activeSection} userData={userData} openModal={openModal} />
+      {isModalOpen && (
+        <UserModal
+          userData={userData}
+          closeModal={closeModal}
+        />
+      )}
     </section>
   );
 };

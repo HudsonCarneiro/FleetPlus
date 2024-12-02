@@ -8,7 +8,21 @@ async function hashPassword(password) {
   const hashedPassword = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
   return { salt, hashedPassword };
 }
-
+exports.getUserById = async (req, res) => {
+  try {
+      const user = await User.findByPk(req.params.id);
+      if (user) {
+          res.json(user);
+      } else {
+          res.status(404).json({ error: 'Usuário não encontrado.' });
+      }
+  } catch (error) {
+      res.status(500).json({
+          error: 'Erro ao buscar usuário',
+          details: error.message 
+      });
+  }
+};
 
 // Criar usuário
 exports.createUser = async (req, res) => {

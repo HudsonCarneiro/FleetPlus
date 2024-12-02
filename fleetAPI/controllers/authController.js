@@ -50,7 +50,7 @@ exports.login = async (req, res) => {
         message: 'Login bem-sucedido!',
         token,
         expiresIn: JWT_EXPIRES_IN, // Tempo de expiração do token
-        user: userData,
+        userId: user.id,
       });
     } catch (error) {
       res.status(500).json({

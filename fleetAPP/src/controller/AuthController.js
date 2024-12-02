@@ -4,11 +4,11 @@ export const handleLogin = async (formData, navigate) => {
   try {
     const response = await loginUser(formData);
 
-    const { token, user, expiresIn } = response;
+    const { token, userId, expiresIn } = response;
 
     // Salva o token e os dados do usuário no localStorage
     localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("userId", JSON.stringify(userId));
     localStorage.setItem("expiresAt", Date.now() + expiresIn * 1000); // Expira em milissegundos
 
     // Verifica se as informações foram salvas corretamente
