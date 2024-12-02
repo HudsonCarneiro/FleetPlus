@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
+import UserProfile from "./UserProfile.jsx";
 import DriverTable from "./DriverTable";
 import ClientTable from "./ClientTable";
 import FuelingTable from "./FuelingTable";
@@ -24,8 +25,9 @@ const SECTIONS = {
 const Content = ({ activeSection }) => {
   const renderContent = () => {
     switch (activeSection) {
+      
       case SECTIONS.VIEW_PROFILE:
-        return <h2>Exibindo o perfil...</h2>;
+        return <UserProfile/>;
       case SECTIONS.EDIT_PROFILE:
         return <h2>Editando o perfil...</h2>;
       case SECTIONS.VIEW_DELIVERIES:
