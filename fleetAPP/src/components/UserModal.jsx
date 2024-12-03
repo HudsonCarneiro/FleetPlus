@@ -38,21 +38,32 @@ const UserModal = ({ userData, onClose, onUpdateSuccess, onDeleteSuccess }) => {
   };
 
   const handleDelete = async () => {
+    // Valida se o endereço está presente
+    console.log('endereco: ' ,userData.addressId)
+    if (!userData.addressId) {
+      alert("Endereço do usuário não encontrado. Não é possível deletar.");
+      return;
+    }
+  
+    // Confirma a ação do usuário
     if (window.confirm("Tem certeza de que deseja excluir este usuário?")) {
       try {
+        // Chama o controller para deletar
         const isDeleted = await handleUserDeletion(userData.id, userData.addressId);
         if (isDeleted) {
           console.log("Usuário excluído com sucesso!");
-          onDeleteSuccess?.(); // Callback para atualizar a lista de usuários
-          onClose();
+          onDeleteSuccess?.(); // Atualiza a lista de usuários no componente pai
+          onClose(); // Fecha o modal
+        } else {
+          alert("Erro ao excluir o usuário. Por favor, tente novamente.");
         }
       } catch (error) {
         console.error("Erro ao excluir o usuário:", error);
-        alert("Erro ao excluir o usuário. Tente novamente.");
+        alert("Erro ao excluir o usuário. Verifique os dados e tente novamente.");
       }
     }
   };
-
+  
   return (
     <div className="modal-overlay">
       <div className="modal-content">

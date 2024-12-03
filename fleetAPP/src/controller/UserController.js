@@ -103,7 +103,10 @@ export const handleUserUpdate = async (id, formData) => {
 export const handleUserDeletion = async (userId, addressId, navigate) => {
   try {
     // Exclui o usuário
-    await UserServices.deleteUser(userId);
+    if (addressId != null) {
+      await UserServices.deleteUser(userId);
+    }
+    console.log(addressId);
 
     // Exclui o endereço associado
     await AddressServices.deleteAddress(addressId);
@@ -112,9 +115,9 @@ export const handleUserDeletion = async (userId, addressId, navigate) => {
 
     // Chama a função de logout e redireciona para o login
     handleLogout(navigate);
-
   } catch (error) {
     console.error('Erro ao excluir o usuário e endereço:', error);
     return false; // Retorna falso em caso de erro
   }
 };
+

@@ -14,18 +14,21 @@ export const loginUser = async (formData) => {
       throw new Error(errorDetails.message || "Erro ao autenticar.");
     }
 
-    // Validação da resposta JSON
+    // Processar e validar a resposta JSON
     const data = await response.json();
-    if (!data.success || !data.token || !data.user ) {
+    if (!data.success || !data.token || !data.user) {
       throw new Error("Resposta da API malformada ou incompleta.");
     }
 
-    // Retorna os dados esperados
+    // Preparar os dados para uso no frontend
+    const { id, name, email, addressId } = data.user; // Extrair os dados necessários
     return {
       token: data.token,
-      userId: data.user.id,  // Acesso correto ao ID do usuário
-      userData: data.user,  // Garantir que o userData seja retornado
-      expiresIn: data.expiresIn, // A expiração do token, caso seja parte da resposta
+      userId: id, // ID do usuário
+      userName: name, // Nome do usuário
+      userEmail: email, // Email do usuário
+      addressId, // ID do endereço associado
+      expiresIn: data.expiresIn, // Tempo de expiração do token
     };
   } catch (error) {
     console.error("Erro no serviço de login:", error.message);

@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
 const JWT_SECRET = process.env.JWT_SECRET || 's3cR3t@123456789!minha-chave-segura-para-jwt';
-const JWT_EXPIRES_IN = '1h'; 
+const JWT_EXPIRES_IN = '1h';
 
 // Função para validar senha
 async function validatePassword(password, hashedPassword, salt) {
@@ -23,6 +23,7 @@ exports.login = async (req, res) => {
 
         // Procurar o usuário pelo email
         const user = await User.findOne({ where: { email } });
+
         if (!user) {
             return res.status(404).json({ success: false, message: 'Usuário não encontrado.' });
         }
@@ -33,15 +34,19 @@ exports.login = async (req, res) => {
             return res.status(401).json({ success: false, message: 'Senha incorreta.' });
         }
 
-        // Buscar o endereço do usuário
-        const address = await Address.findOne({ where: { userId: user.id } });  // Supondo que o usuário tenha um endereço associado
+        // Buscar o endereço associado
+        const address = await Address.findOne({ where: { id: user.addressId } });
+
+        if (!address) {
+            return res.status(500).json({ success: false, message: 'Endereço não encontrado.' });
+        }
 
         // Dados para incluir no token
         const payload = {
             id: user.id,
             email: user.email,
             name: user.name,
-            addressId: address ? address.id : null,  // Incluir o ID do endereço no payload
+            addressId: user.addressId,
         };
 
         // Gerar o token
@@ -56,7 +61,10 @@ exports.login = async (req, res) => {
             message: 'Login bem-sucedido!',
             token,
             expiresIn: JWT_EXPIRES_IN, // Tempo de expiração do token
-            user: userData,
+            user: {
+                ...userData,
+                addressId: address.id, // Inclui o ID do endereço
+            },
         });
     } catch (error) {
         res.status(500).json({

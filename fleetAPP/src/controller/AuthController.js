@@ -4,19 +4,27 @@ export const handleLogin = async (formData, navigate) => {
   try {
     const response = await loginUser(formData);
 
-    const { token, userData, expiresIn, addressId } = response;
+    const { token, userId, userName, userEmail, addressId, expiresIn } = response;
 
-    // Salva o token, os dados do usuário e o ID do endereço no localStorage
+    // Cria um objeto para armazenar os dados do usuário no localStorage
+    const userData = {
+      id: userId,
+      name: userName,
+      email: userEmail,
+      addressId,
+    };
+
+    // Salva os dados no localStorage
     localStorage.setItem("token", token);
     localStorage.setItem("userData", JSON.stringify(userData));
-    localStorage.setItem("expiresAt", Date.now() + expiresIn * 1000); // Expira em milissegundos
+    localStorage.setItem("expiresAt", Date.now() + expiresIn * 1000); // Expiração em milissegundos
 
     // Verifica se as informações foram salvas corretamente
     const savedToken = localStorage.getItem("token");
-    const savedUser = localStorage.getItem("userData");
+    const savedUserData = localStorage.getItem("userData");
     const savedExpiresAt = localStorage.getItem("expiresAt");
 
-    if (savedToken === token && savedUser && savedExpiresAt) {
+    if (savedToken === token && savedUserData && savedExpiresAt) {
       navigate("/dashboard"); // Redireciona após sucesso
       return true;
     } else {
@@ -27,13 +35,13 @@ export const handleLogin = async (formData, navigate) => {
     return false;
   }
 };
+
 export const handleLogout = (navigate) => {
   try {
     // Remove os dados do usuário e o token do localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("userData");
     localStorage.removeItem("expiresAt");
-    localStorage.removeItem("addressId");  // Remover também o ID do endereço, se armazenado
 
     // Redireciona para a página de login
     navigate("/login");
