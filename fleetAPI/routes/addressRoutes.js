@@ -9,4 +9,6 @@ router.post('/address', addressController.createAddress);
 
 router.put('/address/:id', addressController.updateAddress);
 
+router.delete('/address/:id', addressController.deleteAddress);
+
 module.exports = router;

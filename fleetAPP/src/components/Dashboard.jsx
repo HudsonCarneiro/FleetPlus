@@ -23,14 +23,14 @@ const SECTIONS = {
   ADD_CLIENT: "cadastrarCliente",
 };
 
-const Content = ({ activeSection, userData, openModal }) => {
+const Content = ({ activeSection, userData, setActiveSection }) => {
   const renderContent = () => {
     switch (activeSection) {
       case SECTIONS.VIEW_PROFILE:
         return <UserProfile userData={userData} />;
       case SECTIONS.EDIT_PROFILE:
-        // Chamamos diretamente a função para abrir o modal
-        return openModal();
+        // Direciona o controle ao Dashboard
+        return null; // Não renderizamos nada diretamente aqui
       case SECTIONS.VIEW_DELIVERIES:
         return <DeliveryTable />;
       case SECTIONS.CREATE_ORDER:
@@ -62,7 +62,7 @@ const Content = ({ activeSection, userData, openModal }) => {
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar o modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -71,8 +71,14 @@ const Dashboard = () => {
     fetchDashboardData(setUserData, setLoading, navigate);
   }, [navigate]);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  useEffect(() => {
+    // Abrir o modal quando a seção ativa for "EDIT_PROFILE"
+    if (activeSection === SECTIONS.EDIT_PROFILE) {
+      setIsModalOpen(true);
+    } else {
+      setIsModalOpen(false);
+    }
+  }, [activeSection]);
 
   if (loading) {
     return <p>Carregando...</p>;
@@ -85,15 +91,16 @@ const Dashboard = () => {
   return (
     <section className="main">
       <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
-      <Content activeSection={activeSection} userData={userData} openModal={openModal} />
+      <Content activeSection={activeSection} userData={userData} setActiveSection={setActiveSection} />
       {isModalOpen && (
         <UserModal
           userData={userData}
-          closeModal={closeModal}
+          onClose={() => setActiveSection("")} // Fecha o modal e redefine a seção ativa
         />
       )}
     </section>
   );
 };
+
 
 export default Dashboard;

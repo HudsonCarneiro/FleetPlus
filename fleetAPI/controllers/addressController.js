@@ -37,4 +37,18 @@ exports.updateAddress = async (req, res)=>{
         res.status(500).json({error: 'Error ao atualizar endereço'})
     }
 }
-
+exports.deleteAddress = async (req, res) => {
+    try {
+      const address = await Address.findByPk(req.params.id);
+      if (address) {
+        await address.destroy();
+        res.status(204).send();
+      } else {
+        res.status(404).json({ error: 'Endereço não encontrado' });
+      }
+    } catch (error) {
+      res.status(500).json({ error: 'Erro ao deletar endereço', details: error.message });
+    }
+  };
+  
+  

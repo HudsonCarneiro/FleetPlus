@@ -16,14 +16,19 @@ export const loginUser = async (formData) => {
 
     // Validação da resposta JSON
     const data = await response.json();
-    if (!data.success || !data.token || !data.userId) {
+    if (!data.success || !data.token || !data.user ) {
       throw new Error("Resposta da API malformada ou incompleta.");
     }
 
-    return data;
+    // Retorna os dados esperados
+    return {
+      token: data.token,
+      userId: data.user.id,  // Acesso correto ao ID do usuário
+      userData: data.user,  // Garantir que o userData seja retornado
+      expiresIn: data.expiresIn, // A expiração do token, caso seja parte da resposta
+    };
   } catch (error) {
     console.error("Erro no serviço de login:", error.message);
     throw error; // Repropaga o erro para ser tratado na chamada
   }
 };
-

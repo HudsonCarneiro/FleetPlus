@@ -1,5 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); 
+const sequelize = require('../config/database');
+const User = require('./User'); // Importando o modelo User
+
 const Address = sequelize.define('Address', {
     id: {
         type: DataTypes.INTEGER,
@@ -30,6 +32,12 @@ const Address = sequelize.define('Address', {
         type: DataTypes.STRING(100), 
         allowNull: false
     },
+});
+
+// Relacionamento: Address pertence a User
+Address.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user',
 });
 
 module.exports = Address;
