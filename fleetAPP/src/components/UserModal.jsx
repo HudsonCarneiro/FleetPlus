@@ -1,108 +1,59 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import "../styles/Modal.css";
-import { handleUserUpdate, handleUserDeletion, handleFetchUserById } from "../controller/UserController";
-import { handleFetchAddressById } from "../controller/AddressController";
+import { handleUserUpdate, handleUserDeletion, handleFetchUserById } from '../controller/UserController';
 
-const UserModal = ({ userData, onClose, onUpdateSuccess, onDeleteSuccess }) => {
+const UserModal = ({ userId, onClose }) => {
   const [formData, setFormData] = useState({
-    name: userData.name || "",
-    cpf: userData.cpf || "",
-    phone: userData.phone || "",
-    email: userData.email || "",
-    password: "",
-    cep: "",
-    number: "",
-    road: "",
-    complement: "",
-    city: "",
-    state: "",
+    name: '',
+    cpf: '',
+    phone: '',
+    cep: '',
+    number: '',
+    road: '',
+    complement: '',
+    city: '',
+    state: '',
+    email: '',
+    password: '',
   });
-
-  const [loadingAddress, setLoadingAddress] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
-      try {
-        const freshUserData = await handleFetchUserById(userData.id);
-        if (freshUserData) {
-          setFormData((prev) => ({
-            ...prev,
-            ...freshUserData,
-          }));
-        }
-      } catch (error) {
-        console.error("Erro ao buscar dados do usuário:", error);
-      }
-    };
-
-    const fetchAddress = async () => {
-      if (userData.addressId) {
-        setLoadingAddress(true);
-        try {
-          const address = await handleFetchAddressById(userData.addressId);
-          if (address) {
-            setFormData((prev) => ({
-              ...prev,
-              cep: address.cep || "",
-              number: address.number || "",
-              road: address.road || "",
-              complement: address.complement || "",
-              city: address.city || "",
-              state: address.state || "",
-            }));
-          }
-        } catch (error) {
-          console.error("Erro ao buscar endereço:", error);
-          alert("Erro ao carregar o endereço do usuário.");
-        } finally {
-          setLoadingAddress(false);
-        }
+      const user = await handleFetchUserById(userId);
+      if (user) {
+        setFormData(user);
+      } else {
+        console.error('Erro ao buscar os dados do usuário.');
       }
     };
 
     fetchUserData();
-    fetchAddress();
-  }, [userData.id, userData.addressId]);
+  }, [userId]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
-  const handleSave = async () => {
-    try {
-      const updatedUser = await handleUserUpdate(userData.id, formData);
-      if (updatedUser) {
-        console.log("Usuário atualizado com sucesso!");
-        localStorage.setItem("userData", JSON.stringify(updatedUser)); // Atualiza os dados no localStorage
-        onUpdateSuccess?.(); // Callback para atualizar a lista de usuários
-        onClose();
-      }
-    } catch (error) {
-      console.error("Erro ao atualizar o usuário:", error);
-      alert("Erro ao salvar as alterações. Tente novamente.");
+  const handleUpdate = async () => {
+    const updatedUser = await handleUserUpdate(userId, formData);
+    if (updatedUser) {
+      console.log('Usuário atualizado com sucesso');
+      onClose();
+    } else {
+      console.error('Erro ao atualizar o usuário');
     }
   };
 
   const handleDelete = async () => {
-    if (!userData.addressId) {
-      alert("Endereço do usuário não encontrado. Não é possível deletar.");
-      return;
-    }
-
-    if (window.confirm("Tem certeza de que deseja excluir este usuário?")) {
-      try {
-        const isDeleted = await handleUserDeletion(userData.id, userData.addressId);
-        if (isDeleted) {
-          console.log("Usuário excluído com sucesso!");
-          onDeleteSuccess?.();
-          onClose();
-        } else {
-          alert("Erro ao excluir o usuário. Por favor, tente novamente.");
-        }
-      } catch (error) {
-        console.error("Erro ao excluir o usuário:", error);
-        alert("Erro ao excluir o usuário. Verifique os dados e tente novamente.");
+    const confirmDeletion = window.confirm('Tem certeza que deseja excluir este usuário?');
+    if (confirmDeletion) {
+      const deleted = await handleUserDeletion(userId, formData.addressId);
+      if (deleted) {
+        console.log('Usuário excluído com sucesso');
+        onClose();
+      } else {
+        console.error('Erro ao excluir o usuário');
       }
     }
   };
@@ -110,138 +61,46 @@ const UserModal = ({ userData, onClose, onUpdateSuccess, onDeleteSuccess }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h3>Editar Usuário</h3>
-        {loadingAddress ? (
-          <p>Carregando endereço...</p>
-        ) : (
-          <form>
-            {/* Dados Pessoais */}
-            <div className="mb-3">
-              <label className="form-label">Nome</label>
-              <input
-                type="text"
-                name="name"
-                className="form-control"
-                value={formData.name}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">CPF</label>
-              <input
-                type="text"
-                name="cpf"
-                className="form-control"
-                value={formData.cpf}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Telefone</label>
-              <input
-                type="text"
-                name="phone"
-                className="form-control"
-                value={formData.phone}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">CEP</label>
-              <input
-                type="text"
-                name="cep"
-                className="form-control"
-                value={formData.cep}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Número</label>
-              <input
-                type="text"
-                name="number"
-                className="form-control"
-                value={formData.number}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Rua</label>
-              <input
-                type="text"
-                name="road"
-                className="form-control"
-                value={formData.road}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Complemento</label>
-              <input
-                type="text"
-                name="complement"
-                className="form-control"
-                value={formData.complement}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Cidade</label>
-              <input
-                type="text"
-                name="city"
-                className="form-control"
-                value={formData.city}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Estado</label>
-              <input
-                type="text"
-                name="state"
-                className="form-control"
-                value={formData.state}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">E-mail</label>
-              <input
-                type="email"
-                name="email"
-                className="form-control"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Senha</label>
-              <input
-                type="password"
-                name="password"
-                className="form-control"
-                value={formData.password}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Botões */}
-            <div className="d-flex justify-content-between mt-4">
-              <button type="button" className="btn btn-danger" onClick={handleDelete}>
-                Deletar Usuário
-              </button>
-              <button type="button" className="btn btn-success" onClick={handleSave}>
-                Salvar
-              </button>
-            </div>
-          </form>
-        )}
-        {/* Botão para Fechar o Modal */}
-        <button className="btn-close" onClick={onClose}>
-          x
-        </button>
+        <button className="btn-close" onClick={onClose}>&times;</button>
+        <h3 className="text-center">Editar Usuário</h3>
+        <form className="mt-4">
+          <div className="row">
+            {Object.keys(formData).map((key) => (
+              <div className="col-md-6 mb-3" key={key}>
+                <label className="form-label" htmlFor={key}>
+                  {(() => {
+                    switch (key) {
+                      case 'name': return 'Nome';
+                      case 'cpf': return 'CPF';
+                      case 'phone': return 'Telefone';
+                      case 'cep': return 'CEP';
+                      case 'number': return 'Número';
+                      case 'road': return 'Rua';
+                      case 'complement': return 'Complemento';
+                      case 'city': return 'Cidade';
+                      case 'state': return 'Estado';
+                      case 'email': return 'E-mail';
+                      case 'password': return 'Senha';
+                      default: return key;
+                    }
+                  })()}
+                </label>
+                <input
+                  type={key === 'password' ? 'password' : 'text'}
+                  id={key}
+                  value={formData[key]}
+                  onChange={handleInputChange}
+                  className="form-control"
+                  readOnly={['cpf', 'email'].includes(key)}
+                />
+              </div>
+            ))}
+          </div>
+        </form>
+        <div className="d-flex justify-content-between mt-3">
+          <button className="btn btn-danger" onClick={handleDelete}>Excluir</button>
+          <button className="btn btn-primary" onClick={handleUpdate}>Salvar</button>
+        </div>
       </div>
     </div>
   );

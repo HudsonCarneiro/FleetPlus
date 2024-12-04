@@ -5,16 +5,43 @@ import AddressServices from '../services/AddressServices';
 import { handleLogout } from './AuthController';
 
 // Buscar usuário por ID
+import { fetchAddressById } from '../services/AddressServices';
+
+// Buscar usuário por ID e endereço associado
 export const handleFetchUserById = async (id) => {
-  try { const user = await UserServices.fetchUserById(id); 
-    if (!user) { throw new Error('Usuário não encontrado.'); 
-    } 
-    const userData = { name: user.name, cpf: user.cpf, phone: user.phone, email: user.email, }; 
+  try {
+    const user = await UserServices.fetchUserById(id);
+    if (!user) {
+      throw new Error('Usuário não encontrado.');
+    }
+
+    // Buscar o endereço associado ao usuário
+    const address = await AddressServices.fetchAddressById(user.addressId);
+    if (!address) {
+      throw new Error('Endereço não encontrado.');
+    }
+
+    // Combinar os dados do usuário e endereço
+    const userData = {
+      name: user.name,
+      cpf: user.cpf,
+      phone: user.phone,
+      email: user.email,
+      cep: address.cep,
+      number: address.number,
+      road: address.road,
+      complement: address.complement,
+      city: address.city,
+      state: address.state,
+    };
+
     return userData;
-  } catch (error) { 
-      console.error('Erro ao buscar usuário:', error); return null; 
+  } catch (error) {
+    console.error('Erro ao buscar usuário e endereço:', error);
+    return null;
   }
-}
+};
+
 // Registrar usuário
 export const handleUserRegistration = async (formData, navigate) => {
   try {

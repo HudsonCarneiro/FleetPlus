@@ -6,6 +6,7 @@ import { handleFetchUserById } from "../controller/UserController.js";
 const UserProfile = () => {
   const [userData, setUserData] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     const fetchUserFromLocalStorage = async () => {
@@ -13,6 +14,7 @@ const UserProfile = () => {
       const storedUserData = localStorage.getItem("userData");
       if (storedUserData) {
         const { id } = JSON.parse(storedUserData);
+        setUserId(id); // Salva o userId no estado
 
         // Busca os dados completos do usuário pelo ID
         const user = await handleFetchUserById(id);
@@ -90,7 +92,7 @@ const UserProfile = () => {
           </button>
         </div>
       </div>
-      {isModalOpen && <UserModal userData={userData} onClose={() => setModalOpen(false)} />}
+      {isModalOpen && <UserModal userId={userId} onClose={() => setModalOpen(false)} />}
     </div>
   );
 };
