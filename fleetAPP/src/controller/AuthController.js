@@ -4,12 +4,14 @@ export const handleLogin = async (formData, navigate) => {
   try {
     const response = await loginUser(formData);
 
-    const { token, userId, userName, userEmail, addressId, expiresIn } = response;
+    const { token, userId, userName, userCpf, userPhone, userEmail, addressId, expiresIn } = response;
 
     // Cria um objeto para armazenar os dados do usuário no localStorage
     const userData = {
       id: userId,
       name: userName,
+      cpf: userCpf,
+      phone: userPhone,
       email: userEmail,
       addressId,
     };

@@ -6,18 +6,15 @@ import { handleLogout } from './AuthController';
 
 // Buscar usuário por ID
 export const handleFetchUserById = async (id) => {
-  try {
-    const user = await UserServices.fetchUserById(id);
-    if (!user) {
-      throw new Error('Usuário não encontrado.');
-    }
-    return user; // Retorna os dados do usuário
-  } catch (error) {
-    console.error('Erro ao buscar usuário:', error);
-    return null; // Retorna null em caso de erro
+  try { const user = await UserServices.fetchUserById(id); 
+    if (!user) { throw new Error('Usuário não encontrado.'); 
+    } 
+    const userData = { name: user.name, cpf: user.cpf, phone: user.phone, email: user.email, }; 
+    return userData;
+  } catch (error) { 
+      console.error('Erro ao buscar usuário:', error); return null; 
   }
-};
-
+}
 // Registrar usuário
 export const handleUserRegistration = async (formData, navigate) => {
   try {

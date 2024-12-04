@@ -21,11 +21,13 @@ export const loginUser = async (formData) => {
     }
 
     // Preparar os dados para uso no frontend
-    const { id, name, email, addressId } = data.user; // Extrair os dados necessários
+    const { id, name, cpf, phone , email, addressId } = data.user; // Extrair os dados necessários
     return {
       token: data.token,
       userId: id, // ID do usuário
       userName: name, // Nome do usuário
+      userCpf: cpf,
+      userPhone: phone,
       userEmail: email, // Email do usuário
       addressId, // ID do endereço associado
       expiresIn: data.expiresIn, // Tempo de expiração do token

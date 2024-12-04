@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../styles/Modal.css";
-import { handleUserUpdate, handleUserDeletion } from "../controller/UserController";
+import { handleUserUpdate, handleUserDeletion, handleFetchUserById } from "../controller/UserController";
 import { handleFetchAddressById } from "../controller/AddressController";
 
 const UserModal = ({ userData, onClose, onUpdateSuccess, onDeleteSuccess }) => {
@@ -20,8 +20,21 @@ const UserModal = ({ userData, onClose, onUpdateSuccess, onDeleteSuccess }) => {
 
   const [loadingAddress, setLoadingAddress] = useState(false);
 
-  // Busca os dados do endereço ao montar o componente
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const freshUserData = await handleFetchUserById(userData.id);
+        if (freshUserData) {
+          setFormData((prev) => ({
+            ...prev,
+            ...freshUserData,
+          }));
+        }
+      } catch (error) {
+        console.error("Erro ao buscar dados do usuário:", error);
+      }
+    };
+
     const fetchAddress = async () => {
       if (userData.addressId) {
         setLoadingAddress(true);
@@ -47,8 +60,9 @@ const UserModal = ({ userData, onClose, onUpdateSuccess, onDeleteSuccess }) => {
       }
     };
 
+    fetchUserData();
     fetchAddress();
-  }, [userData.addressId]);
+  }, [userData.id, userData.addressId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -60,6 +74,7 @@ const UserModal = ({ userData, onClose, onUpdateSuccess, onDeleteSuccess }) => {
       const updatedUser = await handleUserUpdate(userData.id, formData);
       if (updatedUser) {
         console.log("Usuário atualizado com sucesso!");
+        localStorage.setItem("userData", JSON.stringify(updatedUser)); // Atualiza os dados no localStorage
         onUpdateSuccess?.(); // Callback para atualizar a lista de usuários
         onClose();
       }
@@ -112,35 +127,25 @@ const UserModal = ({ userData, onClose, onUpdateSuccess, onDeleteSuccess }) => {
               />
             </div>
             <div className="mb-3">
-            <label className="form-label">CPF</label>
-            <input
-              type="text"
-              name="cpf"
-              className="form-control"
-              value={formData.cpf}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Telefone</label>
-            <input
-              type="text"
-              name="phone"
-              className="form-control"
-              value={formData.phone}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">E-mail</label>
-            <input
-              type="email"
-              name="email"
-              className="form-control"
-              value={formData.email}
-              onChange={handleChange}
-            />
-          </div>
+              <label className="form-label">CPF</label>
+              <input
+                type="text"
+                name="cpf"
+                className="form-control"
+                value={formData.cpf}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Telefone</label>
+              <input
+                type="text"
+                name="phone"
+                className="form-control"
+                value={formData.phone}
+                onChange={handleChange}
+              />
+            </div>
             <div className="mb-3">
               <label className="form-label">CEP</label>
               <input
@@ -198,6 +203,26 @@ const UserModal = ({ userData, onClose, onUpdateSuccess, onDeleteSuccess }) => {
                 name="state"
                 className="form-control"
                 value={formData.state}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">E-mail</label>
+              <input
+                type="email"
+                name="email"
+                className="form-control"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Senha</label>
+              <input
+                type="password"
+                name="password"
+                className="form-control"
+                value={formData.password}
                 onChange={handleChange}
               />
             </div>
