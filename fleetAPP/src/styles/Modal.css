@@ -29,11 +29,15 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  background: none;
+  background-image: url('../assets/close.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 24px; /* Ajuste conforme necessário */
+  height: 24px;
   border: none;
-  font-size: 1.5rem;
+  background-color: transparent;
   cursor: pointer;
-  color: black !important; 
 }
 
 .modal-content .btn-close {

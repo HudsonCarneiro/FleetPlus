@@ -33,22 +33,11 @@ const Driver = sequelize.define('Driver', {
         },
       
     },
-    addressId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Addresses',
-          key: 'id',
-        },
-    },
 });
 
 Driver.associate = (models) => {
     Driver.hasMany(models.Fueling, {
         foreignKey: 'driverId'
-    });
-    Driver.belongsTo(models.Address, {
-        foreignKey: 'addressId'
     });
     Driver.belongsTo(models.User, { 
         foreignKey: 'userId' 

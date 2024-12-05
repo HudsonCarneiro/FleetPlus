@@ -3,7 +3,7 @@ import '../styles/Modal.css';
 import {
   handleDriverRegistration,
   handleDriverUpdate,
-} from '../controllers/DriverController';
+} from '../controller/DriverController';
 
 const DriverModal = ({ show, onClose, driverData, refreshDrivers }) => {
   const [formData, setFormData] = useState({
@@ -104,7 +104,7 @@ const DriverModal = ({ show, onClose, driverData, refreshDrivers }) => {
               value={formData.phone}
               onChange={handleChange}
               className="form-control"
-              placeholder="Opcional"
+              required
             />
           </div>
           <button type="submit" className="btn btn-primary w-100">

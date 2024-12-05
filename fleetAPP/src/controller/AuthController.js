@@ -69,7 +69,7 @@ export const handleLogout = (navigate) => {
     localStorage.removeItem("expiresAt");
 
     // Redireciona para a página de login
-    navigate("/login");
+    navigate("/");
   } catch (error) {
     console.error("Erro ao realizar logout:", error.message);
   }

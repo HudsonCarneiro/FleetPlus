@@ -1,10 +1,10 @@
-// src/components/Dashboard.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
 import UserProfile from "./UserProfile";
-import DriverModal from "./DriverModal";
+import UserModal from "./UserModal";
 import DriverTable from "./DriverTable";
+import DriverModal from "./DriverModal"; // Importação do modal de motorista
 import ClientTable from "./ClientTable";
 import FuelingTable from "./FuelingTable";
 import DeliveryTable from "./DeliveryTable";
@@ -23,7 +23,7 @@ const SECTIONS = {
   ADD_CLIENT: "cadastrarCliente",
 };
 
-const Content = ({ activeSection, userData, setActiveSection }) => {
+const Content = ({ activeSection, userData, setActiveSection, openDriverModal }) => {
   const renderContent = () => {
     switch (activeSection) {
       case SECTIONS.VIEW_PROFILE:
@@ -60,32 +60,17 @@ const Content = ({ activeSection, userData, setActiveSection }) => {
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
-  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [selectedDriver, setSelectedDriver] = useState(null); // Para edição de motorista
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch data when the component mounts
+    
     fetchDashboardData(setUserData, setLoading, navigate);
   }, [navigate]);
 
-  useEffect(() => {
-    // Open modal when EDIT_PROFILE is the active section
-    setIsModalOpen(activeSection === SECTIONS.EDIT_PROFILE);
-  }, [activeSection]);
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    setActiveSection(""); // Reset active section when modal closes
-  };
-
-  const handleUserUpdate = (updatedUserData) => {
-    setUserData(updatedUserData); // Update user data after editing
-    handleModalClose(); // Close the modal after saving changes
-  };
   const openDriverModal = (driver = null) => {
     setSelectedDriver(driver); // Define o motorista selecionado (ou null para cadastro)
     setIsDriverModalOpen(true);
@@ -108,6 +93,7 @@ const Dashboard = () => {
   if (!userData) {
     return <p>Erro ao carregar os dados do usuário.</p>;
   }
+
   return (
     <section className="main">
       <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
@@ -129,6 +115,4 @@ const Dashboard = () => {
   );
 };
 
-  
-  
 export default Dashboard;
