@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
 import UserProfile from "./UserProfile";
-import UserModal from "./UserModal";
+import DriverModal from "./DriverModal";
 import DriverTable from "./DriverTable";
 import ClientTable from "./ClientTable";
 import FuelingTable from "./FuelingTable";
@@ -39,7 +39,8 @@ const Content = ({ activeSection, userData, setActiveSection }) => {
       case SECTIONS.VIEW_DRIVERS:
         return <DriverTable />;
       case SECTIONS.ADD_DRIVER:
-        return <h2>Cadastrando um motorista...</h2>;
+        openDriverModal(); // Abre o modal ao acessar esta seção
+        return null; // Nenhum conteúdo é exibido, pois o modal será responsável pela interação
       case SECTIONS.VIEW_CLIENTS:
         return <ClientTable />;
       case SECTIONS.ADD_CLIENT:
@@ -60,6 +61,8 @@ const Content = ({ activeSection, userData, setActiveSection }) => {
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
+  const [selectedDriver, setSelectedDriver] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -83,6 +86,20 @@ const Dashboard = () => {
     setUserData(updatedUserData); // Update user data after editing
     handleModalClose(); // Close the modal after saving changes
   };
+  const openDriverModal = (driver = null) => {
+    setSelectedDriver(driver); // Define o motorista selecionado (ou null para cadastro)
+    setIsDriverModalOpen(true);
+  };
+
+  const closeDriverModal = () => {
+    setIsDriverModalOpen(false);
+    setActiveSection(""); // Reseta a seção ativa ao fechar o modal
+  };
+
+  const refreshDrivers = () => {
+    console.log("Atualizar lista de motoristas após alteração.");
+    // Aqui você pode adicionar lógica para recarregar os dados da tabela de motoristas
+  };
 
   if (loading) {
     return <p>Carregando...</p>;
@@ -91,13 +108,27 @@ const Dashboard = () => {
   if (!userData) {
     return <p>Erro ao carregar os dados do usuário.</p>;
   }
-
   return (
     <section className="main">
       <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
-      <Content activeSection={activeSection} userData={userData} setActiveSection={setActiveSection} />
+      <Content
+        activeSection={activeSection}
+        userData={userData}
+        setActiveSection={setActiveSection}
+        openDriverModal={openDriverModal}
+      />
+      {isDriverModalOpen && (
+        <DriverModal
+          show={isDriverModalOpen}
+          onClose={closeDriverModal}
+          driverData={selectedDriver}
+          refreshDrivers={refreshDrivers}
+        />
+      )}
     </section>
   );
 };
 
+  
+  
 export default Dashboard;
