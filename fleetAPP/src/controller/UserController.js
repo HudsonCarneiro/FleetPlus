@@ -84,42 +84,61 @@ export const handleUserRegistration = async (formData, navigate) => {
 };
 
 // Atualizar usuário
-export const handleUserUpdate = async (id, formData) => {
+export const handleUserUpdate = async (formData) => {
   try {
-    // Extrai e organiza os dados de endereço
-    const address = {
-      cep: formData.cep,
-      number: formData.number,
-      road: formData.road,
-      complement: formData.complement,
-      city: formData.city,
-      state: formData.state,
-    };
-
-    // Atualiza o endereço
-    await AddressServices.updateAddress(formData.addressId, address);
-
-    // Organiza os dados do usuário
-    const updatedUser = {
-      name: formData.name,
-      cpf: formData.cpf,
-      phone: formData.phone,
-      email: formData.email,
-      password: formData.password, // Enviar somente se for alterada
-    };
-
-    // Atualiza o usuário
-    const userResponse = await UserServices.updateUser(id, updatedUser);
-
-    if (!userResponse) {
-      throw new Error('Erro ao atualizar o usuário.');
+    // Validação básica dos dados recebidos
+    if (!formData.id || !formData.addressId) {
+      throw new Error("ID do usuário ou do endereço não fornecido.");
     }
 
-    console.log('Usuário atualizado com sucesso:', userResponse);
-    return userResponse; // Retorna o usuário atualizado
+    if (!formData.name || !formData.cpf || !formData.email) {
+      throw new Error("Campos obrigatórios do usuário estão ausentes.");
+    }
+
+    if (!formData.cep || !formData.road || !formData.city || !formData.state) {
+      throw new Error("Campos obrigatórios do endereço estão ausentes.");
+    }
+
+    // Criação da instância de endereço
+    const address = new Address(
+      formData.cep,
+      formData.number,
+      formData.road,
+      formData.complement,
+      formData.city,
+      formData.state
+    );
+
+    // Atualização do endereço
+    const addressResponse = await AddressServices.updateAddress(formData.addressId, address);
+
+    if (!addressResponse) {
+      throw new Error("Erro ao atualizar endereço no serviço.");
+    }
+
+    console.log("Endereço atualizado com sucesso:", addressResponse);
+
+    // Criação da instância de usuário
+    const user = new User(
+      formData.name,
+      formData.cpf,
+      formData.phone,
+      formData.email,
+      formData.password
+    );
+
+    // Atualização do usuário
+    const userResponse = await UserServices.updateUser(formData.id, user);
+
+    if (userResponse) {
+      console.log("Usuário atualizado com sucesso:", userResponse);
+      return true;
+    } else {
+      throw new Error("Erro ao atualizar usuário no serviço.");
+    }
   } catch (error) {
-    console.error('Erro ao atualizar o usuário:', error);
-    return null; // Retorna null em caso de erro
+    console.error("Não foi possível atualizar o usuário:", error.message);
+    return false;
   }
 };
 
@@ -127,21 +146,25 @@ export const handleUserUpdate = async (id, formData) => {
 export const handleUserDeletion = async (userId, addressId, navigate) => {
   try {
     // Exclui o usuário
-    if (addressId != null) {
+    if (userId) {
       await UserServices.deleteUser(userId);
+      console.log("Usuário excluído com sucesso.");
     }
-    console.log(addressId);
 
     // Exclui o endereço associado
-    await AddressServices.deleteAddress(addressId);
+    if (addressId) {
+      await AddressServices.deleteAddress(addressId);
+      console.log("Endereço excluído com sucesso.");
+    }
 
-    console.log('Usuário e endereço excluídos com sucesso.');
-
-    // Chama a função de logout e redireciona para o login
+    // Após exclusão, realiza logout e redireciona
     handleLogout(navigate);
+
+    return true; // Retorna true para indicar sucesso
   } catch (error) {
-    console.error('Erro ao excluir o usuário e endereço:', error);
-    return false; // Retorna falso em caso de erro
+    console.error("Erro ao excluir o usuário e endereço:", error);
+    return false; // Retorna false em caso de erro
   }
 };
+
 

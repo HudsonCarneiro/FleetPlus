@@ -2,11 +2,30 @@ import { loginUser } from "../services/AuthServices";
 
 export const handleLogin = async (formData, navigate) => {
   try {
+    // Chamada ao serviço de login
     const response = await loginUser(formData);
 
-    const { token, userId, userName, userCpf, userPhone, userEmail, addressId, expiresIn } = response;
+    // Loga o retorno da API para depuração
+    console.log("Login response:", response);
 
-    // Cria um objeto para armazenar os dados do usuário no localStorage
+    // Desestruturação com valores padrão
+    const {
+      token,
+      userId = null,
+      userName = "",
+      userCpf = "",
+      userPhone = "",
+      userEmail = "",
+      addressId = null,
+      expiresIn = 0,
+    } = response || {};
+
+    // Validação dos dados retornados
+    if (!token || !userId) {
+      throw new Error("Dados inválidos retornados pelo servidor.");
+    }
+
+    // Cria um objeto para armazenar os dados do usuário
     const userData = {
       id: userId,
       name: userName,
@@ -25,6 +44,10 @@ export const handleLogin = async (formData, navigate) => {
     const savedToken = localStorage.getItem("token");
     const savedUserData = localStorage.getItem("userData");
     const savedExpiresAt = localStorage.getItem("expiresAt");
+
+    console.log("Token salvo:", savedToken);
+    console.log("User data salvo:", JSON.parse(savedUserData));
+    console.log("Expiração salva:", savedExpiresAt);
 
     if (savedToken === token && savedUserData && savedExpiresAt) {
       navigate("/dashboard"); // Redireciona após sucesso

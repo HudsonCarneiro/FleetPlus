@@ -92,7 +92,14 @@ const UserProfile = () => {
           </button>
         </div>
       </div>
-      {isModalOpen && <UserModal userId={userId} onClose={() => setModalOpen(false)} />}
+      {isModalOpen && (
+      <UserModal
+        userData={userData}
+        onClose={() => setModalOpen(false)}
+        onUpdate={(updatedData) => setUserData(updatedData)} // Nova prop
+  />
+)}
+
     </div>
   );
 };
