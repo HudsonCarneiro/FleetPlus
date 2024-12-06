@@ -32,6 +32,13 @@ export const Sidebar = ({ activeSection, setActiveSection }) => {
       ],
     },
     {
+      title: "Veículos",
+      links: [
+        { label: "Ver Veículos", section: "verVeiculos" },
+        { label: "Cadastrar Veículo", section: "cadastrarVeiculo" },
+      ],
+    },
+    {
       title: "Clientes",
       links: [
         { label: "Ver Clientes", section: "verClientes" },

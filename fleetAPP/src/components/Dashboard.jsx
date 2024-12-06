@@ -19,6 +19,8 @@ const SECTIONS = {
   REGISTER_FUELING: "registrarAbastecimento",
   VIEW_DRIVERS: "verMotoristas",
   ADD_DRIVER: "cadastrarMotorista",
+  VIEW_VEHICLE: "verVeiculos",
+  ADD_VEHICLE: "cadastrarVeiculo",
   VIEW_CLIENTS: "verClientes",
   ADD_CLIENT: "cadastrarCliente",
 };
@@ -41,6 +43,10 @@ const Content = ({ activeSection, userData, setActiveSection, openDriverModal })
       case SECTIONS.ADD_DRIVER:
         openDriverModal(); // Abre o modal ao acessar esta seção
         return null; // Nenhum conteúdo é exibido, pois o modal será responsável pela interação
+      case SECTIONS.VIEW_VEHICLE:
+        return <h2>Exibindo veiculos.</h2>;
+      case SECTIONS.ADD_VEHICLE:
+        return <h2>Cadastrando um novo veiculo...</h2>;
       case SECTIONS.VIEW_CLIENTS:
         return <ClientTable />;
       case SECTIONS.ADD_CLIENT:

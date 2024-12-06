@@ -3,24 +3,32 @@ import "../styles/About.css";
 
 export const About = () => {
   return (
-    <div className="container mt-5 pt-5">
+    <div className="background-about">
       <div className="row align-items-center">
         <div className="col-lg-6">
-          <h1 className="display-4 fw-bold text-primary">FleetPlus</h1>
+          <h1 className="display-4 fw-bold text-primary title-about">FleetPlus</h1>
           <p className="lead text-muted">
-            Bem-vindo ao **FleetPlus**, o sistema completo para <strong>gerenciamento de frotas de veículos</strong>. 
+            Bem-vindo ao FleetPlus, o sistema completo para <strong>gerenciamento de frotas de veículos</strong>. 
             Desenvolvido para facilitar a logística e operação de distribuidoras, o FleetPlus é sua solução ideal para 
             gerenciar motoristas, veículos, abastecimentos e ordens de entrega com eficiência e inteligência.
           </p>
         </div>
         <div className="col-lg-6">
           <img 
-            src="https://via.placeholder.com/500x300" 
+            src="/src/assets/about.jpg" 
             alt="FleetPlus system illustration" 
             className="img-fluid rounded shadow"
+            style={{ width: '46%' }}
+          />
+            <img 
+            src="/src/assets/about02.jpg" 
+            alt="FleetPlus system illustration" 
+            className="img-fluid rounded shadow"
+            style={{ width: '46%' }}
           />
         </div>
       </div>
+
       <hr className="my-5" />
 
       <div className="row">
@@ -92,7 +100,7 @@ export const About = () => {
         <div className="col-md-4">
           <i className="bi bi-geo-alt fs-1 text-primary"></i>
           <h5 className="mt-3">Endereços</h5>
-          <p className="text-muted">Cadastro detalhado para motoristas, clientes e entregas.</p>
+          <p className="text-muted">Cadastro detalhado para usuários, clientes e entregas.</p>
         </div>
       </div>
     </div>

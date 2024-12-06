@@ -46,6 +46,9 @@ export const handleDriverRegistration = async (formData) => {
     if (!formData.name || !formData.cnh || !formData.phone) {
       throw new Error("Campos obrigatórios do motorista estão ausentes.");
     }
+    if(formData.cnh.length != 11){
+      throw new Error("Digite uma CNH válida!");
+    }
 
     // Chama o service para criar o motorista
     const driverResponse = await createDriver(formData);
