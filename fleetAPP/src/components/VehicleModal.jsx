@@ -16,13 +16,12 @@ const VehicleModal = ({ show, onClose, vehicleData, refreshVehicles }) => {
     mileage: '',
   });
 
-  // Atualiza o formulário ao abrir o modal com dados do veiculo (em caso de edição)
   useEffect(() => {
     if (vehicleData) {
       setFormData({
         id: vehicleData.id || null,
-        plate: vehicleData.palte || '',
-        model: vehicleData.model|| '',
+        plate: vehicleData.plate || '',
+        model: vehicleData.model || '',
         automaker: vehicleData.automaker || '',
         year: vehicleData.year || '',
         fuelType: vehicleData.fuelType || '',
@@ -32,32 +31,36 @@ const VehicleModal = ({ show, onClose, vehicleData, refreshVehicles }) => {
   }, [vehicleData]);
 
   const handleChange = (e) => {
-    const { plate, value } = e.target;
-    setFormData({ ...formData, [plate]: value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const currentYear = new Date().getFullYear();
+    if (formData.year < 1900 || formData.year > currentYear) {
+      alert('Por favor, insira um ano de fabricação válido.');
+      return;
+    }
+
     if (formData.id) {
-      // Atualizar motorista
       const updated = await handleVehicleUpdate(formData);
       if (updated) {
-        alert('Motorista atualizado com sucesso!');
-        refreshDrivers();
+        alert('Veículo atualizado com sucesso!');
+        refreshVehicles();
         onClose();
       } else {
-        alert('Erro ao atualizar motorista.');
+        alert('Erro ao atualizar veículo.');
       }
     } else {
-      // Criar novo motorista
-      const created = await handleDriverRegistration(formData);
+      const created = await handleVehicleRegistration(formData);
       if (created) {
-        alert('Motorista cadastrado com sucesso!');
-        refreshDrivers();
+        alert('Veículo cadastrado com sucesso!');
+        refreshVehicles();
         onClose();
       } else {
-        alert('Erro ao cadastrar motorista.');
+        alert('Erro ao cadastrar veículo.');
       }
     }
   };
@@ -68,46 +71,91 @@ const VehicleModal = ({ show, onClose, vehicleData, refreshVehicles }) => {
     <div className="modal-overlay">
       <div className="modal-content">
         <button className="btn-close" onClick={onClose} aria-label="Fechar"></button>
-        <h5 className="mb-4">{formData.id ? 'Editar Motorista' : 'Cadastrar Motorista'}</h5>
+        <h5 className="mb-4">{formData.id ? 'Editar Veículo' : 'Cadastrar Veículo'}</h5>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label htmlFor="name" className="form-label">
-              Nome
+            <label htmlFor="plate" className="form-label">
+              Placa
             </label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="plate"
+              name="plate"
+              value={formData.plate}
               onChange={handleChange}
               className="form-control"
               required
             />
           </div>
           <div className="mb-3">
-            <label htmlFor="cnh" className="form-label">
-              CNH
+            <label htmlFor="model" className="form-label">
+              Modelo
             </label>
             <input
               type="text"
-              id="cnh"
-              name="cnh"
-              value={formData.cnh}
+              id="model"
+              name="model"
+              value={formData.model}
               onChange={handleChange}
               className="form-control"
               required
-              maxLength="11"
             />
           </div>
           <div className="mb-3">
-            <label htmlFor="phone" className="form-label">
-              Telefone
+            <label htmlFor="automaker" className="form-label">
+              Montadora
             </label>
             <input
               type="text"
-              id="phone"
-              name="phone"
-              value={formData.phone}
+              id="automaker"
+              name="automaker"
+              value={formData.automaker}
+              onChange={handleChange}
+              className="form-control"
+              required
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="year" className="form-label">
+              Ano de Fabricação
+            </label>
+            <input
+              type="number"
+              id="year"
+              name="year"
+              value={formData.year}
+              onChange={handleChange}
+              className="form-control"
+              required
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="fuelType" className="form-label">
+              Tipo de Combustível
+            </label>
+            <select
+              id="fuelType"
+              name="fuelType"
+              value={formData.fuelType}
+              onChange={handleChange}
+              className="form-select"
+              required
+            >
+              <option value="">Selecione o tipo de combustível</option>
+              <option value="Gasolina">Gasolina</option>
+              <option value="Etanol">Etanol</option>
+              <option value="Diesel">Diesel</option>
+            </select>
+          </div>
+          <div className="mb-3">
+            <label htmlFor="mileage" className="form-label">
+              Quilometragem
+            </label>
+            <input
+              type="number"
+              id="mileage"
+              name="mileage"
+              value={formData.mileage}
               onChange={handleChange}
               className="form-control"
               required
@@ -122,4 +170,4 @@ const VehicleModal = ({ show, onClose, vehicleData, refreshVehicles }) => {
   );
 };
 
-export default DriverModal;
+export default VehicleModal;

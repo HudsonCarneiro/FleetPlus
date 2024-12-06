@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
 import UserProfile from "./UserProfile";
-import UserModal from "./UserModal";
+import VehicleModal from "./VehicleModal.jsx";
 import DriverTable from "./DriverTable";
-import DriverModal from "./DriverModal"; // Importação do modal de motorista
+import DriverModal from "./DriverModal";
 import ClientTable from "./ClientTable";
 import FuelingTable from "./FuelingTable";
 import DeliveryTable from "./DeliveryTable";
@@ -25,7 +25,13 @@ const SECTIONS = {
   ADD_CLIENT: "cadastrarCliente",
 };
 
-const Content = ({ activeSection, userData, setActiveSection, openDriverModal }) => {
+const Content = ({
+  activeSection,
+  userData,
+  setActiveSection,
+  openDriverModal,
+  openVehicleModal,
+}) => {
   const renderContent = () => {
     switch (activeSection) {
       case SECTIONS.VIEW_PROFILE:
@@ -41,12 +47,13 @@ const Content = ({ activeSection, userData, setActiveSection, openDriverModal })
       case SECTIONS.VIEW_DRIVERS:
         return <DriverTable />;
       case SECTIONS.ADD_DRIVER:
-        openDriverModal(); // Abre o modal ao acessar esta seção
-        return null; // Nenhum conteúdo é exibido, pois o modal será responsável pela interação
+        openDriverModal();
+        return null;
       case SECTIONS.VIEW_VEHICLE:
-        return <h2>Exibindo veiculos.</h2>;
+        return <h2>Exibindo veículos.</h2>;
       case SECTIONS.ADD_VEHICLE:
-        return <h2>Cadastrando um novo veiculo...</h2>;
+        openVehicleModal();
+        return null;
       case SECTIONS.VIEW_CLIENTS:
         return <ClientTable />;
       case SECTIONS.ADD_CLIENT:
@@ -67,29 +74,45 @@ const Content = ({ activeSection, userData, setActiveSection, openDriverModal })
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("");
   const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
-  const [selectedDriver, setSelectedDriver] = useState(null); // Para edição de motorista
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    
     fetchDashboardData(setUserData, setLoading, navigate);
   }, [navigate]);
 
+  // Funções relacionadas ao DriverModal
   const openDriverModal = (driver = null) => {
-    setSelectedDriver(driver); // Define o motorista selecionado (ou null para cadastro)
+    setSelectedDriver(driver);
     setIsDriverModalOpen(true);
   };
 
   const closeDriverModal = () => {
     setIsDriverModalOpen(false);
-    setActiveSection(""); // Reseta a seção ativa ao fechar o modal
+    setActiveSection("");
   };
 
   const refreshDrivers = () => {
     console.log("Atualizar lista de motoristas após alteração.");
-    // Aqui você pode adicionar lógica para recarregar os dados da tabela de motoristas
+  };
+
+  // Funções relacionadas ao VehicleModal
+  const openVehicleModal = (vehicle = null) => {
+    setSelectedVehicle(vehicle);
+    setIsVehicleModalOpen(true);
+  };
+
+  const closeVehicleModal = () => {
+    setIsVehicleModalOpen(false);
+    setActiveSection("");
+  };
+
+  const refreshVehicles = () => {
+    console.log("Atualizar lista de veículos após alteração.");
   };
 
   if (loading) {
@@ -108,13 +131,24 @@ const Dashboard = () => {
         userData={userData}
         setActiveSection={setActiveSection}
         openDriverModal={openDriverModal}
+        openVehicleModal={openVehicleModal}
       />
+      {/* Modal de Motorista */}
       {isDriverModalOpen && (
         <DriverModal
           show={isDriverModalOpen}
           onClose={closeDriverModal}
           driverData={selectedDriver}
           refreshDrivers={refreshDrivers}
+        />
+      )}
+      {/* Modal de Veículo */}
+      {isVehicleModalOpen && (
+        <VehicleModal
+          show={isVehicleModalOpen}
+          onClose={closeVehicleModal}
+          vehicleData={selectedVehicle}
+          refreshVehicles={refreshVehicles}
         />
       )}
     </section>
