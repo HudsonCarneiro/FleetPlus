@@ -1,111 +1,111 @@
-//falta arrumar 
-import { 
-    getAllVehicles, 
-    getVehicleById, 
-    createVehicle, 
-    updateVehicle, 
-    deleteVehicle 
-  } from '../services/VehicleServices.js';
+import {
+    getAllVehicles,
+    getVehicleById,
+    createVehicle,
+    updateVehicle,
+    deleteVehicle,
+  } from "../services/VehicleServices.js";
   
-  // Buscar todos os motoristas do usuário logado
+  // Função para validar campos obrigatórios
+  const validateVehicleFields = (formData, fields) => {
+    for (const field of fields) {
+      if (!formData[field]) {
+        throw new Error(`Campo obrigatório "${field}" ausente.`);
+      }
+    }
+  };
+  
   export const handleFetchAllVehicles = async () => {
     try {
       const vehicles = await getAllVehicles();
   
       if (!vehicles || vehicles.length === 0) {
-        console.warn('Nenhum registro de veículo encontrado.');
+        console.warn("Nenhum registro de veículo encontrado.");
         return [];
       }
   
       return vehicles;
     } catch (error) {
-      console.error('Erro ao buscar veículos:', error.message);
+      console.error("Erro ao buscar veículos:", error.message);
       return [];
     }
   };
   
-  // Buscar um motorista pelo ID
   export const handleFetchVehicleById = async (id) => {
     try {
-      const driver = await getDriverById(id);
+      const vehicle = await getVehicleById(id);
   
-      if (!driver) {
-        throw new Error('Motorista não encontrado.');
+      if (!vehicle) {
+        throw new Error("Veículo não encontrado.");
       }
   
-      return driver;
+      return vehicle;
     } catch (error) {
-      console.error('Erro ao buscar motorista:', error.message);
+      console.error("Erro ao buscar veículo:", error.message);
       return null;
     }
   };
   
-  // Registrar um novo motorista
   export const handleVehicleRegistration = async (formData) => {
     try {
-      // Verifica os campos obrigatórios
-      if (!formData.name || !formData.cnh || !formData.phone) {
-        throw new Error("Campos obrigatórios do motorista estão ausentes.");
-      }
-      if(formData.cnh.length != 11){
-        throw new Error("Digite uma CNH válida!");
-      }
+      // Validação de campos obrigatórios
+      validateVehicleFields(formData, ["plate", "model", "year"]);
   
-      // Chama o service para criar o motorista
-      const driverResponse = await createDriver(formData);
+      // Validação adicional para placa (padrão Mercosul)
+      // const plateRegex = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
+      // if (!plateRegex.test(formData.plate)) {
+      //   throw new Error("Digite uma PLACA válida no formato Mercosul (AAA0A00).");
+      // }
   
-      if (driverResponse) {
-        console.log('Motorista cadastrado com sucesso:', driverResponse);
-        return driverResponse; // Retorna o motorista criado
+      const vehicleResponse = await createVehicle(formData);
+  
+      if (vehicleResponse) {
+        console.log("Veículo cadastrado com sucesso:", vehicleResponse);
+        return vehicleResponse;
       } else {
-        throw new Error('Erro ao registrar motorista no services.');
+        throw new Error("Erro ao registrar veículo no services.");
       }
     } catch (error) {
-      console.error('Erro no registro do motorista:', error.message);
+      console.error("Erro no registro do veículo:", error.message);
       return null;
     }
   };
   
-  // Atualizar motorista
   export const handleVehicleUpdate = async (formData) => {
     try {
-      // Verifica os campos obrigatórios
-      if (!formData.id || !formData.name || !formData.cnh || !formData.phone) {
-        throw new Error("Campos obrigatórios do motorista estão ausentes.");
-      }
+      // Validação de campos obrigatórios
+      validateVehicleFields(formData, ["plate", "model", "year", "fuelType"]);
   
-      // Chama o service para atualizar o motorista
-      const driverResponse = await updateDriver(formData.id, formData);
+      const vehicleResponse = await updateVehicle(formData.id, formData);
   
-      if (driverResponse) {
-        console.log("Motorista atualizado com sucesso:", driverResponse);
-        return driverResponse; // Retorna o motorista atualizado
+      if (vehicleResponse) {
+        console.log("Veículo atualizado com sucesso:", vehicleResponse);
+        return vehicleResponse;
       } else {
-        throw new Error("Erro ao atualizar motorista no services.");
+        throw new Error("Erro ao atualizar veículo no services.");
       }
     } catch (error) {
-      console.error("Erro ao atualizar motorista:", error.message);
+      console.error("Erro ao atualizar veículo:", error.message);
       return null;
     }
   };
   
-  // Excluir motorista
   export const handleVehicleDeletion = async (id) => {
     try {
       if (!id) {
-        throw new Error("ID do motorista não fornecido.");
+        throw new Error("ID do veículo não fornecido.");
       }
   
-      const success = await deleteDriver(id);
+      const success = await deleteVehicle(id);
   
       if (success) {
-        console.log("Motorista excluído com sucesso.");
+        console.log("Veículo excluído com sucesso.");
         return true;
       } else {
-        throw new Error("Erro ao excluir motorista no services.");
+        throw new Error("Erro ao excluir veículo no services.");
       }
     } catch (error) {
-      console.error("Erro ao excluir motorista:", error.message);
+      console.error("Erro ao excluir veículo: ", error.message);
       return false;
     }
   };
