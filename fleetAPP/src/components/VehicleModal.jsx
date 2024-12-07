@@ -25,7 +25,7 @@ const VehicleModal = ({ show, onClose, vehicleData, refreshVehicles }) => {
         automaker: vehicleData.automaker || '',
         year: vehicleData.year || '',
         fuelType: vehicleData.fuelType || '',
-        mileage: '',
+        mileage: vehicleData.mileage ||'',
       });
     }
   }, [vehicleData]);
