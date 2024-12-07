@@ -1,29 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import '../styles/Modal.css';
+import React, { useState, useEffect } from "react";
+import "../styles/Modal.css";
 import {
   handleDriverRegistration,
   handleDriverUpdate,
-} from '../controller/DriverController';
+} from "../controller/DriverController";
 
 const DriverModal = ({ show, onClose, driverData, refreshDrivers }) => {
   const [formData, setFormData] = useState({
     id: null,
-    name: '',
-    cnh: '',
-    phone: '',
+    name: "",
+    cnh: "",
+    phone: "",
   });
 
-  // Atualiza o formulário ao abrir o modal com dados do motorista (em caso de edição)
+  // Resetar ou carregar dados quando o modal é aberto
   useEffect(() => {
-    if (driverData) {
-      setFormData({
-        id: driverData.id || null,
-        name: driverData.name || '',
-        cnh: driverData.cnh || '',
-        phone: driverData.phone || '',
-      });
+    if (show) {
+      if (driverData) {
+        // Carregar os dados do motorista para edição
+        setFormData({
+          id: driverData.id || null,
+          name: driverData.name || "",
+          cnh: driverData.cnh || "",
+          phone: driverData.phone || "",
+        });
+      } else {
+        // Resetar o formulário para cadastro de novo motorista
+        setFormData({
+          id: null,
+          name: "",
+          cnh: "",
+          phone: "",
+        });
+      }
     }
-  }, [driverData]);
+  }, [show, driverData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,21 +48,21 @@ const DriverModal = ({ show, onClose, driverData, refreshDrivers }) => {
       // Atualizar motorista
       const updated = await handleDriverUpdate(formData);
       if (updated) {
-        alert('Motorista atualizado com sucesso!');
+        alert("Motorista atualizado com sucesso!");
         refreshDrivers();
         onClose();
       } else {
-        alert('Erro ao atualizar motorista.');
+        alert("Erro ao atualizar motorista.");
       }
     } else {
       // Criar novo motorista
       const created = await handleDriverRegistration(formData);
       if (created) {
-        alert('Motorista cadastrado com sucesso!');
+        alert("Motorista cadastrado com sucesso!");
         refreshDrivers();
         onClose();
       } else {
-        alert('Erro ao cadastrar motorista.');
+        alert("Erro ao cadastrar motorista.");
       }
     }
   };
@@ -62,7 +73,7 @@ const DriverModal = ({ show, onClose, driverData, refreshDrivers }) => {
     <div className="modal-overlay">
       <div className="modal-content">
         <button className="btn-close" onClick={onClose} aria-label="Fechar"></button>
-        <h5 className="mb-4">{formData.id ? 'Editar Motorista' : 'Cadastrar Motorista'}</h5>
+        <h5 className="mb-4">{formData.id ? "Editar Motorista" : "Cadastrar Motorista"}</h5>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="name" className="form-label">
@@ -108,7 +119,7 @@ const DriverModal = ({ show, onClose, driverData, refreshDrivers }) => {
             />
           </div>
           <button type="submit" className="btn btn-primary w-100">
-            {formData.id ? 'Salvar Alterações' : 'Cadastrar'}
+            {formData.id ? "Salvar Alterações" : "Cadastrar"}
           </button>
         </form>
       </div>

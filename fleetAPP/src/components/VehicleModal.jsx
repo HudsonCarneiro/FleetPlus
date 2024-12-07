@@ -1,34 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import '../styles/Modal.css';
+import React, { useState, useEffect } from "react";
+import "../styles/Modal.css";
 import {
   handleVehicleRegistration,
   handleVehicleUpdate,
-} from '../controller/VehicleController.js';
+} from "../controller/VehicleController.js";
 
 const VehicleModal = ({ show, onClose, vehicleData, refreshVehicles }) => {
   const [formData, setFormData] = useState({
     id: null,
-    plate: '',
-    model: '',
-    automaker: '',
-    year: '',
-    fuelType: '',
-    mileage: '',
+    plate: "",
+    model: "",
+    automaker: "",
+    year: "",
+    fuelType: "",
+    mileage: "",
   });
 
+  // Resetar ou carregar dados quando o modal é aberto
   useEffect(() => {
-    if (vehicleData) {
-      setFormData({
-        id: vehicleData.id || null,
-        plate: vehicleData.plate || '',
-        model: vehicleData.model || '',
-        automaker: vehicleData.automaker || '',
-        year: vehicleData.year || '',
-        fuelType: vehicleData.fuelType || '',
-        mileage: vehicleData.mileage ||'',
-      });
+    if (show) {
+      if (vehicleData) {
+        // Carregar os dados do veículo para edição
+        setFormData({
+          id: vehicleData.id || null,
+          plate: vehicleData.plate || "",
+          model: vehicleData.model || "",
+          automaker: vehicleData.automaker || "",
+          year: vehicleData.year || "",
+          fuelType: vehicleData.fuelType || "",
+          mileage: vehicleData.mileage || "",
+        });
+      } else {
+        // Resetar o formulário para cadastro de novo veículo
+        setFormData({
+          id: null,
+          plate: "",
+          model: "",
+          automaker: "",
+          year: "",
+          fuelType: "",
+          mileage: "",
+        });
+      }
     }
-  }, [vehicleData]);
+  }, [show, vehicleData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,27 +55,27 @@ const VehicleModal = ({ show, onClose, vehicleData, refreshVehicles }) => {
 
     const currentYear = new Date().getFullYear();
     if (formData.year < 1900 || formData.year > currentYear) {
-      alert('Por favor, insira um ano de fabricação válido.');
+      alert("Por favor, insira um ano de fabricação válido.");
       return;
     }
 
     if (formData.id) {
       const updated = await handleVehicleUpdate(formData);
       if (updated) {
-        alert('Veículo atualizado com sucesso!');
+        alert("Veículo atualizado com sucesso!");
         refreshVehicles();
         onClose();
       } else {
-        alert('Erro ao atualizar veículo.');
+        alert("Erro ao atualizar veículo.");
       }
     } else {
       const created = await handleVehicleRegistration(formData);
       if (created) {
-        alert('Veículo cadastrado com sucesso!');
+        alert("Veículo cadastrado com sucesso!");
         refreshVehicles();
         onClose();
       } else {
-        alert('Erro ao cadastrar veículo.');
+        alert("Erro ao cadastrar veículo.");
       }
     }
   };
@@ -71,7 +86,9 @@ const VehicleModal = ({ show, onClose, vehicleData, refreshVehicles }) => {
     <div className="modal-overlay">
       <div className="modal-content">
         <button className="btn-close" onClick={onClose} aria-label="Fechar"></button>
-        <h5 className="mb-4">{formData.id ? 'Editar Veículo' : 'Cadastrar Veículo'}</h5>
+        <h5 className="mb-4">
+          {formData.id ? "Editar Veículo" : "Cadastrar Veículo"}
+        </h5>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="plate" className="form-label">
@@ -162,7 +179,7 @@ const VehicleModal = ({ show, onClose, vehicleData, refreshVehicles }) => {
             />
           </div>
           <button type="submit" className="btn btn-primary w-100">
-            {formData.id ? 'Salvar Alterações' : 'Cadastrar'}
+            {formData.id ? "Salvar Alterações" : "Cadastrar"}
           </button>
         </form>
       </div>

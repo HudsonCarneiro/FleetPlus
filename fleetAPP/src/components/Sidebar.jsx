@@ -4,11 +4,9 @@ import "../styles/Sidebar.css";
 
 export const Sidebar = ({ activeSection, setActiveSection }) => {
   const menuItems = [
-    { 
+    {
       title: "Meu Perfil",
-      links: [
-        { label: "Ver Perfil", section: "verPerfil" },
-      ],
+      links: [{ label: "Ver Perfil", section: "verPerfil" }],
     },
     {
       title: "Ordem de Entrega",
@@ -47,6 +45,13 @@ export const Sidebar = ({ activeSection, setActiveSection }) => {
     },
   ];
 
+  const handleSectionChange = (section) => {
+    if (section !== activeSection) {
+      // Apenas atualiza o estado se a seção for diferente
+      setActiveSection(section);
+    }
+  };
+
   return (
     <div className="sidebar">
       {menuItems.map((menu, index) => (
@@ -57,7 +62,7 @@ export const Sidebar = ({ activeSection, setActiveSection }) => {
               key={linkIndex}
               to="#"
               className={`link-font ${activeSection === link.section ? "active" : ""}`}
-              onClick={() => setActiveSection(link.section)}
+              onClick={() => handleSectionChange(link.section)}
             >
               {link.label}
             </Link>

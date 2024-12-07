@@ -24,7 +24,7 @@ const VehicleTable = () => {
 
   const handleAddVehicle = () => {
     setVehicleToEdit(null); // Limpa os dados do veículo para adicionar um novo
-    setShowModal(true); // Exibe o modal
+    setTimeout(() => setShowModal(true), 0); // Garante que o modal será aberto após a limpeza
   };
 
   const handleEditVehicle = (id) => {
