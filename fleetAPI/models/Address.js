@@ -40,6 +40,10 @@ Address.associate = (models) => {
     foreignKey: 'addressId',
     as: 'users',
   });
+  Address.hasMany(models.Client, {
+    foreignKey: 'addressId',
+    as: 'clients',
+  });
 };
 
 module.exports = Address;
