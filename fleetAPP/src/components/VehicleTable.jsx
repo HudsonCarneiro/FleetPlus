@@ -1,35 +1,35 @@
 import React, { useState, useEffect } from "react";
 import "../styles/Table.css";
 import { 
-  handleFetchAllDrivers, 
-  handleDriverDeletion,
-} from "../controller/DriverController.js"; 
-import DriverModal from "./DriverModal"; 
+  handleFetchAllVehicles, 
+  handleVehicleDeletion,
+} from "../controller/VehicleController.js"; 
+import VehicleModal from "./VehicleModal"; 
 
-const DriverTable = () => {
-  const [drivers, setDrivers] = useState([]); // Inicialize o estado como um array vazio
-  const [showModal, setShowModal] = useState(false); // Estado para controlar a exibição do modal
-  const [driverToEdit, setDriverToEdit] = useState(null); // Estado para controlar os dados do motorista a ser editado
+const VehicleTable = () => {
+  const [vehicles, setVehicles] = useState([]); 
+  const [showModal, setShowModal] = useState(false); 
+  const [driverToEdit, setDriverToEdit] = useState(null); 
 
-  // Função para carregar os motoristas
-  const fetchDrivers = async () => {
-    const fetchedDrivers = await handleFetchAllDrivers(); // Chama a função para buscar os motoristas
-    setDrivers(fetchedDrivers); // Atualiza o estado com os motoristas reais
+  // Função para carregar os veic
+  const fetchVehicle = async () => {
+    const fetchedVehicles = await handleFetchAllVehicles(); 
+    setVehicles(fetchedVehicles); 
   };
 
-  // Efeito para buscar os motoristas ao carregar o componente
+  // Efeito para buscar os veiculos ao carregar o componente
   useEffect(() => {
-    fetchDrivers();
+    fetchVehicles();
   }, []); // O array vazio garante que a função seja chamada apenas uma vez, após o primeiro render
 
-  const handleAddDriver = () => {
-    setDriverToEdit(null); // Limpa os dados do motorista para adicionar um novo
+  const handleAddVehicles = () => {
+    setVehicleToEdit(null); // Limpa os dados do veiculo para adicionar um novo
     setShowModal(true); // Exibe o modal
   };
 
   const handleEditDriver = (id) => {
-    const driver = drivers.find((driver) => driver.id === id); // Encontra o motorista a ser editado
-    setDriverToEdit(driver); // Atualiza o estado com os dados do motorista para edição
+    const vehicle = vehicles.find((vehicle) => vehicle.id === id); // Encontra o veiculo a ser editado
+    setDriverToEdit(vehicle); // Atualiza o estado com os dados do veiculo para edição
     setShowModal(true); // Exibe o modal
   };
 
@@ -50,7 +50,7 @@ const DriverTable = () => {
   return (
     <div className="driver-table">
       <div className="table-header">
-        <h2>Motoristas</h2>
+        <h2>Veículos</h2>
         <button className="btn-add" onClick={handleAddDriver}>
           Adicionar Novo Motorista
         </button>
@@ -58,10 +58,12 @@ const DriverTable = () => {
       <table>
         <thead>
           <tr>
-            <th>Nome</th>
-            <th>CNH</th>
-            <th>Telefone</th>
-            <th>Ações</th>
+            <th>Plca</th>
+            <th>Modelo</th>
+            <th>Montadora</th>
+            <th>Ano</th>
+            <th>Combustível</th>
+            <th>Quilometragem</th>
           </tr>
         </thead>
         <tbody>
@@ -108,4 +110,4 @@ const DriverTable = () => {
   );
 };
 
-export default DriverTable;
+export default VehicleTable;

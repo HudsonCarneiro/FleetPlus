@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
 import UserProfile from "./UserProfile";
+import VehicleTable from "./VehicleTable.jsx"
 import VehicleModal from "./VehicleModal.jsx";
 import DriverTable from "./DriverTable";
 import DriverModal from "./DriverModal";
@@ -50,7 +51,7 @@ const Content = ({
         openDriverModal();
         return null;
       case SECTIONS.VIEW_VEHICLE:
-        return <h2>Exibindo veículos.</h2>;
+        return <VehicleTable />;
       case SECTIONS.ADD_VEHICLE:
         openVehicleModal();
         return null;
