@@ -1,45 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/ClientTable.css";
+import { handleFetchClientById, handleClientDeletion, handleFetchAllClients } from "../controller/ClientController"; 
+import ClientModal from "./ClientModal";
+import { toast } from "react-toastify"; // Para exibir mensagens visuais
 
 const ClientTable = () => {
-  // Dados fictícios para simular a tabela
-  const [clients, setClients] = useState([
-    {
-      id: 1,
-      businessName: "Empresa Alpha",
-      companyName: "Alpha S.A.",
-      cnpj: "12345678000199",
-      phone: "1133334444",
-      email: "contato@empresaalpha.com",
-    },
-    {
-      id: 2,
-      businessName: "Empresa Beta",
-      companyName: "Beta LTDA",
-      cnpj: "98765432000188",
-      phone: "2199998888",
-      email: "contato@empresabeta.com",
-    },
-  ]);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
-  // Função para adicionar um novo cliente
+  // Função para carregar os clientes
+  const fetchClients = async () => {
+    try {
+      const clientList = await handleFetchAllClients(); // Obtém todos os clientes da API
+      setClients(clientList);
+    } catch (error) {
+      console.error("Erro ao carregar os clientes:", error);
+      toast.error("Erro ao carregar a lista de clientes.");
+    }
+  };
+
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  // Função para abrir o modal de edição
+  const handleEditClient = (client) => {
+    setSelectedClient(client);
+    setIsEditMode(true);
+    setIsModalOpen(true);
+  };
+
+  // Função para abrir o modal de criação
   const handleAddClient = () => {
-    console.log("Adicionar novo cliente");
-    // Aqui você pode abrir um modal ou redirecionar para um formulário.
+    setSelectedClient(null);
+    setIsEditMode(false);
+    setIsModalOpen(true);
   };
 
-  // Função para editar um cliente
-  const handleEditClient = (id) => {
-    console.log(`Editar cliente com ID: ${id}`);
-    // Aqui você pode abrir um modal ou carregar o formulário com dados.
-  };
-
-  // Função para deletar um cliente
-  const handleDeleteClient = (id) => {
+  // Função para excluir um cliente
+  const handleDeleteClient = async (id, addressId) => {
     const confirmDelete = window.confirm("Tem certeza que deseja excluir este cliente?");
     if (confirmDelete) {
-      setClients((prevClients) => prevClients.filter((client) => client.id !== id));
+      try {
+        const deleted = await handleClientDeletion(id, addressId);
+        if (deleted) {
+          toast.success("Cliente excluído com sucesso!");
+          setClients((prevClients) => prevClients.filter((client) => client.id !== id)); // Atualiza localmente
+        } else {
+          toast.error("Erro ao excluir o cliente.");
+        }
+      } catch (error) {
+        console.error("Erro ao excluir o cliente:", error);
+        toast.error("Erro ao excluir o cliente.");
+      }
     }
+  };
+
+  // Atualiza a lista de clientes localmente após edição
+  const updateClientInState = (updatedClient) => {
+    setClients((prevClients) =>
+      prevClients.map((client) =>
+        client.id === updatedClient.id ? updatedClient : client
+      )
+    );
   };
 
   return (
@@ -58,6 +83,9 @@ const ClientTable = () => {
             <th>CNPJ</th>
             <th>Telefone</th>
             <th>E-mail</th>
+            <th>CEP</th>
+            <th>Cidade</th>
+            <th>Estado</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -70,16 +98,19 @@ const ClientTable = () => {
                 <td>{client.cnpj}</td>
                 <td>{client.phone || "Não informado"}</td>
                 <td>{client.email}</td>
+                <td>{client.cep}</td>
+                <td>{client.city}</td>
+                <td>{client.state}</td>
                 <td>
                   <button
                     className="btn-edit"
-                    onClick={() => handleEditClient(client.id)}
+                    onClick={() => handleEditClient(client)}
                   >
                     Editar
                   </button>
                   <button
                     className="btn-delete"
-                    onClick={() => handleDeleteClient(client.id)}
+                    onClick={() => handleDeleteClient(client.id, client.addressId)}
                   >
                     Excluir
                   </button>
@@ -88,13 +119,24 @@ const ClientTable = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="6" className="no-data">
+              <td colSpan="9" className="no-data">
                 Nenhum cliente encontrado.
               </td>
             </tr>
           )}
         </tbody>
       </table>
+
+      {isModalOpen && (
+        <ClientModal
+          show={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          clientData={selectedClient}
+          refreshClients={fetchClients} // Ainda é usado para criar um cliente
+          updateClientInState={updateClientInState} // Passa para atualizar localmente após edição
+          isEditMode={isEditMode}
+        />
+      )}
     </div>
   );
 };

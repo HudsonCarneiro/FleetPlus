@@ -8,12 +8,16 @@ import AuthForm from './components/AuthForm'; // Componente de login
 import Dashboard from './components/Dashboard'; // Dashboard do usuário
 import PrivateRoute from './routes/PrivateRoute.jsx'; // Rota protegida (se necessário)
 import 'bootstrap/dist/css/bootstrap.min.css';
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+
 
 
 const AppRoutes = () => {
   return (
     <Router>
       <div className="background">
+        <ToastContainer />
         <Navbar />
         <Routes>
           {/* Rotas públicas */}
