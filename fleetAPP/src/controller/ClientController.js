@@ -1,112 +1,149 @@
-import {
-    getAllClients,
-    getClientById,
-    createClient,
-    updateClient,
-    deleteClient,
-  } from "../services/ClientServices.js";
-  
-  // Função para validar campos obrigatórios
-  const validateClientFields = (formData, fields) => {
-    for (const field of fields) {
-      if (!formData[field]) {
-        throw new Error(`Campo obrigatório "${field}" ausente.`);
-      }
+import Address from '../model/Address';
+import Client from '../model/Client';
+import ClientServices from '../services/ClientServices';
+import AddressServices from '../services/AddressServices';
+
+// Buscar cliente por ID e endereço associado
+export const handleFetchClientById = async (id) => {
+  try {
+    const client = await ClientServices.fetchClientById(id);
+    if (!client) {
+      throw new Error('Cliente não encontrado.');
     }
-  };
-  
-  export const handleFetchAllClients = async () => {
-    try {
-      const clients = await getAllClients();
-  
-      if (!clients || vclients.length === 0) {
-        console.warn("Nenhum registro de cliente encontrado.");
-        return [];
-      }
-  
-      return clients;
-    } catch (error) {
-      console.error("Erro ao buscar clientes:", error.message);
-      return [];
+
+    // Buscar o endereço associado ao cliente
+    const address = await AddressServices.fetchAddressById(client.addressId);
+    if (!address) {
+      throw new Error('Endereço não encontrado.');
     }
-  };
-  
-  export const handleFetchClientById = async (id) => {
-    try {
-      const client = await getClientById(id);
-  
-      if (!client) {
-        throw new Error("Client não encontrado.");
-      }
-  
-      return client;
-    } catch (error) {
-      console.error("Erro ao buscar cliente:", error.message);
-      return null;
+
+    // Retornar dados consolidados
+    return {
+      businessName: client.businessName,
+      companyName: client.companyName,
+      cnpj: client.cnpj,
+      phone: client.phone,
+      email: client.email,
+      cep: address.cep,
+      number: address.number,
+      road: address.road,
+      complement: address.complement,
+      city: address.city,
+      state: address.state,
+    };
+  } catch (error) {
+    console.error('Erro ao buscar cliente e endereço:', error.message);
+    return null; // Retorna null em caso de erro
+  }
+};
+
+// Registrar um novo cliente e endereço
+export const handleClientRegistration = async (formData) => {
+  try {
+    // Criação do endereço
+    const address = new Address(
+      formData.cep,
+      formData.number,
+      formData.road,
+      formData.complement,
+      formData.city,
+      formData.state,
+    );
+
+    const addressResponse = await AddressServices.registerAddress(address);
+    if (!addressResponse) {
+      throw new Error('Erro ao registrar endereço.');
     }
-  };
-  
-  export const handleClientRegistration = async (formData) => {
-    try {
-      // Validação de campos obrigatórios
-      validateClientFields(formData, ["businessName", "companyName", "cnpj", ]);
-  
-      // Validação adicional para placa (padrão Mercosul)
-      // const plateRegex = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
-      // if (!plateRegex.test(formData.plate)) {
-      //   throw new Error("Digite uma PLACA válida no formato Mercosul (AAA0A00).");
-      // }
-  
-      const vehicleResponse = await createVehicle(formData);
-  
-      if (vehicleResponse) {
-        console.log("Veículo cadastrado com sucesso:", vehicleResponse);
-        return vehicleResponse;
-      } else {
-        throw new Error("Erro ao registrar veículo no services.");
-      }
-    } catch (error) {
-      console.error("Erro no registro do veículo:", error.message);
-      return null;
+
+    // Criação do cliente
+    const client = new Client(
+      formData.businessName,
+      formData.companyName,
+      formData.cnpj,
+      formData.phone,
+      formData.email,
+    );
+
+    const clientResponse = await ClientServices.registerClient(client, addressResponse);
+    if (clientResponse) {
+      console.log('Cliente cadastrado com sucesso:', clientResponse);
+      return true;
+    } else {
+      throw new Error('Erro ao registrar cliente.');
     }
-  };
-  
-  export const handleVehicleUpdate = async (formData) => {
-    try {
-      // Validação de campos obrigatórios
-      validateVehicleFields(formData, ["plate", "model", "year", "fuelType"]);
-  
-      const vehicleResponse = await updateVehicle(formData.id, formData);
-  
-      if (vehicleResponse) {
-        console.log("Veículo atualizado com sucesso:", vehicleResponse);
-        return vehicleResponse;
-      } else {
-        throw new Error("Erro ao atualizar veículo no services.");
-      }
-    } catch (error) {
-      console.error("Erro ao atualizar veículo:", error.message);
-      return null;
+  } catch (error) {
+    console.error('Erro no registro do cliente:', error.message);
+    return false; // Retorna false em caso de erro
+  }
+};
+
+// Atualizar cliente e endereço
+export const handleClientUpdate = async (formData) => {
+  try {
+    // Validação básica
+    if (!formData.id || !formData.addressId) {
+      throw new Error('ID do cliente ou do endereço não fornecido.');
     }
-  };
-  
-  export const handleVehicleDeletion = async (id) => {
-    try {
-      if (!id) {
-        throw new Error("ID do veículo não fornecido.");
-      }
-  
-      const success = await deleteVehicle(id);
-  
-      if (success) {
-        console.log("Veículo excluído com sucesso.");
-        return true;
-      } else {
-        throw new Error("Erro ao excluir veículo no services.");
-      }
-    } catch (error) {
-      console.error("Erro ao excluir veículo: ", error.message);
-      return false;
+
+    // Atualizar o endereço
+    const address = new Address(
+      formData.cep,
+      formData.number,
+      formData.road,
+      formData.complement,
+      formData.city,
+      formData.state,
+    );
+
+    const addressResponse = await AddressServices.updateAddress(formData.addressId, address);
+    if (!addressResponse) {
+      throw new Error('Erro ao atualizar endereço.');
     }
-  };
-  
+
+    console.log('Endereço atualizado com sucesso:', addressResponse);
+
+    // Atualizar o cliente
+    const client = new Client(
+      formData.businessName,
+      formData.companyName,
+      formData.cnpj,
+      formData.phone,
+      formData.email,
+    );
+
+    const clientResponse = await ClientServices.updateClient(formData.id, client);
+    if (clientResponse) {
+      console.log('Cliente atualizado com sucesso:', clientResponse);
+      return true; // Retorna true para sucesso
+    } else {
+      throw new Error('Erro ao atualizar cliente.');
+    }
+  } catch (error) {
+    console.error('Erro ao atualizar cliente e endereço:', error.message);
+    return false; // Retorna false em caso de erro
+  }
+};
+
+// Excluir cliente e endereço associados
+export const handleClientDeletion = async (clientId, addressId) => {
+  try {
+    if (!clientId) {
+      throw new Error('ID do cliente não fornecido.');
+    }
+
+    // Excluir o cliente
+    await ClientServices.deleteClient(clientId);
+    console.log('Cliente excluído com sucesso.');
+
+    // Excluir o endereço associado, se informado
+    if (addressId) {
+      await AddressServices.deleteAddress(addressId);
+      console.log('Endereço excluído com sucesso.');
+    }
+
+    return true; // Retorna true para sucesso
+  } catch (error) {
+    console.error('Erro ao excluir cliente e endereço:', error.message);
+    return false; // Retorna false em caso de erro
+  }
+};

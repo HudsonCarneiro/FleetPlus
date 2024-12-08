@@ -1,66 +1,119 @@
 const Vehicle = require('../models/Vehicle');
 
+// Lista todos os veículos vinculados ao usuário autenticado
 exports.getVehicleAll = async (req, res) => {
     try {
-        const vehicles = await Vehicle.findAll();
+        const { userId } = req.query;
+        if (!userId) {
+            return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+        }
+
+        const vehicles = await Vehicle.findAll({
+            where: { userId },
+        });
+
         res.status(200).json(vehicles);
     } catch (error) {
         res.status(500).json({
-            error: 'Erro ao listar veiculos'
-        })
+            error: 'Erro ao listar veículos',
+            details: error.message,
+        });
     }
-}
-exports.getVehicleById = async (req, res) =>{
-    try{
-        const vehicle = await Vehicle.findByPk(req.params.id);
-        if(vehicle){
-            res.json(vehicle);
-        }else{
-            res.status(404).json({error: 'Veiculo não encontrado.'})
+};
+
+// Busca um veículo por ID, garantindo que pertença ao usuário autenticado
+exports.getVehicleById = async (req, res) => {
+    try {
+        const { userId } = req.query;
+        if (!userId) {
+            return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
 
-    }catch(error){
-        res.status(500).json({error: 'Erro ao buscar veiculo'});
-    }
-}
-exports.createVehicle = async (req, res) => {
-    try{
-        const newVehicle = await Vehicle.create(req.body);
-        res.status(201).json(newVehicle)
-    } catch (error){
+        const vehicle = await Vehicle.findOne({
+            where: { id: req.params.id, userId },
+        });
+
+        if (vehicle) {
+            res.status(200).json(vehicle);
+        } else {
+            res.status(404).json({ error: 'Veículo não encontrado.' });
+        }
+    } catch (error) {
         res.status(500).json({
-            error: 'Erro ao criar veiculo'
-        })
+            error: 'Erro ao buscar veículo',
+            details: error.message,
+        });
     }
-}
-exports.updateVehicle = async (req, res)=>{
-    try{
-        const vehicle = await Vehicle.findByPk(req.params.id);
-        if(vehicle){
-            await vehicle.update(req.body);
-            res.json(vehicle);
-        }else{
-            res.status(404).json({error: 'Veiculo não encontrado'})
-        }
-    }catch(error){
-        res.status(500).json({error: 'Error ao atualizar veiculo'})
-    }
-}
+};
 
-exports.deleteVehicle = async (req, res) => {
-    try{
-        const vehicle = await Vehicle.findByPk(req.params.id);
-        if(vehicle){
-            await Vehicle.destroy({
-                where: {
-                    id: req.params.id
-                }
-            })
-            res.status(204).send();
-        }else{
-            res.status(404).json({error: "Veiculo não encontrado"})
+// Cria um novo veículo vinculado ao usuário autenticado
+exports.createVehicle = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        if (!userId) {
+            return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
-    }catch (error){
-        res.status(500).json({error: 'Erro ao deletar veiculo'});
+
+        const newVehicle = await Vehicle.create(req.body);
+        res.status(201).json(newVehicle);
+    } catch (error) {
+        res.status(500).json({
+            error: 'Erro ao criar veículo',
+            details: error.message,
+        });
     }
-}
+};
+
+// Atualiza um veículo, garantindo que pertença ao usuário autenticado
+exports.updateVehicle = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        if (!userId) {
+            return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+        }
+
+        const vehicle = await Vehicle.findOne({
+            where: { id: req.params.id, userId },
+        });
+
+        if (vehicle) {
+            await vehicle.update(req.body);
+            res.status(200).json(vehicle);
+        } else {
+            res.status(404).json({ error: 'Veículo não encontrado ou não autorizado.' });
+        }
+    } catch (error) {
+        res.status(500).json({
+            error: 'Erro ao atualizar veículo',
+            details: error.message,
+        });
+    }
+};
+
+// Deleta um veículo, garantindo que pertença ao usuário autenticado
+exports.deleteVehicle = async (req, res) => {
+    try {
+        const { userId } = req.query;
+        if (!userId) {
+            return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+        }
+
+        const vehicle = await Vehicle.findOne({
+            where: { id: req.params.id, userId },
+        });
+
+        if (vehicle) {
+            await Vehicle.destroy({
+                where: { id: req.params.id, userId },
+            });
+            res.status(204).send();
+        } else {
+            res.status(404).json({ error: 'Veículo não encontrado ou não autorizado.' });
+        }
+    } catch (error) {
+        res.status(500).json({
+            error: 'Erro ao deletar veículo',
+            details: error.message,
+        });
+    }
+};

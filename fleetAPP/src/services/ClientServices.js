@@ -1,32 +1,22 @@
-// Defina a URL base da API
-const BASE_URL = 'http://localhost:3000/api';
+// URL base da API
+const API_URL = 'http://localhost:3000/api';
 
-// Função utilitária para verificar resposta da API
-async function handleResponse(response) {
-  try {
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || response.statusText);
-    }
-    return data;
-  } catch (error) {
-    if (error.name === 'SyntaxError') {
-      throw new Error('Erro ao processar a resposta da API.');
-    }
-    throw error;
-  }
-}
+// Obtém o ID do usuário logado do localStorage
+const getUserIdFromSession = () => {
+  const userData = localStorage.getItem('userData');
+  return userData ? JSON.parse(userData).id : null;
+};
 
 // Função para registrar um cliente
-export async function registerClient(client, addressId) {
-  if (!client || !addressId) {
-    throw new Error('Cliente ou ID do endereço não informado.');
-  }
-
+export const registerClient = async (client, addressId) => {
   try {
-    client.addressId = addressId;
+    const userId = getUserIdFromSession();
+    if (!userId) throw new Error('Usuário não autenticado.');
 
-    const response = await fetch(`${BASE_URL}/client`, {
+    client.addressId = addressId;
+    client.userId = userId;
+
+    const response = await fetch(`${API_URL}/client`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -34,107 +24,111 @@ export async function registerClient(client, addressId) {
       body: JSON.stringify(client),
     });
 
-    return await handleResponse(response);
+    if (!response.ok) {
+      throw new Error(`Erro ao registrar cliente: ${response.statusText}`);
+    }
+    return await response.json();
   } catch (error) {
-    console.error('Erro ao registrar o cliente:', error.message || error);
+    console.error('Erro ao registrar cliente:', error.message);
     throw error;
   }
-}
+};
 
-// Função para buscar cliente por ID
-export async function fetchClientById(id) {
-  if (!id) {
-    throw new Error('ID do cliente não informado.');
-  }
-
+// Função para buscar todos os clientes do usuário logado
+export const fetchClients = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/client/${id}`, {
+    const userId = getUserIdFromSession();
+    if (!userId) throw new Error('Usuário não autenticado.');
+
+    const response = await fetch(`${API_URL}/clients?userId=${userId}`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    return await handleResponse(response);
-  } catch (error) {
-    console.error('Erro ao buscar cliente:', error.message || error);
-    throw error;
-  }
-}
-
-// Função para buscar todos os clientes
-export async function fetchClients() {
-  try {
-    const response = await fetch(`${BASE_URL}/clients`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    });
-
-    return await handleResponse(response);
-  } catch (error) {
-    console.error('Erro ao buscar clientes:', error.message || error);
-    throw error;
-  }
-}
-
-// Função para atualizar um cliente
-export async function updateClient(id, updatedClient) {
-  if (!id || !updatedClient) {
-    throw new Error('ID do cliente ou dados de atualização não informados.');
-  }
-
-  try {
-    const response = await fetch(`${BASE_URL}/client/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updatedClient),
-    });
-
-    return await handleResponse(response);
-  } catch (error) {
-    console.error('Erro ao atualizar cliente:', error.message || error);
-    throw error;
-  }
-}
-
-// Função para deletar um cliente
-export async function deleteClient(id) {
-  if (!id) {
-    throw new Error('ID do cliente não informado.');
-  }
-
-  try {
-    const response = await fetch(`${BASE_URL}/client/${id}`, {
-      method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        `Erro ao excluir cliente: ${errorData.message || response.statusText}`
-      );
+      throw new Error(`Erro ao buscar clientes: ${response.statusText}`);
     }
-
-    return { message: 'Cliente excluído com sucesso' };
+    return await response.json();
   } catch (error) {
-    console.error('Erro ao excluir cliente:', error.message || error);
+    console.error('Erro ao buscar clientes:', error.message);
     throw error;
   }
-}
+};
 
-// Exportando todas as funções juntas
+// Função para buscar um cliente pelo ID
+export const fetchClientById = async (id) => {
+  try {
+    const userId = getUserIdFromSession();
+    if (!userId) throw new Error('Usuário não autenticado.');
+
+    const response = await fetch(`${API_URL}/client/${id}?userId=${userId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erro ao buscar cliente: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao buscar cliente:', error.message);
+    throw error;
+  }
+};
+
+// Função para atualizar um cliente
+export const updateClient = async (id, updatedClient) => {
+  try {
+    const userId = getUserIdFromSession();
+    if (!userId) throw new Error('Usuário não autenticado.');
+
+    const response = await fetch(`${API_URL}/client/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ...updatedClient, userId }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erro ao atualizar cliente: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao atualizar cliente:', error.message);
+    throw error;
+  }
+};
+
+// Função para excluir um cliente
+export const deleteClient = async (id) => {
+  try {
+    const userId = getUserIdFromSession();
+    if (!userId) throw new Error('Usuário não autenticado.');
+
+    const response = await fetch(`${API_URL}/client/${id}?userId=${userId}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erro ao excluir cliente: ${response.statusText}`);
+    }
+    return response.status === 204;
+  } catch (error) {
+    console.error('Erro ao excluir cliente:', error.message);
+    throw error;
+  }
+};
+
+// Exporta todas as funções juntas
 export default {
   registerClient,
-  fetchClientById,
   fetchClients,
+  fetchClientById,
   updateClient,
   deleteClient,
 };

@@ -31,15 +31,6 @@ const Client = sequelize.define('Client', {
             isEmail: true 
         }
     },
-    userId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id',
-          },
-      
-    },
     addressId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -48,6 +39,23 @@ const Client = sequelize.define('Client', {
           key: 'id',
         },
       },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'Users',
+            key: 'id',
+            },
+        
+    },
+      
+}, {
+    timestamps: true, // Habilita campos createdAt e updatedAt
+    paranoid: true, // Habilita o campo deletedAt para soft deletes
+    indexes: [
+        { unique: true, fields: ['email'] },
+        { unique: true, fields: ['cnpj'] },
+    ],
 });
 
 Client.associate = (models) => {

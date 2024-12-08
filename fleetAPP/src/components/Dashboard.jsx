@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
+import ClientModal from "./ClientModal.jsx";
 import UserProfile from "./UserProfile";
-import VehicleTable from "./VehicleTable.jsx"
+import VehicleTable from "./VehicleTable.jsx";
 import VehicleModal from "./VehicleModal.jsx";
 import DriverTable from "./DriverTable";
 import DriverModal from "./DriverModal";
@@ -30,6 +31,7 @@ const Content = ({
   activeSection,
   userData,
   setActiveSection,
+  openClientModal,
   openDriverModal,
   openVehicleModal,
 }) => {
@@ -58,7 +60,8 @@ const Content = ({
       case SECTIONS.VIEW_CLIENTS:
         return <ClientTable />;
       case SECTIONS.ADD_CLIENT:
-        return <h2>Cadastrando um cliente...</h2>;
+        openClientModal();
+        return null;
       default:
         return (
           <p>
@@ -74,8 +77,10 @@ const Content = ({
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("");
+  const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [userData, setUserData] = useState(null);
@@ -85,6 +90,21 @@ const Dashboard = () => {
   useEffect(() => {
     fetchDashboardData(setUserData, setLoading, navigate);
   }, [navigate]);
+
+  // Funções relacionadas ao ClientModal
+  const openClientModal = (client = null) => {
+    setSelectedClient(client); // Corrigido para selecionar o cliente
+    setIsClientModalOpen(true);
+  };
+
+  const closeClientModal = () => {
+    setIsClientModalOpen(false);
+    setActiveSection("");
+  };
+
+  const refreshClients = () => {
+    console.log("Atualizar lista de clientes após alteração.");
+  };
 
   // Funções relacionadas ao DriverModal
   const openDriverModal = (driver = null) => {
@@ -131,9 +151,19 @@ const Dashboard = () => {
         activeSection={activeSection}
         userData={userData}
         setActiveSection={setActiveSection}
+        openClientModal={openClientModal}
         openDriverModal={openDriverModal}
         openVehicleModal={openVehicleModal}
       />
+      {/* Modal de Cliente */}
+      {isClientModalOpen && (
+        <ClientModal
+          show={isClientModalOpen}
+          onClose={closeClientModal}
+          clientData={selectedClient} // Passando o cliente selecionado
+          refreshClients={refreshClients}
+        />
+      )}
       {/* Modal de Motorista */}
       {isDriverModalOpen && (
         <DriverModal
