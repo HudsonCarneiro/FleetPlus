@@ -51,11 +51,12 @@ import {
       // Validação de campos obrigatórios
       validateVehicleFields(formData, ["plate", "model", "year"]);
   
-      // Validação adicional para placa (padrão Mercosul)
-      // const plateRegex = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
-      // if (!plateRegex.test(formData.plate)) {
-      //   throw new Error("Digite uma PLACA válida no formato Mercosul (AAA0A00).");
-      // }
+      //Validação adicional para placa (padrão Mercosul)
+      const plateRegex = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
+      if (!plateRegex.test(formData.plate)) {
+        window.alert("Digite uma PLACA válida no formato Mercosul (AAA0A00).");
+        throw new Error("Digite uma PLACA válida no formato Mercosul (AAA0A00).");
+      }
   
       const vehicleResponse = await createVehicle(formData);
   
