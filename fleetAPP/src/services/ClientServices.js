@@ -1,3 +1,4 @@
+
 // URL base da API
 const API_URL = 'http://localhost:3000/api';
 
@@ -7,13 +8,12 @@ const getUserIdFromSession = () => {
   return userData ? JSON.parse(userData).id : null;
 };
 
-// Função para registrar um cliente
-export const registerClient = async (client, addressId) => {
+// Função para registrar um cliente com endereço
+export const registerClient = async (client) => {
   try {
     const userId = getUserIdFromSession();
     if (!userId) throw new Error('Usuário não autenticado.');
 
-    client.addressId = addressId;
     client.userId = userId;
 
     const response = await fetch(`${API_URL}/client`, {
@@ -80,7 +80,7 @@ export const fetchClientById = async (id) => {
   }
 };
 
-// Função para atualizar um cliente
+// Função para atualizar um cliente e endereço
 export const updateClient = async (id, updatedClient) => {
   try {
     const userId = getUserIdFromSession();

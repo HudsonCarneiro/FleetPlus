@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const User = require('./User'); // Importando o modelo User
 
 const Address = sequelize.define('Address', {
   id: {
@@ -46,6 +45,7 @@ Address.associate = (models) => {
     foreignKey: 'addressId',
     as: 'clients',
   });
+  
 };
 
 module.exports = Address;

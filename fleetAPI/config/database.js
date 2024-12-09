@@ -27,16 +27,3 @@ sequelize.authenticate()
 
 module.exports = sequelize;
 
-/* refazer o banco
-npx sequelize-cli db:migrate:undo:all
-npx sequelize-cli db:migrate
-*/
-
-/*(async () => {
-    try {
-        await sequelize.sync({ force: true }); // `force: true` apaga e recria todas as tabelas
-        console.log('Tabelas recriadas com sucesso!');
-    } catch (error) {
-        console.error('Erro ao recriar tabelas:', error);
-    }
-})();*/
