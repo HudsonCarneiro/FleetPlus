@@ -1,104 +1,130 @@
-import React, { useState } from "react";
-import "../styles/FuelingTable.css";
+import React, { useEffect, useState } from "react";
+import { fetchFuelings, deleteFueling, exportFuelingReportToTxt } from "../services/FuelingServices";
+import "../styles/Table.css";
+import { toast } from "react-toastify";
+import FuelingModal from "./FuelingModal";
 
 const FuelingTable = () => {
-  // Dados fictícios para simular a tabela
-  const [fuelings, setFuelings] = useState([
-    {
-      id: 1,
-      driver: "João Silva",
-      vehicle: "Caminhão ABC-1234",
-      liters: 50.75,
-      price: 300.50,
-      mileage: 150000,
-      dateFueling: "2024-11-20",
-    },
-    {
-      id: 2,
-      driver: "Maria Souza",
-      vehicle: "Van XYZ-5678",
-      liters: 30.00,
-      price: 180.00,
-      mileage: 80000,
-      dateFueling: "2024-11-21",
-    },
-  ]);
+  const [fuelings, setFuelings] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedFueling, setSelectedFueling] = useState(null);
 
-  // Função para adicionar um novo abastecimento
-  const handleAddFueling = () => {
-    console.log("Adicionar novo abastecimento");
-    // Aqui você pode abrir um modal ou redirecionar para um formulário.
-  };
+  useEffect(() => {
+    const loadFuelings = async () => {
+      try {
+        setLoading(true);
+        const fetchedFuelings = await fetchFuelings();
+        setFuelings(fetchedFuelings);
+      } catch (error) {
+        console.error("Erro ao carregar abastecimentos:", error.message);
+        toast.error("Erro ao carregar abastecimentos. Tente novamente.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Função para editar um abastecimento
-  const handleEditFueling = (id) => {
-    console.log(`Editar abastecimento com ID: ${id}`);
-    // Aqui você pode abrir um modal ou carregar o formulário com dados.
-  };
+    loadFuelings();
+  }, []);
 
-  // Função para deletar um abastecimento
-  const handleDeleteFueling = (id) => {
+  const handleDeleteFueling = async (id) => {
     const confirmDelete = window.confirm("Tem certeza que deseja excluir este abastecimento?");
     if (confirmDelete) {
-      setFuelings((prevFuelings) => prevFuelings.filter((fueling) => fueling.id !== id));
+      try {
+        await deleteFueling(id);
+        setFuelings((prev) => prev.filter((fueling) => fueling.id !== id));
+        toast.success("Abastecimento excluído com sucesso!");
+      } catch (error) {
+        console.error("Erro ao excluir abastecimento:", error.message);
+        toast.error("Erro ao excluir abastecimento. Tente novamente.");
+      }
     }
+  };
+
+  const handleAddFueling = () => {
+    setSelectedFueling(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditFueling = (fueling) => {
+    setSelectedFueling(fueling);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedFueling(null);
   };
 
   return (
     <div className="fueling-table">
       <div className="table-header">
         <h2>Abastecimentos</h2>
-        <button className="btn-add" onClick={handleAddFueling}>
-          Adicionar Novo Abastecimento
-        </button>
+        <div>
+          <button className="btn-add" onClick={handleAddFueling}>
+            Adicionar Novo Abastecimento
+          </button>
+          <button className="btn-export" onClick={exportFuelingReportToTxt}>
+            Exportar Relatório
+          </button>
+        </div>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Motorista</th>
-            <th>Veículo</th>
-            <th>Litros</th>
-            <th>Preço</th>
-            <th>Quilometragem</th>
-            <th>Data</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {fuelings.length > 0 ? (
-            fuelings.map((fueling) => (
-              <tr key={fueling.id}>
-                <td>{fueling.driver}</td>
-                <td>{fueling.vehicle}</td>
-                <td>{fueling.liters.toFixed(2)} L</td>
-                <td>R$ {fueling.price.toFixed(2)}</td>
-                <td>{fueling.mileage.toFixed(2)} km</td>
-                <td>{new Date(fueling.dateFueling).toLocaleDateString()}</td>
-                <td>
-                  <button
-                    className="btn-edit"
-                    onClick={() => handleEditFueling(fueling.id)}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="btn-delete"
-                    onClick={() => handleDeleteFueling(fueling.id)}
-                  >
-                    Excluir
-                  </button>
+      {loading ? (
+        <p>Carregando...</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Motorista</th>
+              <th>Veículo</th>
+              <th>Litros</th>
+              <th>Preço</th>
+              <th>Quilometragem</th>
+              <th>Data</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {fuelings.length > 0 ? (
+              fuelings.map((fueling) => (
+                <tr key={fueling.id}>
+                  <td>{fueling.Driver?.name || "Não informado"}</td>
+                  <td>
+                    {fueling.Vehicle
+                      ? `${fueling.Vehicle.model} (${fueling.Vehicle.licensePlate})`
+                      : "Não informado"}
+                  </td>
+                  <td>{Number(fueling.liters || 0).toFixed(2)} L</td>
+                  <td>R$ {Number(fueling.price || 0).toFixed(2)}</td>
+                  <td>{Number(fueling.mileage || 0).toFixed(2)} km</td>
+                  <td>
+                    {fueling.dateFueling
+                      ? new Date(fueling.dateFueling).toLocaleDateString()
+                      : "Não definida"}
+                  </td>
+                  <td>
+                    <button className="btn-edit" onClick={() => handleEditFueling(fueling)}>
+                      Editar
+                    </button>
+                    <button className="btn-delete" onClick={() => handleDeleteFueling(fueling.id)}>
+                      Excluir
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="no-data">
+                  Nenhum abastecimento encontrado.
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="7" className="no-data">
-                Nenhum abastecimento encontrado.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
+      )}
+      {isModalOpen && (
+        <FuelingModal show={isModalOpen} onClose={closeModal} fuelingData={selectedFueling} />
+      )}
     </div>
   );
 };

@@ -40,15 +40,24 @@ import {
   // Buscar todas as ordens de entrega
   export const handleFetchAllDeliveryOrders = async () => {
     try {
-      const deliveryOrders = await fetchDeliveryOrders();
-      if (!deliveryOrders.length) {
-        console.warn("Nenhuma ordem de entrega encontrada.");
-        return [];
+      const deliveries = await fetchDeliveryOrders();
+  
+      if (!Array.isArray(deliveries)) {
+        throw new Error('Formato inesperado na resposta.');
       }
-      return deliveryOrders;
+  
+      return deliveries.map((order) => ({
+        id: order.id,
+        client: order.Client?.businessName || 'Cliente não informado',
+        driver: order.Driver?.name || 'Motorista não informado',
+        vehicle: order.Vehicle
+          ? `${order.Vehicle.model} (${order.Vehicle.licensePlate})`
+          : 'Veículo não informado',
+        deliveryDate: order.deliveryDate || null,
+        status: order.status || 'Status não definido',
+      }));
     } catch (error) {
-      console.error("Erro ao buscar todas as ordens de entrega:", error.message);
-      toast.error("Erro ao buscar ordens de entrega. Tente novamente.");
+      console.error('Erro ao buscar todas as ordens de entrega:', error.message);
       throw error;
     }
   };

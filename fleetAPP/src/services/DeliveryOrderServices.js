@@ -49,7 +49,7 @@ const apiRequest = async (endpoint, method = 'GET', body = null, queryParams = {
 // Função para listar todas as ordens de entrega
 export const fetchDeliveryOrders = async () => {
   try {
-    return await apiRequest('/deliveries');
+    return await apiRequest('/deliveries'); // userId é automaticamente incluído via apiRequest
   } catch (error) {
     console.error('Erro ao buscar ordens de entrega:', error.message);
     throw error;

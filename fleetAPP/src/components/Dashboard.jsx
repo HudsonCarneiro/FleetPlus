@@ -9,8 +9,9 @@ import DriverTable from "./DriverTable";
 import DriverModal from "./DriverModal";
 import ClientTable from "./ClientTable";
 import FuelingTable from "./FuelingTable";
+import FuelingModal from "./FuelingModal"; // Importa o FuelingModal
 import DeliveryTable from "./DeliveryTable";
-import DeliveryModal from "./DeliveryModal"; // Importa o DeliveryModal
+import DeliveryModal from "./DeliveryModal"; 
 import { Sidebar } from "./Sidebar";
 import { fetchDashboardData } from "../controller/DashboardController.js";
 
@@ -34,7 +35,8 @@ const Content = ({
   onRequestAddClient,
   onRequestAddDriver,
   onRequestAddVehicle,
-  onRequestAddDelivery, // Novo callback para abrir o DeliveryModal
+  onRequestAddDelivery,
+  onRequestAddFueling, // Novo callback para o FuelingModal
 }) => {
   const renderContent = () => {
     switch (activeSection) {
@@ -43,12 +45,13 @@ const Content = ({
       case SECTIONS.VIEW_DELIVERIES:
         return <DeliveryTable />;
       case SECTIONS.CREATE_ORDER:
-        onRequestAddDelivery(); // Chama o modal de criação de ordem
+        onRequestAddDelivery();
         return null;
       case SECTIONS.VIEW_FUELING:
         return <FuelingTable />;
       case SECTIONS.REGISTER_FUELING:
-        return <h2>Registrando um novo abastecimento...</h2>;
+        onRequestAddFueling(); // Chama o modal de criação de abastecimento
+        return null;
       case SECTIONS.VIEW_DRIVERS:
         return <DriverTable />;
       case SECTIONS.ADD_DRIVER:
@@ -79,11 +82,13 @@ const Dashboard = () => {
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
-  const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false); // Estado para o DeliveryModal
+  const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
+  const [isFuelingModalOpen, setIsFuelingModalOpen] = useState(false); // Estado para o FuelingModal
   const [selectedClient, setSelectedClient] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [selectedDelivery, setSelectedDelivery] = useState(null); // Estado para dados de entrega
+  const [selectedDelivery, setSelectedDelivery] = useState(null);
+  const [selectedFueling, setSelectedFueling] = useState(null); // Estado para dados de abastecimento
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -105,7 +110,6 @@ const Dashboard = () => {
     loadDashboardData();
   }, [navigate]);
 
-  // Abre os modais com base na seção ativa
   useEffect(() => {
     if (activeSection === SECTIONS.ADD_CLIENT) {
       setIsClientModalOpen(true);
@@ -114,7 +118,9 @@ const Dashboard = () => {
     } else if (activeSection === SECTIONS.ADD_VEHICLE) {
       setIsVehicleModalOpen(true);
     } else if (activeSection === SECTIONS.CREATE_ORDER) {
-      setIsDeliveryModalOpen(true); // Abre o DeliveryModal
+      setIsDeliveryModalOpen(true);
+    } else if (activeSection === SECTIONS.REGISTER_FUELING) {
+      setIsFuelingModalOpen(true); // Abre o FuelingModal
     }
   }, [activeSection]);
 
@@ -136,6 +142,11 @@ const Dashboard = () => {
   const closeDeliveryModal = () => {
     setIsDeliveryModalOpen(false);
     setActiveSection(SECTIONS.VIEW_DELIVERIES);
+  };
+
+  const closeFuelingModal = () => {
+    setIsFuelingModalOpen(false);
+    setActiveSection(SECTIONS.VIEW_FUELING);
   };
 
   if (loading) {
@@ -164,7 +175,8 @@ const Dashboard = () => {
         onRequestAddClient={() => setActiveSection(SECTIONS.ADD_CLIENT)}
         onRequestAddDriver={() => setActiveSection(SECTIONS.ADD_DRIVER)}
         onRequestAddVehicle={() => setActiveSection(SECTIONS.ADD_VEHICLE)}
-        onRequestAddDelivery={() => setActiveSection(SECTIONS.CREATE_ORDER)} // Callback para abrir DeliveryModal
+        onRequestAddDelivery={() => setActiveSection(SECTIONS.CREATE_ORDER)}
+        onRequestAddFueling={() => setActiveSection(SECTIONS.REGISTER_FUELING)} // Callback para o FuelingModal
       />
       {isClientModalOpen && (
         <ClientModal
@@ -193,7 +205,16 @@ const Dashboard = () => {
           onClose={closeDeliveryModal}
           deliveryData={selectedDelivery}
           refreshDeliveries={() => setActiveSection(SECTIONS.VIEW_DELIVERIES)}
-          isEditMode={false} // Configuração inicial do modal como novo cadastro
+          isEditMode={false}
+        />
+      )}
+      {isFuelingModalOpen && (
+        <FuelingModal
+          show={isFuelingModalOpen}
+          onClose={closeFuelingModal}
+          fuelingData={selectedFueling}
+          refreshFuelings={() => setActiveSection(SECTIONS.VIEW_FUELING)}
+          isEditMode={false}
         />
       )}
     </section>

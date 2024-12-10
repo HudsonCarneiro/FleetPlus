@@ -2,6 +2,9 @@ const DeliveryOrder = require('../models/DeliveryOrder');
 const Client = require('../models/Client');
 const Driver = require('../models/Driver');
 const Vehicle = require('../models/Vehicle');
+const clientController = require('./clientController');
+const driverController = require('./driverController');
+const vehicleController = require('./vehicleController');
 const fs = require('fs');
 const path = require('path');
 
@@ -76,19 +79,32 @@ exports.getDeliveryOrders = async (req, res) => {
       return res.status(400).json({ error: 'ID do usuário não fornecido.' });
     }
 
+    // Busca todas as ordens do usuário
     const orders = await DeliveryOrder.findAll({
       where: { userId },
-      include: [
-        { model: Client, attributes: ['businessName', 'companyName'] },
-        { model: Driver, attributes: ['name'] },
-        { model: Vehicle, attributes: ['licensePlate', 'model'] },
-      ],
     });
 
-    res.status(200).json(orders);
+    // Itera sobre as ordens para incluir os dados relacionados
+    const ordersWithDetails = await Promise.all(
+      orders.map(async (order) => {
+        const client = await clientController.getClientById(order.clientId);
+        const driver = await driverController.getDriverById(order.driverId);
+        const vehicle = await vehicleController.getVehicleById(order.vehicleId);
+
+        return {
+          ...order.toJSON(),
+          Client: client || { businessName: "Não disponível", companyName: "" },
+          Driver: driver || { name: "Não disponível" },
+          Vehicle: vehicle || { licensePlate: "Não disponível", model: "" },
+        };
+      })
+    );
+
+    res.status(200).json(ordersWithDetails);
   } catch (error) {
+    console.error("Erro ao listar ordens de entrega:", error.message);
     res.status(500).json({
-      error: 'Erro ao listar ordens de entrega.',
+      error: "Erro ao listar ordens de entrega.",
       details: error.message,
     });
   }

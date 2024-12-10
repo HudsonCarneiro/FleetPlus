@@ -47,15 +47,21 @@ const DeliveryTable = () => {
   };
 
   // Função para exportar o relatório de entregas
+  const [isExporting, setIsExporting] = useState(false);
+
   const handleExportReport = async () => {
     try {
-      await handleExportDeliveryOrdersToTxt(); // Chama a função de exportação
+      setIsExporting(true);
+      await handleExportDeliveryOrdersToTxt();
       toast.success("Relatório de entregas gerado com sucesso!");
     } catch (error) {
       console.error("Erro ao gerar relatório de entregas:", error.message);
       toast.error("Erro ao gerar relatório de entregas. Tente novamente.");
+    } finally {
+      setIsExporting(false);
     }
   };
+  
 
   // Função para abrir o modal de edição
   const handleEditOrder = (delivery) => {
@@ -108,7 +114,7 @@ const DeliveryTable = () => {
             Adicionar Nova Ordem
           </button>
           <button className="btn-export" onClick={handleExportReport}>
-            Gerar Relatório .TXT
+            Exportar Relatório
           </button>
         </div>
       </div>
