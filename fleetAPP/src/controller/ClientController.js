@@ -3,85 +3,77 @@ import {
   fetchClients, 
   updateClient, 
   deleteClient, 
-  registerClient
+  registerClient 
 } from '../services/ClientServices';
+import { validateClientData } from '../validators/clientValidator';
 
-
-// Buscar todos os clientes com seus endereços
+// Buscar todos os clientes
 export const handleFetchAllClients = async () => {
   try {
     const clients = await fetchClients();
 
     if (!clients.length) {
-      console.warn("Nenhum cliente encontrado.");
+      console.warn('Nenhum cliente encontrado.');
       return [];
     }
 
-    // Processa os dados dos clientes para renderização
-    const processedClients = clients.map((client) => ({
+    // Processa os dados para evitar falhas no componente
+    return clients.map((client) => ({
       id: client.id,
-      businessName: client.businessName || "Nome não informado",
-      companyName: client.companyName || "",
-      cnpj: client.cnpj || "",
-      email: client.email || "",
-      phone: client.phone || "Não informado",
+      businessName: client.businessName || 'Nome não informado',
+      companyName: client.companyName || '',
+      cnpj: client.cnpj || '',
+      email: client.email || '',
+      phone: client.phone || 'Não informado',
       address: client.address
         ? {
-            cep: client.address.cep || "CEP não informado",
-            city: client.address.city || "Cidade não informada",
-            state: client.address.state || "Estado não informado",
+            cep: client.address.cep || 'CEP não informado',
+            city: client.address.city || 'Cidade não informada',
+            state: client.address.state || 'Estado não informado',
           }
         : null,
     }));
-
-    return processedClients;
   } catch (error) {
-    console.error("Erro ao buscar todos os clientes:", error.message);
-    return []; // Retorna uma lista vazia para evitar falhas no componente
+    console.error('Erro ao buscar todos os clientes:', error.message);
+    return []; // Retorna lista vazia para evitar falhas no componente
   }
 };
 
+// Buscar cliente por ID
 export const handleFetchClientById = async (clientId) => {
   try {
-    if (!clientId) {
-      throw new Error("ID do cliente não fornecido.");
-    }
+    if (!clientId) throw new Error('ID do cliente não fornecido.');
 
-    // Chamada ao serviço para buscar os dados do cliente pelo ID
     const client = await fetchClientById(clientId);
 
-    if (!client) {
-      throw new Error("Cliente não encontrado.");
-    }
+    if (!client) throw new Error('Cliente não encontrado.');
 
-    // Montagem dos dados do cliente com tratamento de valores faltantes
-    const clientData = {
+    return {
       id: client.id,
-      businessName: client.businessName || "Nome não informado",
-      companyName: client.companyName || "",
-      cnpj: client.cnpj || "",
-      email: client.email || "",
-      phone: client.phone || "Não informado",
+      businessName: client.businessName || 'Nome não informado',
+      companyName: client.companyName || '',
+      cnpj: client.cnpj || '',
+      email: client.email || '',
+      phone: client.phone || 'Não informado',
       address: client.address
-      ? {
-          cep: client.address.cep || "CEP não informado",
-          city: client.address.city || "Cidade não informada",
-          state: client.address.state || "Estado não informado",
-        }
-      : null,
+        ? {
+            cep: client.address.cep || 'CEP não informado',
+            city: client.address.city || 'Cidade não informada',
+            state: client.address.state || 'Estado não informado',
+          }
+        : null,
     };
-
-    return clientData;
   } catch (error) {
-    console.error("Erro ao buscar cliente por ID:", error.message);
+    console.error('Erro ao buscar cliente por ID:', error.message);
     throw error;
   }
 };
 
-
-// Registrar cliente e endereço juntos
+// Registrar cliente
 export const handleClientRegistration = async (formData) => {
   try {
+    validateClientData(formData);
+
     const clientPayload = {
       businessName: formData.businessName,
       companyName: formData.companyName,
@@ -100,6 +92,7 @@ export const handleClientRegistration = async (formData) => {
 
     const response = await registerClient(clientPayload);
     console.log('Cliente registrado com sucesso:', response);
+
     return response;
   } catch (error) {
     console.error('Erro ao registrar cliente:', error.message);
@@ -107,50 +100,42 @@ export const handleClientRegistration = async (formData) => {
   }
 };
 
-// Atualizar cliente e endereço juntos
-export const handleClientUpdate = async (formData) => {
+// Atualizar cliente
+export const handleClientUpdate = async (clientId, clientData) => {
   try {
-    const response = await fetch(`/api/clients/${formData.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        businessName: formData.businessName,
-        companyName: formData.companyName,
-        cnpj: formData.cnpj,
-        phone: formData.phone,
-        email: formData.email,
-        addressId: formData.addressId,
-        cep: formData.cep,
-        road: formData.road,
-        number: formData.number,
-        complement: formData.complement,
-        city: formData.city,
-        state: formData.state,
-      }),
-    });
+    if (!clientId) throw new Error('O ID do cliente é obrigatório.');
+    validateClientData(clientData);
 
-    if (!response.ok) {
-      throw new Error("Erro ao atualizar o cliente.");
-    }
+    const response = await updateClient(clientId, clientData);
 
-    return true;
+    console.log('Cliente atualizado com sucesso:', response);
+    alert('Cliente atualizado com sucesso.');
+    return response;
   } catch (error) {
-    console.error("Erro ao atualizar cliente:", error.message);
-    return false;
+    console.error('Erro ao atualizar cliente:', error.message);
+    alert(`Erro ao atualizar cliente: ${error.message}`);
+    throw error;
   }
 };
-
 
 // Excluir cliente
 export const handleClientDeletion = async (id) => {
   try {
+    if (!id) throw new Error('ID do cliente é obrigatório.');
+
     const success = await deleteClient(id);
-    console.log('Cliente excluído com sucesso.');
+
+    if (success) {
+      console.log('Cliente excluído com sucesso.');
+      alert('Cliente excluído com sucesso.');
+    } else {
+      throw new Error('Erro inesperado ao excluir cliente.');
+    }
+
     return success;
   } catch (error) {
     console.error('Erro ao excluir cliente:', error.message);
+    alert(`Erro ao excluir cliente: ${error.message}`);
     throw error;
   }
 };

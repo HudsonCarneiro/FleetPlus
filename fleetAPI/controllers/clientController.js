@@ -1,97 +1,28 @@
+const { Op } = require('sequelize');
+const sequelize = require('../config/database');
 const Client = require('../models/Client');
-const Address = require('../models/Address') // Certifique-se de importar ambos os modelos
-const addressController = require('./addressController')
+const Address = require('../models/Address');
+const User = require('../models/User');
+const addressController = require('./addressController');
 
-
-exports.getClientAll = async (req, res) => {
-  try {
-    const { userId } = req.query;
-    if (!userId) {
-      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
-    }
-
-    // Busca os clientes vinculados ao usuário
-    const clients = await Client.findAll({
-      where: { userId },
-    });
-
-    if (clients.length === 0) {
-      return res.status(404).json({ error: 'Nenhum cliente encontrado.' });
-    }
-
-    // Para cada cliente, buscamos o endereço através do addressController
-    for (const client of clients) {
-      const addressResponse = await addressController.getAddressbyId({ params: { id: client.addressId } }, res);
-      client.dataValues.address = addressResponse; // Atribui o endereço retornado à propriedade address do cliente
-    }
-
-    res.status(200).json(clients);
-  } catch (error) {
-    res.status(500).json({
-      error: 'Erro ao listar clientes',
-      details: error.message,
-    });
-  }
-};
-
-
-export const fetchClientById = async (id) => {
-  try {
-    const userId = getUserIdFromSession(); // Obtemos o ID do usuário autenticado
-    if (!userId) throw new Error("Usuário não autenticado.");
-
-    console.log("Buscando cliente com ID:", id);
-
-    // Faz a chamada para o endpoint do backend
-    const response = await fetch(`${API_URL}/client/${id}?userId=${userId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erro ao buscar cliente: ${response.statusText}`);
-    }
-
-    // Obtém os dados do cliente retornados pela API
-    const clientData = await response.json();
-
-    // Certifica-se de que os dados do endereço estão presentes
-    const formattedData = {
-      id: clientData.id || "",
-      businessName: clientData.businessName || "",
-      companyName: clientData.companyName || "",
-      cnpj: clientData.cnpj || "",
-      phone: clientData.phone || "Não informado",
-      email: clientData.email || "",
-      address: {
-        id: clientData.addressId || "",
-        cep: clientData.cep || "CEP não informado",
-        road: clientData.road || "Logradouro não informado",
-        number: clientData.number || "Número não informado",
-        complement: clientData.complement || "",
-        city: clientData.city || "Cidade não informada",
-        state: clientData.state || "Estado não informado",
-      },
-    };
-
-    return formattedData;
-  } catch (error) {
-    console.error("Erro ao buscar cliente:", error.message);
-    throw error;
-  }
-};
-
-// Cria um cliente e o endereço vinculado ao usuário autenticado
+// Função para criar um novo cliente com endereço
 exports.createClient = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
-    const { userId, address, ...clientData } = req.body; // Desestrutura endereço e dados do cliente
-    if (!userId) {
-      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+    const { businessName, companyName, cnpj, phone, email, address, userId } = req.body;
+
+    // Verifique se o CNPJ ou o Email já existem
+    const existingClient = await Client.findOne({
+      where: {
+        [Op.or]: [{ cnpj }, { email }],
+      },
+    });
+
+    if (existingClient) {
+      return res.status(400).json({ message: 'CNPJ ou Email já cadastrados.' });
     }
 
-    // Criar o endereço
+    // Criação do endereço e do cliente usando transação
     const createdAddress = await Address.create({
       cep: address.cep,
       number: address.number,
@@ -99,142 +30,161 @@ exports.createClient = async (req, res) => {
       complement: address.complement,
       city: address.city,
       state: address.state,
-    });
+    }, { transaction: t });
 
-    // Criar o cliente com referência ao endereço
-    const newClient = await Client.create({
-      ...clientData,
-      addressId: createdAddress.id,
-      userId,
-    });
-
-    res.status(201).json(newClient);
-  } catch (error) {
-    res.status(500).json({
-      error: 'Erro ao criar um cliente',
-      details: error.message,
-    });
-  }
-};
-
-// Atualiza um cliente e o endereço vinculado
-// controller/ClientController.js
-exports.updateClient = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const {
+    const client = await Client.create({
       businessName,
       companyName,
       cnpj,
       phone,
       email,
-      addressId,
-      cep,
-      road,
-      number,
-      complement,
-      city,
-      state,
-    } = req.body;
+      addressId: createdAddress.id,
+      userId,
+    }, { transaction: t });
 
-    if (!id) {
-      return res.status(400).json({ error: "ID do cliente não fornecido." });
+    await t.commit();
+    res.status(201).json(client);
+  } catch (error) {
+    await t.rollback();
+    console.error(error.message);
+    res.status(500).json({ message: 'Erro ao criar cliente.', error: error.message });
+  }
+};
+
+// Função para listar todos os clientes com paginação
+exports.getClientAll = async (req, res) => {
+  try {
+    // Busca todos os clientes
+    const clientsResponse = await Client.findAll();
+
+    // Itera sobre os clientes para buscar seus endereços
+    const clientsWithAddress = await Promise.all(
+      clientsResponse.map(async (client) => {
+        const address = await addressController.getAddressbyId(client.addressId);
+        return {
+          ...client.toJSON(), // Converte o cliente para JSON
+          address, // Adiciona o endereço correspondente
+        };
+      })
+    );
+
+    res.status(200).json({
+      clients: clientsWithAddress,
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: 'Erro ao listar clientes.', error: error.message });
+  }
+};
+
+
+// Função para obter um cliente específico por ID, incluindo o endereço e usuário
+exports.getClientById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Busca o cliente pelo ID
+    const client = await Client.findOne({
+      where: { id },
+      attributes: ['id', 'businessName', 'companyName', 'cnpj', 'email', 'phone', 'addressId', 'userId'], // Inclui `addressId` e `userId` para buscar dados associados
+    });
+
+    if (!client) {
+      return res.status(404).json({ message: 'Cliente não encontrado.' });
     }
 
+    // Busca o endereço do cliente usando a função reutilizável
+    const address = await addressController.getAddressbyId(client.addressId);
+
+    // Inclui o endereço e retorna os dados do cliente
+    const clientWithAddress = {
+      ...client.toJSON(),
+      address, // Inclui o endereço no cliente
+    };
+
+    res.status(200).json(clientWithAddress);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: 'Erro ao obter cliente.', error: error.message });
+  }
+};
+
+
+// Função para atualizar um cliente e seu endereço
+exports.updateClient = async (req, res) => {
+  const { id } = req.params;
+  const { businessName, companyName, cnpj, phone, email, address, userId } = req.body;
+
+  const t = await sequelize.transaction();
+  try {
+    // Busca o cliente pelo ID
     const client = await Client.findByPk(id);
 
     if (!client) {
-      return res.status(404).json({ error: "Cliente não encontrado." });
+      await t.rollback();
+      return res.status(404).json({ message: 'Cliente não encontrado.' });
+    }
+
+    // Verifica se o CNPJ ou Email já existem, excluindo o cliente atual
+    const existingClient = await Client.findOne({
+      where: {
+        [Op.or]: [{ cnpj }, { email }],
+        id: { [Op.ne]: id },
+      },
+    });
+
+    if (existingClient) {
+      await t.rollback();
+      return res.status(400).json({ message: 'CNPJ ou Email já cadastrados.' });
+    }
+
+    // Atualizar o endereço usando a função reutilizável
+    if (address) {
+      await addressController.updateAddressbyId(client.addressId, address);
     }
 
     // Atualizar os dados do cliente
-    await client.update({
+    const updatedClient = await client.update({
       businessName,
       companyName,
       cnpj,
       phone,
       email,
-    });
+      userId,
+    }, { transaction: t });
 
-    // Atualizar ou criar os dados do endereço
-    if (addressId) {
-      const address = await Address.findByPk(addressId);
-
-      if (address) {
-        await address.update({
-          cep,
-          road,
-          number,
-          complement,
-          city,
-          state,
-        });
-      } else {
-        console.warn("Endereço não encontrado. Criando novo...");
-        await Address.create({
-          clientId: client.id,
-          cep,
-          road,
-          number,
-          complement,
-          city,
-          state,
-        });
-      }
-    } else {
-      // Caso não exista um endereço associado, cria um novo
-      await Address.create({
-        clientId: client.id,
-        cep,
-        road,
-        number,
-        complement,
-        city,
-        state,
-      });
-    }
-
-    res.status(200).json({ message: "Cliente atualizado com sucesso." });
+    await t.commit();
+    res.status(200).json(updatedClient);
   } catch (error) {
-    console.error("Erro ao atualizar cliente:", error);
-    res.status(500).json({
-      error: "Erro ao atualizar cliente.",
-      details: error.message,
-    });
+    await t.rollback();
+    console.error(error.message);
+    res.status(500).json({ message: 'Erro ao atualizar cliente.', error: error.message });
   }
 };
 
-// Exclui um cliente e o endereço vinculado
+
+// Função para excluir um cliente e seu endereço
 exports.deleteClient = async (req, res) => {
+  const { id } = req.params;
+
+  const t = await sequelize.transaction();
   try {
-    const { userId } = req.query;
-    if (!userId) {
-      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+    const client = await Client.findByPk(id);
+
+    if (!client) {
+      await t.rollback();
+      return res.status(404).json({ message: 'Cliente não encontrado.' });
     }
 
-    const client = await Client.findOne({
-      where: { id: req.params.id, userId },
-    });
+    // Excluir o cliente primeiro
+    await client.destroy({ transaction: t });
 
-    if (client) {
-      // Excluir o cliente
-      await Client.destroy({
-        where: { id: req.params.id, userId },
-      });
-
-      // Opcional: Excluir o endereço associado
-      await Address.destroy({
-        where: { id: client.addressId },
-      });
-
-      res.status(204).send();
-    } else {
-      res.status(404).json({ error: 'Cliente não encontrado ou não autorizado.' });
-    }
+    await t.commit();
+    res.status(200).json({ message: 'Cliente excluído com sucesso.' });
   } catch (error) {
-    res.status(500).json({
-      error: 'Erro ao deletar cliente',
-      details: error.message,
-    });
+    await t.rollback();
+    console.error(error.message);
+    res.status(500).json({ message: 'Erro ao excluir cliente.', error: error.message });
   }
 };
+

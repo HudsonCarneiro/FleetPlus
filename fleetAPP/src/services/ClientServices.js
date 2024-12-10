@@ -95,6 +95,7 @@ export const fetchClientById = async (id) => {
 };
 
 
+
 // Função para registrar um cliente com endereço
 export const registerClient = async (client) => {
   try {
@@ -125,21 +126,35 @@ export const registerClient = async (client) => {
 
 // Função para atualizar um cliente e endereço
 export const updateClient = async (id, updatedClient) => {
+  if (!id) throw new Error('ID do cliente não fornecido.');
+  if (!updatedClient || typeof updatedClient !== 'object') {
+    throw new Error('Dados do cliente inválidos ou não fornecidos.');
+  }
+
   try {
     const userId = getUserIdFromSession();
     if (!userId) throw new Error('Usuário não autenticado.');
 
-    const response = await fetch(`${API_URL}/client/${id}userId=${userId}`, {
+    const url = `${API_URL}/client/${id}?userId=${userId}`;
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+
+    const response = await fetch(url, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ ...updatedClient, userId }),
     });
 
     if (!response.ok) {
-      throw new Error(`Erro ao atualizar cliente: ${response.statusText}`);
+      const errorBody = await response.json();
+      throw new Error(
+        `Erro ao atualizar cliente: ${response.status} - ${response.statusText}. Detalhes: ${JSON.stringify(
+          errorBody
+        )}`
+      );
     }
+
     return await response.json();
   } catch (error) {
     console.error('Erro ao atualizar cliente:', error.message);
@@ -149,6 +164,8 @@ export const updateClient = async (id, updatedClient) => {
 
 // Função para excluir um cliente
 export const deleteClient = async (id) => {
+  if (!id) throw new Error('ID do cliente é obrigatório.');
+
   try {
     const userId = getUserIdFromSession();
     if (!userId) throw new Error('Usuário não autenticado.');
@@ -158,14 +175,19 @@ export const deleteClient = async (id) => {
     });
 
     if (!response.ok) {
-      throw new Error(`Erro ao excluir cliente: ${response.statusText}`);
+      const errorDetails = await response.json().catch(() => ({}));
+      throw new Error(
+        `Erro ao excluir cliente: ${response.status} - ${errorDetails.message || response.statusText}`
+      );
     }
+
     return response.status === 204;
   } catch (error) {
     console.error('Erro ao excluir cliente:', error.message);
     throw error;
   }
 };
+
 
 // Exporta todas as funções juntas
 export default {

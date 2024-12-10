@@ -19,8 +19,6 @@ const Address = sequelize.define('Address', {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
-
-  
   complement: {
     type: DataTypes.STRING(100),
     allowNull: true,
@@ -39,13 +37,12 @@ const Address = sequelize.define('Address', {
 Address.associate = (models) => {
   Address.hasMany(models.User, {
     foreignKey: 'addressId',
-    as: 'users',
+    as: 'users', // Alias deve ser usado nos controllers
   });
   Address.hasMany(models.Client, {
     foreignKey: 'addressId',
-    as: 'clients',
+    as: 'clients', // Alias deve ser usado nos controllers
   });
-  
 };
 
 module.exports = Address;

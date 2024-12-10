@@ -47,8 +47,8 @@ const ClientTable = () => {
   };
 
   // Função para excluir um cliente
-  const handleDeleteClient = async (id, addressId) => {
-    if (!id || !addressId) {
+  const handleDeleteClient = async (id) => {
+    if (!id) {
       toast.error("Dados do cliente inválidos.");
       return;
     }

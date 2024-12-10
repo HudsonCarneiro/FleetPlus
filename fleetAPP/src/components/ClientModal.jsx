@@ -5,6 +5,7 @@ import {
   handleFetchClientById,
   handleClientRegistration,
 } from "../controller/ClientController";
+import { toast } from "react-toastify"; // Notificação amigável para feedback do usuário
 
 const initialFormState = {
   id: "",
@@ -63,6 +64,7 @@ const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) 
           }
         } catch (error) {
           console.error("Erro ao buscar os dados do cliente:", error);
+          toast.error("Erro ao buscar os dados do cliente.");
         } finally {
           setLoading(false);
         }
@@ -82,8 +84,8 @@ const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) 
   const validateFields = () => {
     const invalidFields = requiredFields.filter((field) => !formData[field]);
     if (invalidFields.length > 0) {
-      alert(
-        `Os seguintes campos são obrigatórios e estão vazios: ${invalidFields.join(", ")}`
+      toast.error(
+        `Os seguintes campos são obrigatórios: ${invalidFields.join(", ")}`
       );
       return false;
     }
@@ -91,24 +93,23 @@ const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) 
   };
 
   const handleSave = async () => {
-    if (!validateFields()) {
-      return;
-    }
+    if (!validateFields()) return;
 
     try {
       setLoading(true);
       if (isEditMode) {
-        await handleClientUpdate(formData);
-        console.log("Cliente atualizado com sucesso.");
+        await handleClientUpdate(formData.id, formData);
+        toast.success("Cliente atualizado com sucesso!");
       } else {
         await handleClientRegistration(formData);
-        console.log("Cliente cadastrado com sucesso.");
+        toast.success("Cliente cadastrado com sucesso!");
       }
 
       onClose();
       refreshClients?.();
     } catch (error) {
       console.error("Erro ao salvar cliente:", error);
+      toast.error("Erro ao salvar cliente. Verifique os dados informados.");
     } finally {
       setLoading(false);
     }
