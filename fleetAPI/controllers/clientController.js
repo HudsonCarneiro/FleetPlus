@@ -35,59 +35,53 @@ exports.getClientAll = async (req, res) => {
 };
 
 
-const Client = require('../models/Client');
-const Address = require('../models/Address');
-
-exports.getClientById = async (req, res) => {
+export const fetchClientById = async (id) => {
   try {
-    const { id } = req.params;
+    const userId = getUserIdFromSession(); // Obtemos o ID do usuário autenticado
+    if (!userId) throw new Error("Usuário não autenticado.");
 
-    if (!id) {
-      return res.status(400).json({ error: "ID do cliente não fornecido." });
-    }
+    console.log("Buscando cliente com ID:", id);
 
-    // Busca o cliente pelo ID com a associação explícita
-    const client = await Client.findOne({
-      where: { id },
-      include: [
-        {
-          model: Address,
-          as: "address", // Certifique-se de que o alias é o mesmo definido na associação
-        },
-      ],
+    // Faz a chamada para o endpoint do backend
+    const response = await fetch(`${API_URL}/client/${id}?userId=${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
-    if (!client) {
-      return res.status(404).json({ error: "Cliente não encontrado." });
+    if (!response.ok) {
+      throw new Error(`Erro ao buscar cliente: ${response.statusText}`);
     }
 
-    // Processa os dados
-    const clientData = {
-      id: client.id,
-      businessName: client.businessName,
-      companyName: client.companyName,
-      cnpj: client.cnpj,
-      phone: client.phone,
-      email: client.email,
-      addressId: client.address?.id || "",
-      cep: client.address?.cep || "",
-      road: client.address?.road || "",
-      number: client.address?.number || "",
-      complement: client.address?.complement || "",
-      city: client.address?.city || "",
-      state: client.address?.state || "",
+    // Obtém os dados do cliente retornados pela API
+    const clientData = await response.json();
+
+    // Certifica-se de que os dados do endereço estão presentes
+    const formattedData = {
+      id: clientData.id || "",
+      businessName: clientData.businessName || "",
+      companyName: clientData.companyName || "",
+      cnpj: clientData.cnpj || "",
+      phone: clientData.phone || "Não informado",
+      email: clientData.email || "",
+      address: {
+        id: clientData.addressId || "",
+        cep: clientData.cep || "CEP não informado",
+        road: clientData.road || "Logradouro não informado",
+        number: clientData.number || "Número não informado",
+        complement: clientData.complement || "",
+        city: clientData.city || "Cidade não informada",
+        state: clientData.state || "Estado não informado",
+      },
     };
 
-    res.status(200).json(clientData);
+    return formattedData;
   } catch (error) {
-    console.error("Erro ao buscar cliente:", error);
-    res.status(500).json({
-      error: "Erro ao buscar cliente",
-      details: error.message,
-    });
+    console.error("Erro ao buscar cliente:", error.message);
+    throw error;
   }
 };
-
 
 // Cria um cliente e o endereço vinculado ao usuário autenticado
 exports.createClient = async (req, res) => {

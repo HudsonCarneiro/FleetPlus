@@ -48,16 +48,33 @@ export const handleFetchClientById = async (clientId) => {
     }
 
     // Chamada ao serviço para buscar os dados do cliente pelo ID
-    const clientData = await fetchClientById(clientId);
+    const client = await fetchClientById(clientId);
 
-    if (!clientData) {
+    if (!client) {
       throw new Error("Cliente não encontrado.");
     }
 
-    return clientData; // Retorna os dados do cliente
+    // Montagem dos dados do cliente com tratamento de valores faltantes
+    const clientData = {
+      id: client.id,
+      businessName: client.businessName || "Nome não informado",
+      companyName: client.companyName || "",
+      cnpj: client.cnpj || "",
+      email: client.email || "",
+      phone: client.phone || "Não informado",
+      address: client.address
+      ? {
+          cep: client.address.cep || "CEP não informado",
+          city: client.address.city || "Cidade não informada",
+          state: client.address.state || "Estado não informado",
+        }
+      : null,
+    };
+
+    return clientData;
   } catch (error) {
-    console.error("Erro ao buscar cliente por ID:", error);
-    throw error; // Repassa o erro para ser tratado no componente ou no chamador
+    console.error("Erro ao buscar cliente por ID:", error.message);
+    throw error;
   }
 };
 

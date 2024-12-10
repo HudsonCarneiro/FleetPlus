@@ -48,22 +48,48 @@ export const fetchClients = async () => {
 // Função para buscar um cliente pelo ID
 export const fetchClientById = async (id) => {
   try {
-    const userId = getUserIdFromSession();
-    if (!userId) throw new Error('Usuário não autenticado.');
+    const userId = getUserIdFromSession(); // Obtemos o ID do usuário autenticado
+    if (!userId) throw new Error("Usuário não autenticado.");
 
+    console.log("Buscando cliente com ID:", id);
+
+    // Faz a chamada para o endpoint do backend
     const response = await fetch(`${API_URL}/client/${id}?userId=${userId}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
       throw new Error(`Erro ao buscar cliente: ${response.statusText}`);
     }
-    return await response.json();
+
+    // Obtém os dados do cliente retornados pela API
+    const clientData = await response.json();
+
+    // Certifica-se de que os dados do endereço estão presentes
+    const formattedData = {
+      id: clientData.id || "",
+      businessName: clientData.businessName || "",
+      companyName: clientData.companyName || "",
+      cnpj: clientData.cnpj || "",
+      phone: clientData.phone || "Não informado",
+      email: clientData.email || "",
+      address: {
+        id: clientData.addressId || "",
+        cep: clientData.cep || "CEP não informado",
+        road: clientData.road || "Logradouro não informado",
+        number: clientData.number || "Número não informado",
+        complement: clientData.complement || "",
+        city: clientData.city || "Cidade não informada",
+        state: clientData.state || "Estado não informado",
+      },
+    };
+
+    return formattedData;
   } catch (error) {
-    console.error('Erro ao buscar cliente:', error.message);
+    console.error("Erro ao buscar cliente:", error.message);
     throw error;
   }
 };

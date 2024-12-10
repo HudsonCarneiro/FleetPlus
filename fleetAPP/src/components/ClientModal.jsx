@@ -6,39 +6,33 @@ import {
   handleClientRegistration,
 } from "../controller/ClientController";
 
+const initialFormState = {
+  id: "",
+  businessName: "",
+  companyName: "",
+  cnpj: "",
+  phone: "",
+  email: "",
+  cep: "",
+  number: "",
+  road: "",
+  complement: "",
+  city: "",
+  state: "",
+  addressId: "",
+};
+
+const requiredFields = [
+  "businessName",
+  "companyName",
+  "cnpj",
+  "cep",
+  "road",
+  "city",
+  "state",
+];
+
 const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) => {
-  const initialFormState = {
-    id: "",
-    businessName: "",
-    companyName: "",
-    cnpj: "",
-    phone: "",
-    email: "",
-    cep: "",
-    number: "",
-    road: "",
-    complement: "",
-    city: "",
-    state: "",
-    addressId: "",
-  };
-
-  const fieldLabels = {
-    businessName: "Nome Fantasia",
-    companyName: "Razão Social",
-    cnpj: "CNPJ",
-    phone: "Telefone",
-    email: "E-mail",
-    cep: "CEP",
-    number: "Número",
-    road: "Rua",
-    complement: "Complemento",
-    city: "Cidade",
-    state: "Estado",
-  };
-
-  const requiredFields = ["businessName", "companyName", "cnpj", "cep", "road", "city", "state"];
-
   const [formData, setFormData] = useState(initialFormState);
   const [loading, setLoading] = useState(false);
 
@@ -76,10 +70,10 @@ const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) 
         setFormData(initialFormState);
       }
     };
-  
+
     if (show) initializeForm();
   }, [show, isEditMode, clientData]);
-  
+
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [id]: value }));
@@ -97,64 +91,90 @@ const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) 
   };
 
   const handleSave = async () => {
-    if (!validateFields()) return;
+    if (!validateFields()) {
+      return;
+    }
 
     try {
       setLoading(true);
       if (isEditMode) {
-        const updated = await handleClientUpdate(formData);
-        if (updated) console.log("Cliente atualizado com sucesso.");
+        await handleClientUpdate(formData);
+        console.log("Cliente atualizado com sucesso.");
       } else {
-        const result = await handleClientRegistration(formData);
-        if (result) console.log("Cliente cadastrado com sucesso.");
+        await handleClientRegistration(formData);
+        console.log("Cliente cadastrado com sucesso.");
       }
+
       onClose();
       refreshClients?.();
     } catch (error) {
-      console.error("Erro ao salvar cliente:", error.message);
+      console.error("Erro ao salvar cliente:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const FormFields = () => (
-    <form className="mt-4">
-      <div className="row">
-        {Object.keys(formData)
-          .filter((key) => key !== "id" && key !== "addressId")
-          .map((key) => (
-            <div className="col-md-6 mb-3" key={key}>
-              <label className="form-label" htmlFor={key}>
-                {fieldLabels[key] || key}
-              </label>
-              <input
-                className="form-control"
-                type="text"
-                id={key}
-                value={formData[key]}
-                onChange={handleInputChange}
-              />
-            </div>
-          ))}
-      </div>
-    </form>
-  );
-
   return (
     show && (
       <div className="modal-overlay">
         <div className="modal-content">
-          <button
-            className="btn-close"
-            onClick={onClose}
-            aria-label="Fechar Modal"
-          >
+          <button className="btn-close" onClick={onClose}>
             &times;
           </button>
           <h3 className="text-center">
             {isEditMode ? "Editar Cliente" : "Cadastrar Cliente"}
           </h3>
-          {loading ? <p className="text-center">Carregando...</p> : <FormFields />}
+          {loading ? (
+            <p className="text-center">Carregando...</p>
+          ) : (
+            <form className="mt-4">
+              <div className="row">
+                {Object.keys(initialFormState)
+                  .filter((key) => key !== "id" && key !== "addressId")
+                  .map((key) => (
+                    <div className="col-md-6 mb-3" key={key}>
+                      <label className="form-label" htmlFor={key}>
+                        {(() => {
+                          switch (key) {
+                            case "businessName":
+                              return "Nome Fantasia";
+                            case "companyName":
+                              return "Razão Social";
+                            case "cnpj":
+                              return "CNPJ";
+                            case "phone":
+                              return "Telefone";
+                            case "email":
+                              return "E-mail";
+                            case "cep":
+                              return "CEP";
+                            case "number":
+                              return "Número";
+                            case "road":
+                              return "Rua";
+                            case "complement":
+                              return "Complemento";
+                            case "city":
+                              return "Cidade";
+                            case "state":
+                              return "Estado";
+                            default:
+                              return key;
+                          }
+                        })()}
+                      </label>
+                      <input
+                        className="form-control"
+                        type="text"
+                        id={key}
+                        value={formData[key]}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                  ))}
+              </div>
+            </form>
+          )}
           <div className="d-flex justify-content-between mt-3">
             <button
               className="btn btn-primary w-100"
