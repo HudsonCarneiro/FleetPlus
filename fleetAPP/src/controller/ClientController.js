@@ -1,9 +1,9 @@
-import { 
-  fetchClientById, 
-  fetchClients, 
-  updateClient, 
-  deleteClient, 
-  registerClient 
+import {
+  fetchClientById,
+  fetchClients,
+  updateClient,
+  deleteClient,
+  registerClient,
 } from '../services/ClientServices';
 import { validateClientData } from '../validators/clientValidator';
 
@@ -35,7 +35,7 @@ export const handleFetchAllClients = async () => {
     }));
   } catch (error) {
     console.error('Erro ao buscar todos os clientes:', error.message);
-    return []; // Retorna lista vazia para evitar falhas no componente
+    throw new Error('Não foi possível buscar os clientes. Tente novamente.');
   }
 };
 
@@ -65,7 +65,7 @@ export const handleFetchClientById = async (clientId) => {
     };
   } catch (error) {
     console.error('Erro ao buscar cliente por ID:', error.message);
-    throw error;
+    throw new Error('Não foi possível buscar os dados do cliente. Tente novamente.');
   }
 };
 
@@ -93,9 +93,11 @@ export const handleClientRegistration = async (formData) => {
     const response = await registerClient(clientPayload);
     console.log('Cliente registrado com sucesso:', response);
 
+    alert('Cliente registrado com sucesso.');
     return response;
   } catch (error) {
     console.error('Erro ao registrar cliente:', error.message);
+    alert(`Erro ao registrar cliente: ${error.message}`);
     throw error;
   }
 };

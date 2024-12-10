@@ -5,6 +5,7 @@ import {
   handleFetchAllClients,
 } from "../controller/ClientController";
 import ClientModal from "./ClientModal";
+import { toast } from "react-toastify";
 
 const ClientTable = () => {
   const [clients, setClients] = useState([]);
@@ -15,13 +16,13 @@ const ClientTable = () => {
 
   // Função para carregar os clientes
   const fetchClients = async () => {
-    if (loading) return; // Evita múltiplas chamadas simultâneas
     try {
       setLoading(true);
-      const clientList = await handleFetchAllClients();
-      setClients(clientList);
+      const clientList = await handleFetchAllClients(); // Função que chama o serviço
+      console.log("Clientes recebidos:", clientList); // Log para depuração
+      setClients(clientList); // Atualiza o estado com os clientes
     } catch (error) {
-      console.error("Erro ao carregar os clientes:", error);
+      console.error("Erro ao carregar os clientes:", error.message);
       toast.error("Erro ao carregar a lista de clientes.");
     } finally {
       setLoading(false);
@@ -56,29 +57,14 @@ const ClientTable = () => {
     const confirmDelete = window.confirm("Tem certeza que deseja excluir este cliente?");
     if (confirmDelete) {
       try {
-        const deleted = await handleClientDeletion(id, addressId);
-        if (deleted) {
-          toast.success("Cliente excluído com sucesso!");
-          setClients((prevClients) =>
-            prevClients.filter((client) => client.id !== id)
-          );
-        } else {
-          toast.error("Erro ao excluir o cliente.");
-        }
+        await handleClientDeletion(id);
+        toast.success("Cliente excluído com sucesso!");
+        fetchClients(); // Recarrega a lista de clientes após exclusão
       } catch (error) {
-        console.error("Erro ao excluir o cliente:", error);
+        console.error("Erro ao excluir o cliente:", error.message);
         toast.error("Erro ao excluir o cliente.");
       }
     }
-  };
-
-  // Atualiza cliente no estado local após edição
-  const updateClientInState = (updatedClient) => {
-    setClients((prevClients) =>
-      prevClients.map((client) =>
-        client.id === updatedClient.id ? updatedClient : client
-      )
-    );
   };
 
   return (
@@ -127,9 +113,7 @@ const ClientTable = () => {
                     </button>
                     <button
                       className="btn-delete"
-                      onClick={() =>
-                        handleDeleteClient(client.id, client.address?.id)
-                      }
+                      onClick={() => handleDeleteClient(client.id)}
                     >
                       Excluir
                     </button>
@@ -146,7 +130,6 @@ const ClientTable = () => {
           </tbody>
         </table>
       )}
-
       {isModalOpen && (
         <ClientModal
           show={isModalOpen}
@@ -159,4 +142,5 @@ const ClientTable = () => {
     </div>
   );
 };
+
 export default ClientTable;

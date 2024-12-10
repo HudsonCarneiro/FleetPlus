@@ -30,10 +30,9 @@ const SECTIONS = {
 const Content = ({
   activeSection,
   userData,
-  setActiveSection,
-  openClientModal,
-  openDriverModal,
-  openVehicleModal,
+  onRequestAddClient,
+  onRequestAddDriver,
+  onRequestAddVehicle,
 }) => {
   const renderContent = () => {
     switch (activeSection) {
@@ -50,23 +49,23 @@ const Content = ({
       case SECTIONS.VIEW_DRIVERS:
         return <DriverTable />;
       case SECTIONS.ADD_DRIVER:
-        openDriverModal();
-        return null;
+        // Não chama diretamente a função, apenas renderiza a mensagem
+        return <p>Preparando o modal para cadastrar motorista...</p>;
       case SECTIONS.VIEW_VEHICLE:
         return <VehicleTable />;
       case SECTIONS.ADD_VEHICLE:
-        openVehicleModal();
-        return null;
+        // Não chama diretamente a função, apenas renderiza a mensagem
+        return <p>Preparando o modal para cadastrar veículo...</p>;
       case SECTIONS.VIEW_CLIENTS:
         return <ClientTable />;
       case SECTIONS.ADD_CLIENT:
-        openClientModal();
-        return null;
+        // Não chama diretamente a função, apenas renderiza a mensagem
+        return <p>Preparando o modal para cadastrar cliente...</p>;
       default:
         return (
           <p>
             Bem-vindo ao Painel de Controle, {userData?.name || "usuário"}! <br />
-            Selecione uma opção no menu para ver os detalhes.
+            Use o menu lateral para navegar entre as seções.
           </p>
         );
     }
@@ -85,59 +84,62 @@ const Dashboard = () => {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchDashboardData(setUserData, setLoading, navigate);
+    const loadDashboardData = async () => {
+      try {
+        setLoading(true);
+        await fetchDashboardData(setUserData, setLoading, navigate);
+      } catch (err) {
+        console.error("Erro ao carregar o dashboard:", err);
+        setError("Erro ao carregar os dados do usuário. Tente novamente.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
   }, [navigate]);
 
-  // Funções relacionadas ao ClientModal
-  const openClientModal = (client = null) => {
-    setSelectedClient(client); // Corrigido para selecionar o cliente
-    setIsClientModalOpen(true);
-  };
+  // Abre os modais com base na seção ativa
+  useEffect(() => {
+    if (activeSection === SECTIONS.ADD_CLIENT) {
+      setIsClientModalOpen(true);
+    } else if (activeSection === SECTIONS.ADD_DRIVER) {
+      setIsDriverModalOpen(true);
+    } else if (activeSection === SECTIONS.ADD_VEHICLE) {
+      setIsVehicleModalOpen(true);
+    }
+  }, [activeSection]);
 
   const closeClientModal = () => {
     setIsClientModalOpen(false);
-    setActiveSection("");
-  };
-
-  const refreshClients = () => {
-    console.log("Atualizar lista de clientes após alteração.");
-  };
-
-  // Funções relacionadas ao DriverModal
-  const openDriverModal = (driver = null) => {
-    setSelectedDriver(driver);
-    setIsDriverModalOpen(true);
+    setActiveSection(SECTIONS.VIEW_CLIENTS);
   };
 
   const closeDriverModal = () => {
     setIsDriverModalOpen(false);
-    setActiveSection("");
-  };
-
-  const refreshDrivers = () => {
-    console.log("Atualizar lista de motoristas após alteração.");
-  };
-
-  // Funções relacionadas ao VehicleModal
-  const openVehicleModal = (vehicle = null) => {
-    setSelectedVehicle(vehicle);
-    setIsVehicleModalOpen(true);
+    setActiveSection(SECTIONS.VIEW_DRIVERS);
   };
 
   const closeVehicleModal = () => {
     setIsVehicleModalOpen(false);
-    setActiveSection("");
-  };
-
-  const refreshVehicles = () => {
-    console.log("Atualizar lista de veículos após alteração.");
+    setActiveSection(SECTIONS.VIEW_VEHICLE);
   };
 
   if (loading) {
     return <p>Carregando...</p>;
+  }
+
+  if (error) {
+    return (
+      <div className="error-container">
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()}>Tentar Novamente</button>
+      </div>
+    );
   }
 
   if (!userData) {
@@ -150,36 +152,29 @@ const Dashboard = () => {
       <Content
         activeSection={activeSection}
         userData={userData}
-        setActiveSection={setActiveSection}
-        openClientModal={openClientModal}
-        openDriverModal={openDriverModal}
-        openVehicleModal={openVehicleModal}
+        onRequestAddClient={() => setActiveSection(SECTIONS.ADD_CLIENT)}
+        onRequestAddDriver={() => setActiveSection(SECTIONS.ADD_DRIVER)}
+        onRequestAddVehicle={() => setActiveSection(SECTIONS.ADD_VEHICLE)}
       />
-      {/* Modal de Cliente */}
       {isClientModalOpen && (
         <ClientModal
           show={isClientModalOpen}
           onClose={closeClientModal}
-          clientData={selectedClient} // Passando o cliente selecionado
-          refreshClients={refreshClients}
+          clientData={selectedClient}
         />
       )}
-      {/* Modal de Motorista */}
       {isDriverModalOpen && (
         <DriverModal
           show={isDriverModalOpen}
           onClose={closeDriverModal}
           driverData={selectedDriver}
-          refreshDrivers={refreshDrivers}
         />
       )}
-      {/* Modal de Veículo */}
       {isVehicleModalOpen && (
         <VehicleModal
           show={isVehicleModalOpen}
           onClose={closeVehicleModal}
           vehicleData={selectedVehicle}
-          refreshVehicles={refreshVehicles}
         />
       )}
     </section>

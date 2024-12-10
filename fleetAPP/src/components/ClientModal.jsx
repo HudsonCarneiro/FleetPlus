@@ -5,10 +5,9 @@ import {
   handleFetchClientById,
   handleClientRegistration,
 } from "../controller/ClientController";
-import { toast } from "react-toastify"; // Notificação amigável para feedback do usuário
+import { toast } from "react-toastify";
 
 const initialFormState = {
-  id: "",
   businessName: "",
   companyName: "",
   cnpj: "",
@@ -20,7 +19,6 @@ const initialFormState = {
   complement: "",
   city: "",
   state: "",
-  addressId: "",
 };
 
 const requiredFields = [
@@ -43,28 +41,22 @@ const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) 
         try {
           setLoading(true);
           const fetchedClient = await handleFetchClientById(clientData.id);
-          if (fetchedClient) {
-            setFormData({
-              id: fetchedClient.id || "",
-              businessName: fetchedClient.businessName || "",
-              companyName: fetchedClient.companyName || "",
-              cnpj: fetchedClient.cnpj || "",
-              phone: fetchedClient.phone || "",
-              email: fetchedClient.email || "",
-              cep: fetchedClient.address?.cep || "",
-              number: fetchedClient.address?.number || "",
-              road: fetchedClient.address?.road || "",
-              complement: fetchedClient.address?.complement || "",
-              city: fetchedClient.address?.city || "",
-              state: fetchedClient.address?.state || "",
-              addressId: fetchedClient.address?.id || "",
-            });
-          } else {
-            console.warn("Nenhum cliente encontrado para o ID fornecido.");
-          }
+          setFormData({
+            businessName: fetchedClient.businessName || "",
+            companyName: fetchedClient.companyName || "",
+            cnpj: fetchedClient.cnpj || "",
+            phone: fetchedClient.phone || "",
+            email: fetchedClient.email || "",
+            cep: fetchedClient.address?.cep || "",
+            number: fetchedClient.address?.number || "",
+            road: fetchedClient.address?.road || "",
+            complement: fetchedClient.address?.complement || "",
+            city: fetchedClient.address?.city || "",
+            state: fetchedClient.address?.state || "",
+          });
         } catch (error) {
-          console.error("Erro ao buscar os dados do cliente:", error);
-          toast.error("Erro ao buscar os dados do cliente.");
+          console.error("Erro ao buscar cliente:", error);
+          toast.error("Erro ao carregar cliente para edição.");
         } finally {
           setLoading(false);
         }
@@ -98,7 +90,7 @@ const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) 
     try {
       setLoading(true);
       if (isEditMode) {
-        await handleClientUpdate(formData.id, formData);
+        await handleClientUpdate(clientData.id, formData); // Usa o ID do clientData
         toast.success("Cliente atualizado com sucesso!");
       } else {
         await handleClientRegistration(formData);
@@ -130,49 +122,47 @@ const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) 
           ) : (
             <form className="mt-4">
               <div className="row">
-                {Object.keys(initialFormState)
-                  .filter((key) => key !== "id" && key !== "addressId")
-                  .map((key) => (
-                    <div className="col-md-6 mb-3" key={key}>
-                      <label className="form-label" htmlFor={key}>
-                        {(() => {
-                          switch (key) {
-                            case "businessName":
-                              return "Nome Fantasia";
-                            case "companyName":
-                              return "Razão Social";
-                            case "cnpj":
-                              return "CNPJ";
-                            case "phone":
-                              return "Telefone";
-                            case "email":
-                              return "E-mail";
-                            case "cep":
-                              return "CEP";
-                            case "number":
-                              return "Número";
-                            case "road":
-                              return "Rua";
-                            case "complement":
-                              return "Complemento";
-                            case "city":
-                              return "Cidade";
-                            case "state":
-                              return "Estado";
-                            default:
-                              return key;
-                          }
-                        })()}
-                      </label>
-                      <input
-                        className="form-control"
-                        type="text"
-                        id={key}
-                        value={formData[key]}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                  ))}
+                {Object.keys(initialFormState).map((key) => (
+                  <div className="col-md-6 mb-3" key={key}>
+                    <label className="form-label" htmlFor={key}>
+                      {(() => {
+                        switch (key) {
+                          case "businessName":
+                            return "Nome Fantasia";
+                          case "companyName":
+                            return "Razão Social";
+                          case "cnpj":
+                            return "CNPJ";
+                          case "phone":
+                            return "Telefone";
+                          case "email":
+                            return "E-mail";
+                          case "cep":
+                            return "CEP";
+                          case "number":
+                            return "Número";
+                          case "road":
+                            return "Rua";
+                          case "complement":
+                            return "Complemento";
+                          case "city":
+                            return "Cidade";
+                          case "state":
+                            return "Estado";
+                          default:
+                            return key;
+                        }
+                      })()}
+                    </label>
+                    <input
+                      className="form-control"
+                      type="text"
+                      id={key}
+                      value={formData[key]}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                ))}
               </div>
             </form>
           )}
