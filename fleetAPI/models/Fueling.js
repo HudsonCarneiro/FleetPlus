@@ -1,119 +1,52 @@
-const Fueling = require('../models/Fueling');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-// Lista todos os abastecimentos vinculados ao usuário autenticado
-exports.getFuelingAll = async (req, res) => {
-    try {
-        const { userId } = req.query;
-        if (!userId) {
-            return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+const Fueling = sequelize.define('Fueling', {
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'Users',
+            key: 'id',
+          },
+    },
+    driverId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    vehicleId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+   
+    },
+    liters: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        validate: {
+            min: 0.01 // Garantir que a quantidade de litros seja positiva
         }
-
-        const supplies = await Fueling.findAll({
-            where: { userId },
-        });
-
-        res.status(200).json(supplies);
-    } catch (error) {
-        res.status(500).json({
-            error: 'Erro ao listar abastecimentos',
-            details: error.message,
-        });
+    },
+    price: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        validate: {
+            min: 0.01 // Garantir que o preço seja positivo
+        }
+    },
+    mileage: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false
+    },
+    dateFueling: {
+        type: DataTypes.DATE,
+        allowNull: false
     }
+});
+
+Fueling.associate = (models) => {
+    Fueling.belongsTo(models.User, { foreignKey: 'userId' });
+    Fueling.belongsTo(models.Driver, { foreignKey: 'driverId' });
+    Fueling.belongsTo(models.Vehicle, { foreignKey: 'vehicleId' });
 };
 
-// Busca um abastecimento por ID, garantindo que pertença ao usuário autenticado
-exports.getFuelingById = async (req, res) => {
-    try {
-        const { userId } = req.query;
-        if (!userId) {
-            return res.status(400).json({ error: 'ID do usuário não fornecido.' });
-        }
-
-        const fueling = await Fueling.findOne({
-            where: { id: req.params.id, userId },
-        });
-
-        if (fueling) {
-            res.status(200).json(fueling);
-        } else {
-            res.status(404).json({ error: 'Abastecimento não encontrado.' });
-        }
-    } catch (error) {
-        res.status(500).json({
-            error: 'Erro ao buscar abastecimento',
-            details: error.message,
-        });
-    }
-};
-
-// Cria um novo abastecimento vinculado ao usuário autenticado
-exports.createFueling = async (req, res) => {
-    try {
-        const { userId } = req.body;
-        if (!userId) {
-            return res.status(400).json({ error: 'ID do usuário não fornecido.' });
-        }
-
-        const newFueling = await Fueling.create(req.body);
-        res.status(201).json(newFueling);
-    } catch (error) {
-        res.status(500).json({
-            error: 'Erro ao criar abastecimento',
-            details: error.message,
-        });
-    }
-};
-
-// Atualiza um abastecimento, garantindo que pertença ao usuário autenticado
-exports.updateFueling = async (req, res) => {
-    try {
-        const { userId } = req.body;
-        if (!userId) {
-            return res.status(400).json({ error: 'ID do usuário não fornecido.' });
-        }
-
-        const fueling = await Fueling.findOne({
-            where: { id: req.params.id, userId },
-        });
-
-        if (fueling) {
-            await fueling.update(req.body);
-            res.status(200).json(fueling);
-        } else {
-            res.status(404).json({ error: 'Abastecimento não encontrado ou não autorizado.' });
-        }
-    } catch (error) {
-        res.status(500).json({
-            error: 'Erro ao atualizar abastecimento',
-            details: error.message,
-        });
-    }
-};
-
-// Deleta um abastecimento, garantindo que pertença ao usuário autenticado
-exports.deleteFueling = async (req, res) => {
-    try {
-        const { userId } = req.query;
-        if (!userId) {
-            return res.status(400).json({ error: 'ID do usuário não fornecido.' });
-        }
-
-        const fueling = await Fueling.findOne({
-            where: { id: req.params.id, userId },
-        });
-
-        if (fueling) {
-            await Fueling.destroy({
-                where: { id: req.params.id, userId },
-            });
-            res.status(204).send();
-        } else {
-            res.status(404).json({ error: 'Abastecimento não encontrado ou não autorizado.' });
-        }
-    } catch (error) {
-        res.status(500).json({
-            error: 'Erro ao deletar abastecimento',
-            details: error.message,
-        });
-    }
-};
+module.exports = Fueling;
