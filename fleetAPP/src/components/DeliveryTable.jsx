@@ -1,44 +1,101 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/DeliveryTable.css";
+import {
+  handleFetchAllDeliveryOrders,
+  handleDeliveryOrderDeletion,
+  handleDeliveryOrderStatusUpdate,
+  handleExportDeliveryOrdersToTxt, // Importa a função de exportação
+} from "../controller/DeliveryOrderController";
+import DeliveryModal from "./DeliveryModal";
+import { toast } from "react-toastify";
 
 const DeliveryTable = () => {
-  // Dados fictícios
-  const [deliveries, setDeliveries] = useState([
-    {
-      id: 1,
-      client: "Empresa A",
-      driver: "João Silva",
-      vehicle: "Caminhão ABC-1234",
-      deliveryDate: "2024-11-25",
-      status: "aguardando",
-    },
-    {
-      id: 2,
-      client: "Empresa B",
-      driver: "Maria Souza",
-      vehicle: "Van XYZ-5678",
-      deliveryDate: "2024-11-26",
-      status: "enviado",
-    },
-  ]);
+  const [deliveries, setDeliveries] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedDelivery, setSelectedDelivery] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [hasNoDeliveriesToastShown, setHasNoDeliveriesToastShown] = useState(false);
 
-  // Função para adicionar nova ordem de entrega
+  // Função para buscar todas as ordens de entrega
+  const fetchDeliveries = async () => {
+    try {
+      setLoading(true);
+      const fetchedDeliveries = await handleFetchAllDeliveryOrders();
+      setDeliveries(fetchedDeliveries);
+
+      if (fetchedDeliveries.length === 0 && !hasNoDeliveriesToastShown) {
+        toast.info("Nenhuma ordem de entrega cadastrada.");
+        setHasNoDeliveriesToastShown(true);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar ordens de entrega:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDeliveries();
+  }, []);
+
+  // Função para abrir o modal de criação
   const handleAddOrder = () => {
-    console.log("Adicionar nova ordem de entrega");
-    // Aqui você pode abrir um modal ou redirecionar para um formulário.
+    setSelectedDelivery(null);
+    setIsEditMode(false);
+    setIsModalOpen(true);
   };
 
-  // Função para editar ordem de entrega
-  const handleEditOrder = (id) => {
-    console.log(`Editar ordem de entrega com ID: ${id}`);
-    // Aqui você pode abrir um modal ou carregar o formulário com dados.
+  // Função para exportar o relatório de entregas
+  const handleExportReport = async () => {
+    try {
+      await handleExportDeliveryOrdersToTxt(); // Chama a função de exportação
+      toast.success("Relatório de entregas gerado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao gerar relatório de entregas:", error.message);
+      toast.error("Erro ao gerar relatório de entregas. Tente novamente.");
+    }
   };
 
-  // Função para excluir ordem de entrega
-  const handleDeleteOrder = (id) => {
-    const confirmDelete = window.confirm("Tem certeza que deseja excluir esta ordem de entrega?");
+  // Função para abrir o modal de edição
+  const handleEditOrder = (delivery) => {
+    setSelectedDelivery(delivery);
+    setIsEditMode(true);
+    setIsModalOpen(true);
+  };
+
+  // Função para excluir uma ordem de entrega
+  const handleDeleteOrder = async (id) => {
+    const confirmDelete = window.confirm(
+      "Tem certeza que deseja excluir esta ordem de entrega?"
+    );
     if (confirmDelete) {
-      setDeliveries((prevDeliveries) => prevDeliveries.filter((delivery) => delivery.id !== id));
+      try {
+        await handleDeliveryOrderDeletion(id);
+        setDeliveries((prevDeliveries) =>
+          prevDeliveries.filter((delivery) => delivery.id !== id)
+        );
+        toast.success("Ordem de entrega excluída com sucesso!");
+      } catch (error) {
+        console.error("Erro ao excluir ordem de entrega:", error.message);
+        toast.error("Erro ao excluir ordem de entrega. Tente novamente.");
+      }
+    }
+  };
+
+  // Função para alterar o status de uma ordem de entrega
+  const handleStatusUpdate = async (id, status) => {
+    try {
+      await handleDeliveryOrderStatusUpdate(id, status);
+      setDeliveries((prevDeliveries) =>
+        prevDeliveries.map((delivery) =>
+          delivery.id === id ? { ...delivery, status } : delivery
+        )
+      );
+      toast.success("Status atualizado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao atualizar status da ordem de entrega:", error.message);
+      toast.error("Erro ao atualizar status. Tente novamente.");
     }
   };
 
@@ -46,71 +103,99 @@ const DeliveryTable = () => {
     <div className="delivery-table">
       <div className="table-header">
         <h2>Ordens de Entrega</h2>
-        <button className="btn-add" onClick={handleAddOrder}>
-          Adicionar Nova Ordem
-        </button>
+        <div className="table-actions">
+          <button className="btn-add" onClick={handleAddOrder}>
+            Adicionar Nova Ordem
+          </button>
+          <button className="btn-export" onClick={handleExportReport}>
+            Gerar Relatório .TXT
+          </button>
+        </div>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Cliente</th>
-            <th>Motorista</th>
-            <th>Veículo</th>
-            <th>Data da Entrega</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {deliveries.length > 0 ? (
-            deliveries.map((delivery) => (
-              <tr key={delivery.id}>
-                <td>{delivery.client}</td>
-                <td>{delivery.driver}</td>
-                <td>{delivery.vehicle}</td>
-                <td>
-                  {delivery.deliveryDate
-                    ? new Date(delivery.deliveryDate).toLocaleDateString()
-                    : "Não definida"}
-                </td>
-                <td>
-                  <span
-                    className={`status-badge ${
-                      delivery.status === "aguardando"
-                        ? "status-pending"
-                        : delivery.status === "enviado"
-                        ? "status-sent"
-                        : "status-completed"
-                    }`}
-                  >
-                    {delivery.status}
-                  </span>
-                </td>
-                <td>
-                  <button
-                    className="btn-edit"
-                    onClick={() => handleEditOrder(delivery.id)}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="btn-delete"
-                    onClick={() => handleDeleteOrder(delivery.id)}
-                  >
-                    Excluir
-                  </button>
+      {loading ? (
+        <p className="loading-text">Carregando...</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Motorista</th>
+              <th>Veículo</th>
+              <th>Data da Entrega</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {deliveries.length > 0 ? (
+              deliveries.map((delivery) => (
+                <tr key={delivery.id}>
+                  <td>{delivery.Client?.businessName || "Não informado"}</td>
+                  <td>{delivery.Driver?.name || "Não informado"}</td>
+                  <td>
+                    {delivery.Vehicle
+                      ? `${delivery.Vehicle.model} (${delivery.Vehicle.licensePlate})`
+                      : "Não informado"}
+                  </td>
+                  <td>
+                    {delivery.deliveryDate
+                      ? new Date(delivery.deliveryDate).toLocaleDateString()
+                      : "Não definida"}
+                  </td>
+                  <td>
+                    <select
+                      className={`status-select ${
+                        delivery.status === "aguardando"
+                          ? "status-pending"
+                          : delivery.status === "enviado"
+                          ? "status-sent"
+                          : "status-completed"
+                      }`}
+                      value={delivery.status}
+                      onChange={(e) =>
+                        handleStatusUpdate(delivery.id, e.target.value)
+                      }
+                    >
+                      <option value="aguardando">Aguardando</option>
+                      <option value="enviado">Enviado</option>
+                      <option value="finalizado">Finalizado</option>
+                    </select>
+                  </td>
+                  <td>
+                    <button
+                      className="btn-edit"
+                      onClick={() => handleEditOrder(delivery)}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDeleteOrder(delivery.id)}
+                    >
+                      Excluir
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="no-data">
+                  Nenhuma ordem de entrega encontrada.
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="6" className="no-data">
-                Nenhuma ordem de entrega encontrada.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
+      )}
+      {isModalOpen && (
+        <DeliveryModal
+          show={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          deliveryData={selectedDelivery}
+          refreshDeliveries={fetchDeliveries}
+          isEditMode={isEditMode}
+        />
+      )}
     </div>
   );
 };
