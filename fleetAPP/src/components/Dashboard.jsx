@@ -10,6 +10,7 @@ import DriverModal from "./DriverModal";
 import ClientTable from "./ClientTable";
 import FuelingTable from "./FuelingTable";
 import DeliveryTable from "./DeliveryTable";
+import DeliveryModal from "./DeliveryModal"; // Importa o DeliveryModal
 import { Sidebar } from "./Sidebar";
 import { fetchDashboardData } from "../controller/DashboardController.js";
 
@@ -33,6 +34,7 @@ const Content = ({
   onRequestAddClient,
   onRequestAddDriver,
   onRequestAddVehicle,
+  onRequestAddDelivery, // Novo callback para abrir o DeliveryModal
 }) => {
   const renderContent = () => {
     switch (activeSection) {
@@ -41,7 +43,8 @@ const Content = ({
       case SECTIONS.VIEW_DELIVERIES:
         return <DeliveryTable />;
       case SECTIONS.CREATE_ORDER:
-        return <h2>Criando uma nova ordem...</h2>;
+        onRequestAddDelivery(); // Chama o modal de criação de ordem
+        return null;
       case SECTIONS.VIEW_FUELING:
         return <FuelingTable />;
       case SECTIONS.REGISTER_FUELING:
@@ -49,17 +52,14 @@ const Content = ({
       case SECTIONS.VIEW_DRIVERS:
         return <DriverTable />;
       case SECTIONS.ADD_DRIVER:
-        // Não chama diretamente a função, apenas renderiza a mensagem
         return <p>Preparando o modal para cadastrar motorista...</p>;
       case SECTIONS.VIEW_VEHICLE:
         return <VehicleTable />;
       case SECTIONS.ADD_VEHICLE:
-        // Não chama diretamente a função, apenas renderiza a mensagem
         return <p>Preparando o modal para cadastrar veículo...</p>;
       case SECTIONS.VIEW_CLIENTS:
         return <ClientTable />;
       case SECTIONS.ADD_CLIENT:
-        // Não chama diretamente a função, apenas renderiza a mensagem
         return <p>Preparando o modal para cadastrar cliente...</p>;
       default:
         return (
@@ -79,9 +79,11 @@ const Dashboard = () => {
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+  const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false); // Estado para o DeliveryModal
   const [selectedClient, setSelectedClient] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedDelivery, setSelectedDelivery] = useState(null); // Estado para dados de entrega
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -111,6 +113,8 @@ const Dashboard = () => {
       setIsDriverModalOpen(true);
     } else if (activeSection === SECTIONS.ADD_VEHICLE) {
       setIsVehicleModalOpen(true);
+    } else if (activeSection === SECTIONS.CREATE_ORDER) {
+      setIsDeliveryModalOpen(true); // Abre o DeliveryModal
     }
   }, [activeSection]);
 
@@ -127,6 +131,11 @@ const Dashboard = () => {
   const closeVehicleModal = () => {
     setIsVehicleModalOpen(false);
     setActiveSection(SECTIONS.VIEW_VEHICLE);
+  };
+
+  const closeDeliveryModal = () => {
+    setIsDeliveryModalOpen(false);
+    setActiveSection(SECTIONS.VIEW_DELIVERIES);
   };
 
   if (loading) {
@@ -155,6 +164,7 @@ const Dashboard = () => {
         onRequestAddClient={() => setActiveSection(SECTIONS.ADD_CLIENT)}
         onRequestAddDriver={() => setActiveSection(SECTIONS.ADD_DRIVER)}
         onRequestAddVehicle={() => setActiveSection(SECTIONS.ADD_VEHICLE)}
+        onRequestAddDelivery={() => setActiveSection(SECTIONS.CREATE_ORDER)} // Callback para abrir DeliveryModal
       />
       {isClientModalOpen && (
         <ClientModal
@@ -175,6 +185,15 @@ const Dashboard = () => {
           show={isVehicleModalOpen}
           onClose={closeVehicleModal}
           vehicleData={selectedVehicle}
+        />
+      )}
+      {isDeliveryModalOpen && (
+        <DeliveryModal
+          show={isDeliveryModalOpen}
+          onClose={closeDeliveryModal}
+          deliveryData={selectedDelivery}
+          refreshDeliveries={() => setActiveSection(SECTIONS.VIEW_DELIVERIES)}
+          isEditMode={false} // Configuração inicial do modal como novo cadastro
         />
       )}
     </section>

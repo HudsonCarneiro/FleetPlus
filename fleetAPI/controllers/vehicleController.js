@@ -117,3 +117,39 @@ exports.deleteVehicle = async (req, res) => {
         });
     }
 };
+// Atualiza a quilometragem de um veículo
+exports.updateVehicleMileage = async (req, res) => {
+    try {
+      const { userId } = req.body;
+      if (!userId) {
+        return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+      }
+  
+      const { vehicleId, mileage } = req.body;
+      if (!vehicleId || !mileage) {
+        return res.status(400).json({ error: 'Campos obrigatórios não fornecidos.' });
+      }
+  
+      const vehicle = await Vehicle.findOne({
+        where: { id: vehicleId, userId },
+      });
+  
+      if (!vehicle) {
+        return res.status(404).json({ error: 'Veículo não encontrado ou não autorizado.' });
+      }
+  
+      if (mileage > vehicle.mileage) {
+        await vehicle.update({ mileage });
+        res.status(200).json({ message: 'Quilometragem atualizada com sucesso.' });
+      } else {
+        res.status(400).json({ error: 'A quilometragem informada é menor ou igual à atual.' });
+      }
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).json({
+        error: 'Erro ao atualizar quilometragem do veículo.',
+        details: error.message,
+      });
+    }
+  };
+  

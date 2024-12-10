@@ -13,4 +13,7 @@ router.put('/vehicle/:id', vehicleController.updateVehicle);
 
 router.delete('/vehicle/:id', vehicleController.deleteVehicle);
 
+router.patch('/vehicle/:id/mileage', vehicleController.updateVehicleMileage);
+
+
 module.exports = router;
