@@ -12,18 +12,32 @@ export const handleFetchAllClients = async () => {
   try {
     const clients = await fetchClients();
 
-    if (!clients || clients.length === 0) {
+    if (!clients.length) {
       console.warn("Nenhum cliente encontrado.");
       return [];
     }
 
-    return clients.map(client => ({
-      ...client,
-      address: client.Address || {}, // Inclui o endereço diretamente do backend
+    // Processa os dados dos clientes para renderização
+    const processedClients = clients.map((client) => ({
+      id: client.id,
+      businessName: client.businessName || "Nome não informado",
+      companyName: client.companyName || "",
+      cnpj: client.cnpj || "",
+      email: client.email || "",
+      phone: client.phone || "Não informado",
+      address: client.address
+        ? {
+            cep: client.address.cep || "CEP não informado",
+            city: client.address.city || "Cidade não informada",
+            state: client.address.state || "Estado não informado",
+          }
+        : null,
     }));
+
+    return processedClients;
   } catch (error) {
     console.error("Erro ao buscar todos os clientes:", error.message);
-    throw error;
+    return []; // Retorna uma lista vazia para evitar falhas no componente
   }
 };
 
@@ -79,30 +93,38 @@ export const handleClientRegistration = async (formData) => {
 // Atualizar cliente e endereço juntos
 export const handleClientUpdate = async (formData) => {
   try {
-    const updatedClient = {
-      businessName: formData.businessName,
-      companyName: formData.companyName,
-      cnpj: formData.cnpj,
-      phone: formData.phone,
-      email: formData.email,
-      address: {
+    const response = await fetch(`/api/clients/${formData.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        businessName: formData.businessName,
+        companyName: formData.companyName,
+        cnpj: formData.cnpj,
+        phone: formData.phone,
+        email: formData.email,
+        addressId: formData.addressId,
         cep: formData.cep,
-        number: formData.number,
         road: formData.road,
+        number: formData.number,
         complement: formData.complement,
         city: formData.city,
         state: formData.state,
-      },
-    };
+      }),
+    });
 
-    const response = await updateClient(formData.id, updatedClient);
-    console.log('Cliente atualizado com sucesso:', response);
-    return response;
+    if (!response.ok) {
+      throw new Error("Erro ao atualizar o cliente.");
+    }
+
+    return true;
   } catch (error) {
-    console.error('Erro ao atualizar cliente:', error.message);
-    throw error;
+    console.error("Erro ao atualizar cliente:", error.message);
+    return false;
   }
 };
+
 
 // Excluir cliente
 export const handleClientDeletion = async (id) => {

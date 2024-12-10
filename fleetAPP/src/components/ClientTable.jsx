@@ -5,7 +5,6 @@ import {
   handleFetchAllClients,
 } from "../controller/ClientController";
 import ClientModal from "./ClientModal";
-import { toast } from "react-toastify";
 
 const ClientTable = () => {
   const [clients, setClients] = useState([]);
@@ -16,6 +15,7 @@ const ClientTable = () => {
 
   // Função para carregar os clientes
   const fetchClients = async () => {
+    if (loading) return; // Evita múltiplas chamadas simultâneas
     try {
       setLoading(true);
       const clientList = await handleFetchAllClients();
@@ -48,6 +48,11 @@ const ClientTable = () => {
 
   // Função para excluir um cliente
   const handleDeleteClient = async (id, addressId) => {
+    if (!id || !addressId) {
+      toast.error("Dados do cliente inválidos.");
+      return;
+    }
+
     const confirmDelete = window.confirm("Tem certeza que deseja excluir este cliente?");
     if (confirmDelete) {
       try {
@@ -108,11 +113,11 @@ const ClientTable = () => {
                   <td>{client.businessName}</td>
                   <td>{client.companyName}</td>
                   <td>{client.cnpj}</td>
-                  <td>{client.phone || "Não informado"}</td>
-                  <td>{client.email || "Não informado"}</td>
-                  <td>{client.cep || "Não informado"}</td>
-                  <td>{client.city || "Não informado"}</td>
-                  <td>{client.state || "Não informado"}</td>
+                  <td>{client.phone}</td>
+                  <td>{client.email}</td>
+                  <td>{client.address?.cep || "Não informado"}</td>
+                  <td>{client.address?.city || "Não informado"}</td>
+                  <td>{client.address?.state || "Não informado"}</td>
                   <td>
                     <button
                       className="btn-edit"
@@ -123,7 +128,7 @@ const ClientTable = () => {
                     <button
                       className="btn-delete"
                       onClick={() =>
-                        handleDeleteClient(client.id, client.addressId)
+                        handleDeleteClient(client.id, client.address?.id)
                       }
                     >
                       Excluir
@@ -148,12 +153,10 @@ const ClientTable = () => {
           onClose={() => setIsModalOpen(false)}
           clientData={selectedClient}
           refreshClients={fetchClients}
-          updateClientInState={updateClientInState}
           isEditMode={isEditMode}
         />
       )}
     </div>
   );
 };
-
 export default ClientTable;

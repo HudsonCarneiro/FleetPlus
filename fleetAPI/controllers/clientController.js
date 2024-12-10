@@ -35,31 +35,59 @@ exports.getClientAll = async (req, res) => {
 };
 
 
-// Obtém um cliente por ID, verificando se pertence ao usuário autenticado e incluindo o endereço
+const Client = require('../models/Client');
+const Address = require('../models/Address');
+
 exports.getClientById = async (req, res) => {
   try {
-    const { userId } = req.query;
-    if (!userId) {
-      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "ID do cliente não fornecido." });
     }
 
+    // Busca o cliente pelo ID com a associação explícita
     const client = await Client.findOne({
-      where: { id: req.params.id, userId },
-      include: [{ model: Address, as: 'Address' }], // Inclui o endereço associado, usando o alias correto
+      where: { id },
+      include: [
+        {
+          model: Address,
+          as: "address", // Certifique-se de que o alias é o mesmo definido na associação
+        },
+      ],
     });
 
-    if (client) {
-      res.json(client);
-    } else {
-      res.status(404).json({ error: 'Cliente não encontrado.' });
+    if (!client) {
+      return res.status(404).json({ error: "Cliente não encontrado." });
     }
+
+    // Processa os dados
+    const clientData = {
+      id: client.id,
+      businessName: client.businessName,
+      companyName: client.companyName,
+      cnpj: client.cnpj,
+      phone: client.phone,
+      email: client.email,
+      addressId: client.address?.id || "",
+      cep: client.address?.cep || "",
+      road: client.address?.road || "",
+      number: client.address?.number || "",
+      complement: client.address?.complement || "",
+      city: client.address?.city || "",
+      state: client.address?.state || "",
+    };
+
+    res.status(200).json(clientData);
   } catch (error) {
+    console.error("Erro ao buscar cliente:", error);
     res.status(500).json({
-      error: 'Erro ao buscar cliente',
+      error: "Erro ao buscar cliente",
       details: error.message,
     });
   }
 };
+
 
 // Cria um cliente e o endereço vinculado ao usuário autenticado
 exports.createClient = async (req, res) => {
@@ -96,41 +124,87 @@ exports.createClient = async (req, res) => {
 };
 
 // Atualiza um cliente e o endereço vinculado
+// controller/ClientController.js
 exports.updateClient = async (req, res) => {
   try {
-    const { userId, address, ...clientData } = req.body;
-    if (!userId) {
-      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+    const { id } = req.params;
+    const {
+      businessName,
+      companyName,
+      cnpj,
+      phone,
+      email,
+      addressId,
+      cep,
+      road,
+      number,
+      complement,
+      city,
+      state,
+    } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: "ID do cliente não fornecido." });
     }
 
-    const client = await Client.findOne({
-      where: { id: req.params.id, userId },
+    const client = await Client.findByPk(id);
+
+    if (!client) {
+      return res.status(404).json({ error: "Cliente não encontrado." });
+    }
+
+    // Atualizar os dados do cliente
+    await client.update({
+      businessName,
+      companyName,
+      cnpj,
+      phone,
+      email,
     });
 
-    if (client) {
-      // Atualizar o endereço
-      await Address.update(
-        {
-          cep: address.cep,
-          number: address.number,
-          road: address.road,
-          complement: address.complement,
-          city: address.city,
-          state: address.state,
-        },
-        { where: { id: client.addressId } }
-      );
+    // Atualizar ou criar os dados do endereço
+    if (addressId) {
+      const address = await Address.findByPk(addressId);
 
-      // Atualizar dados do cliente
-      await client.update(clientData);
-
-      res.json(client);
+      if (address) {
+        await address.update({
+          cep,
+          road,
+          number,
+          complement,
+          city,
+          state,
+        });
+      } else {
+        console.warn("Endereço não encontrado. Criando novo...");
+        await Address.create({
+          clientId: client.id,
+          cep,
+          road,
+          number,
+          complement,
+          city,
+          state,
+        });
+      }
     } else {
-      res.status(404).json({ error: 'Cliente não encontrado ou não autorizado.' });
+      // Caso não exista um endereço associado, cria um novo
+      await Address.create({
+        clientId: client.id,
+        cep,
+        road,
+        number,
+        complement,
+        city,
+        state,
+      });
     }
+
+    res.status(200).json({ message: "Cliente atualizado com sucesso." });
   } catch (error) {
+    console.error("Erro ao atualizar cliente:", error);
     res.status(500).json({
-      error: 'Erro ao atualizar o cliente',
+      error: "Erro ao atualizar cliente.",
       details: error.message,
     });
   }

@@ -8,39 +8,16 @@ const getUserIdFromSession = () => {
   return userData ? JSON.parse(userData).id : null;
 };
 
-// Função para registrar um cliente com endereço
-export const registerClient = async (client) => {
-  try {
-    const userId = getUserIdFromSession();
-    if (!userId) throw new Error('Usuário não autenticado.');
-
-    client.userId = userId;
-
-    const response = await fetch(`${API_URL}/client`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(client),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erro ao registrar cliente: ${response.statusText}`);
-    }
-    return await response.json();
-  } catch (error) {
-    console.error('Erro ao registrar cliente:', error.message);
-    throw error;
-  }
-};
-
 // Função para buscar todos os clientes do usuário logado
 export const fetchClients = async () => {
   try {
     const userId = getUserIdFromSession();
     if (!userId) throw new Error('Usuário não autenticado.');
 
-    const response = await fetch(`${API_URL}/clients?userId=${userId}`, {
+    const url = new URL(`${API_URL}/clients`);
+    url.searchParams.append('userId', userId);
+
+    const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -48,9 +25,20 @@ export const fetchClients = async () => {
     });
 
     if (!response.ok) {
-      throw new Error(`Erro ao buscar clientes: ${response.statusText}`);
+      const errorDetails = await response.json().catch(() => ({}));
+      throw new Error(
+        `Erro ao buscar clientes: ${response.status} - ${
+          errorDetails.message || response.statusText
+        }`
+      );
     }
-    return await response.json();
+
+    const data = await response.json();
+    if (!Array.isArray(data)) {
+      throw new Error('Formato de resposta inválido. Esperado uma lista de clientes.');
+    }
+
+    return data;
   } catch (error) {
     console.error('Erro ao buscar clientes:', error.message);
     throw error;
@@ -80,13 +68,42 @@ export const fetchClientById = async (id) => {
   }
 };
 
+
+// Função para registrar um cliente com endereço
+export const registerClient = async (client) => {
+  try {
+    const userId = getUserIdFromSession();
+    if (!userId) throw new Error('Usuário não autenticado.');
+
+    client.userId = userId;
+
+    const response = await fetch(`${API_URL}/client`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(client),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erro ao registrar cliente: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao registrar cliente:', error.message);
+    throw error;
+  }
+};
+
+
+
 // Função para atualizar um cliente e endereço
 export const updateClient = async (id, updatedClient) => {
   try {
     const userId = getUserIdFromSession();
     if (!userId) throw new Error('Usuário não autenticado.');
 
-    const response = await fetch(`${API_URL}/client/${id}`, {
+    const response = await fetch(`${API_URL}/client/${id}userId=${userId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

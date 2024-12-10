@@ -7,7 +7,7 @@ import {
 } from "../controller/ClientController";
 
 const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) => {
-  const [formData, setFormData] = useState({
+  const initialFormState = {
     id: "",
     businessName: "",
     companyName: "",
@@ -20,16 +20,33 @@ const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) 
     complement: "",
     city: "",
     state: "",
-    addressId: "", // Necessário para atualizar o endereço
-  });
+    addressId: "",
+  };
 
-  const [loading, setLoading] = useState(false); // Indica estado de carregamento
+  const fieldLabels = {
+    businessName: "Nome Fantasia",
+    companyName: "Razão Social",
+    cnpj: "CNPJ",
+    phone: "Telefone",
+    email: "E-mail",
+    cep: "CEP",
+    number: "Número",
+    road: "Rua",
+    complement: "Complemento",
+    city: "Cidade",
+    state: "Estado",
+  };
+
+  const requiredFields = ["businessName", "companyName", "cnpj", "cep", "road", "city", "state"];
+
+  const [formData, setFormData] = useState(initialFormState);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const initializeForm = async () => {
       if (isEditMode && clientData?.id) {
         try {
-          setLoading(true); // Inicia o estado de carregamento
+          setLoading(true);
           const fetchedClient = await handleFetchClientById(clientData.id);
           if (fetchedClient) {
             setFormData({
@@ -39,78 +56,58 @@ const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) 
               cnpj: fetchedClient.cnpj || "",
               phone: fetchedClient.phone || "",
               email: fetchedClient.email || "",
-              cep: fetchedClient.cep || "",
-              number: fetchedClient.number || "",
-              road: fetchedClient.road || "",
-              complement: fetchedClient.complement || "",
-              city: fetchedClient.city || "",
-              state: fetchedClient.state || "",
-              addressId: fetchedClient.addressId || "",
+              cep: fetchedClient.address?.cep || "",
+              number: fetchedClient.address?.number || "",
+              road: fetchedClient.address?.road || "",
+              complement: fetchedClient.address?.complement || "",
+              city: fetchedClient.address?.city || "",
+              state: fetchedClient.address?.state || "",
+              addressId: fetchedClient.address?.id || "",
             });
+          } else {
+            console.warn("Nenhum cliente encontrado para o ID fornecido.");
           }
         } catch (error) {
-          console.error("Erro ao carregar os dados do cliente:", error);
+          console.error("Erro ao buscar os dados do cliente:", error);
         } finally {
-          setLoading(false); // Finaliza o estado de carregamento
+          setLoading(false);
         }
       } else {
-        setFormData({
-          id: "",
-          businessName: "",
-          companyName: "",
-          cnpj: "",
-          phone: "",
-          email: "",
-          cep: "",
-          number: "",
-          road: "",
-          complement: "",
-          city: "",
-          state: "",
-          addressId: "",
-        });
+        setFormData(initialFormState);
       }
     };
-
+  
     if (show) initializeForm();
   }, [show, isEditMode, clientData]);
-
+  
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
-  const handleSave = async () => {
-    const requiredFields = [
-      "businessName",
-      "companyName",
-      "cnpj",
-      "cep",
-      "road",
-      "city",
-      "state",
-    ];
-    const isValid = requiredFields.every((field) => formData[field]);
-
-    if (!isValid) {
-      alert("Preencha todos os campos obrigatórios.");
-      return;
+  const validateFields = () => {
+    const invalidFields = requiredFields.filter((field) => !formData[field]);
+    if (invalidFields.length > 0) {
+      alert(
+        `Os seguintes campos são obrigatórios e estão vazios: ${invalidFields.join(", ")}`
+      );
+      return false;
     }
+    return true;
+  };
+
+  const handleSave = async () => {
+    if (!validateFields()) return;
 
     try {
       setLoading(true);
       if (isEditMode) {
         const updated = await handleClientUpdate(formData);
-        if (updated) {
-          console.log("Cliente atualizado com sucesso.");
-        }
+        if (updated) console.log("Cliente atualizado com sucesso.");
       } else {
         const result = await handleClientRegistration(formData);
-        if (result) {
-          console.log("Cliente cadastrado com sucesso.");
-        }
+        if (result) console.log("Cliente cadastrado com sucesso.");
       }
-
       onClose();
       refreshClients?.();
     } catch (error) {
@@ -120,67 +117,44 @@ const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) 
     }
   };
 
+  const FormFields = () => (
+    <form className="mt-4">
+      <div className="row">
+        {Object.keys(formData)
+          .filter((key) => key !== "id" && key !== "addressId")
+          .map((key) => (
+            <div className="col-md-6 mb-3" key={key}>
+              <label className="form-label" htmlFor={key}>
+                {fieldLabels[key] || key}
+              </label>
+              <input
+                className="form-control"
+                type="text"
+                id={key}
+                value={formData[key]}
+                onChange={handleInputChange}
+              />
+            </div>
+          ))}
+      </div>
+    </form>
+  );
+
   return (
     show && (
       <div className="modal-overlay">
         <div className="modal-content">
-          <button className="btn-close" onClick={onClose}>
+          <button
+            className="btn-close"
+            onClick={onClose}
+            aria-label="Fechar Modal"
+          >
             &times;
           </button>
           <h3 className="text-center">
             {isEditMode ? "Editar Cliente" : "Cadastrar Cliente"}
           </h3>
-          {loading ? (
-            <p className="text-center">Carregando...</p>
-          ) : (
-            <form className="mt-4">
-              <div className="row">
-                {Object.keys(formData)
-                  .filter((key) => key !== "id" && key !== "addressId")
-                  .map((key) => (
-                    <div className="col-md-6 mb-3" key={key}>
-                      <label className="form-label" htmlFor={key}>
-                        {(() => {
-                          switch (key) {
-                            case "businessName":
-                              return "Nome Fantasia";
-                            case "companyName":
-                              return "Razão Social";
-                            case "cnpj":
-                              return "CNPJ";
-                            case "phone":
-                              return "Telefone";
-                            case "email":
-                              return "E-mail";
-                            case "cep":
-                              return "CEP";
-                            case "number":
-                              return "Número";
-                            case "road":
-                              return "Rua";
-                            case "complement":
-                              return "Complemento";
-                            case "city":
-                              return "Cidade";
-                            case "state":
-                              return "Estado";
-                            default:
-                              return key;
-                          }
-                        })()}
-                      </label>
-                      <input
-                        className="form-control"
-                        type="text"
-                        id={key}
-                        value={formData[key]}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                  ))}
-              </div>
-            </form>
-          )}
+          {loading ? <p className="text-center">Carregando...</p> : <FormFields />}
           <div className="d-flex justify-content-between mt-3">
             <button
               className="btn btn-primary w-100"
