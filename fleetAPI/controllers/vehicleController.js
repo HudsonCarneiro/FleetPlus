@@ -1,4 +1,8 @@
 const Vehicle = require('../models/Vehicle');
+const fs = require('fs');
+const path = require('path');
+const os = require('os'); 
+
 
 // Lista todos os veículos vinculados ao usuário autenticado
 exports.getVehicleAll = async (req, res) => {
@@ -164,4 +168,60 @@ exports.updateVehicleMileage = async (req, res) => {
       });
     }
   };
+
+  exports.exportVehiclesReport = async (req, res) => {
+    try {
+        const { userId } = req.query;
+        if (!userId) {
+          return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+        }
+    
+        // Busca todos os abastecimentos
+        const vehicles = await Vehicle.findAll({ where: { userId } });
+    
+        if (!vehicles.length) {
+          return res.status(404).json({ error: 'Nenhum veículo encontrado.' });
+        }
+
+        const vehiclesWithDetails = vehicles.map((vehicle) => {
+    
+          return {
+            ...vehicle.toJSON(),
+          };
+        });
+    
+        // Cria o conteúdo do relatório
+        const reportLines = vehiclesWithDetails.map((supply) => {
+          return `
+          ID: ${supply.id}
+          Placa: ${supply.plate}
+          Modelo: ${supply.model}
+          Montadora: ${supply.automaker}
+          Ano de Fabricação: ${supply.year}
+          Placa: (${supply.plate || ''})
+          Combustível: (${supply.fuelType})
+          Quilometragem: (${supply.mileage})
+
+          ------------------------------------------------------------`;
+        });
+    
+        const report = reportLines.join('\n\n');
+        const filePath = path.join(__dirname, `vehicle-report-${userId}.txt`);
+    
+        // Escreve o relatório no arquivo
+        fs.writeFileSync(filePath, report);
+    
+        // Envia o arquivo para download
+        res.download(filePath, `relatorio-veiculosAbastecimento-${userId}.txt`, () => {
+          fs.unlinkSync(filePath); 
+        });
+      } catch (error) {
+        console.error('Erro ao gerar relatório de quilometragem de veiculo:', error.message);
+        res.status(500).json({
+          error: 'Erro ao gerar relatório de quilometragem de veiculo.',
+          details: error.message,
+        });
+      }
+  };
+  
   

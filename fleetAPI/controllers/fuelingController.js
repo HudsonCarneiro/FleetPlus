@@ -57,7 +57,7 @@ exports.getFuelingAll = async (req, res) => {
           ? {
               id: vehicle.id,
               model: vehicle.model,
-              licensePlate: vehicle.licensePlate,
+              licensePlate: vehicle.plate,
               mileage: vehicle.mileage,
             }
           : null,
@@ -274,13 +274,13 @@ exports.generateFuelingReport = async (req, res) => {
     // Cria o conteúdo do relatório
     const reportLines = suppliesWithDetails.map((supply) => {
       return `Data: ${new Date(supply.dateFueling).toLocaleDateString()}
-Motorista: ${supply.Driver?.name || 'Desconhecido'}
-Veículo: ${supply.Vehicle?.model || 'Desconhecido'} (${supply.Vehicle?.licensePlate || 'Placa desconhecida'})
-Litros: ${supply.liters}L
-Preço: R$ ${supply.price}
-Quilometragem: ${supply.mileage} km
-------------------------------------------------------------`;
-    });
+        Motorista: ${supply.Driver?.name || 'Desconhecido'}
+        Veículo: ${supply.Vehicle?.model || 'Desconhecido'} (${supply.Vehicle?.licensePlate || 'Placa desconhecida'})
+        Litros: ${supply.liters}L
+        Preço: R$ ${supply.price}
+        Quilometragem: ${supply.mileage} km
+        ------------------------------------------------------------`;
+      });
 
     const report = reportLines.join('\n\n');
     const filePath = path.join(__dirname, `fueling-report-${userId}.txt`);

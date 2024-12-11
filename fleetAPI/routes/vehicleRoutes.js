@@ -7,6 +7,8 @@ router.get('/vehicles', vehicleController.getVehicleAll);
 
 router.get('/vehicle/:id', vehicleController.getVehicleById);
 
+router.get('/vehicles/report', vehicleController.exportVehiclesReport);
+
 router.post('/vehicle', vehicleController.createVehicle);
 
 router.put('/vehicle/:id', vehicleController.updateVehicle);
@@ -14,6 +16,5 @@ router.put('/vehicle/:id', vehicleController.updateVehicle);
 router.delete('/vehicle/:id', vehicleController.deleteVehicle);
 
 router.patch('/vehicle/:id/mileage', vehicleController.updateVehicleMileage);
-
 
 module.exports = router;
