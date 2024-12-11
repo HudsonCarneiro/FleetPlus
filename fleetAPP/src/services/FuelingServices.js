@@ -103,10 +103,10 @@ export const deleteFueling = async (id) => {
 export const exportFuelingReportToTxt = async () => {
   try {
     const userId = getUserIdFromSession();
-    if (!userId) throw new Error('Usuário não autenticado.');
+    if (!userId) throw new Error("Usuário não autenticado.");
 
     const response = await fetch(`${API_URL}/fuelings/report?userId=${userId}`, {
-      method: 'GET',
+      method: "GET",
     });
 
     if (!response.ok) {
@@ -115,13 +115,13 @@ export const exportFuelingReportToTxt = async () => {
 
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `fueling-report-${userId}.txt`;
     a.click();
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('Erro ao exportar relatório de abastecimentos:', error.message);
+    console.error("Erro ao exportar relatório de abastecimentos:", error.message);
     throw error;
   }
 };
