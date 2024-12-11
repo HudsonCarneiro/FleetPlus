@@ -3,6 +3,9 @@ const Vehicle = require('../models/Vehicle');
 const Driver = require('../models/Driver');
 const { getDriverAll } = require('./driverController');
 const { getVehicleAll } = require('./vehicleController');
+const { getDriverbyId } = require('./driverController');
+const { getVehiclebyId } = require('./vehicleController');
+
 const fs = require('fs');
 const path = require('path');
 const sequelize = require('../config/database');
@@ -223,19 +226,29 @@ exports.generateFuelingReport = async (req, res) => {
       return res.status(400).json({ error: 'ID do usuário não fornecido.' });
     }
 
-    const supplies = await Fueling.findAll({
-      where: { userId },
-      include: [
-        { model: Driver, attributes: ['name'] },
-        { model: Vehicle, attributes: ['model', 'licensePlate'] },
-      ],
-    });
+    // Recupera todos os abastecimentos vinculados ao usuário
+    const supplies = await Fueling.findAll({ where: { userId } });
 
     if (supplies.length === 0) {
       return res.status(404).json({ error: 'Nenhum abastecimento encontrado.' });
     }
 
-    const reportLines = supplies.map((supply) => {
+    // Itera sobre cada abastecimento para obter os dados relacionados
+    const suppliesWithDetails = await Promise.all(
+      supplies.map(async (supply) => {
+        const driver = await getDriverbyId(supply.driverId);
+        const vehicle = await getVehiclebyId(supply.vehicleId);
+
+        return {
+          ...supply.toJSON(),
+          Driver: driver || { name: 'Desconhecido' },
+          Vehicle: vehicle || { model: 'Desconhecido', licensePlate: 'Placa desconhecida' },
+        };
+      })
+    );
+
+    // Gera as linhas do relatório
+    const reportLines = suppliesWithDetails.map((supply) => {
       return `Data: ${new Date(supply.dateFueling).toLocaleDateString()}
 Motorista: ${supply.Driver?.name || 'Desconhecido'}
 Veículo: ${supply.Vehicle?.model || 'Desconhecido'} (${supply.Vehicle?.licensePlate || 'Placa desconhecida'})
@@ -246,15 +259,17 @@ Quilometragem: ${supply.mileage} km
     });
 
     const report = reportLines.join('\n\n');
-    const filePath = path.join(__dirname, `fueling-report-${userId}.txt`);
 
+    // Salva o relatório em um arquivo temporário
+    const filePath = path.join(__dirname, `fueling-report-${userId}.txt`);
     fs.writeFileSync(filePath, report);
 
+    // Envia o arquivo para download e remove após o envio
     res.download(filePath, `relatorio-abastecimentos-${userId}.txt`, () => {
-      fs.unlinkSync(filePath); // Remove o arquivo após o download
+      fs.unlinkSync(filePath);
     });
   } catch (error) {
-    console.error(error.message);
+    console.error("Erro ao gerar relatório de abastecimentos:", error.message);
     res.status(500).json({
       error: 'Erro ao gerar relatório de abastecimentos.',
       details: error.message,

@@ -45,6 +45,15 @@ exports.getVehicleById = async (req, res) => {
         });
     }
 };
+exports.getVehiclebyId = async (id) => {
+    try {
+      const vehicle = await Vehicle.findByPk(id, { attributes: ['id', 'model', 'licensePlate'] });
+      return vehicle ? vehicle.toJSON() : null;
+    } catch (error) {
+      console.error(`Erro ao buscar veículo com ID ${id}:`, error.message);
+      return null;
+    }
+  };
 
 // Cria um novo veículo vinculado ao usuário autenticado
 exports.createVehicle = async (req, res) => {

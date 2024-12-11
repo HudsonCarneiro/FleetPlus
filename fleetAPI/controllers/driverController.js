@@ -45,6 +45,15 @@ exports.getDriverById = async (req, res) => {
     });
   }
 };
+exports.getDriverbyId = async (id) => {
+  try {
+    const driver = await Driver.findByPk(id, { attributes: ['id', 'name'] });
+    return driver ? driver.toJSON() : null;
+  } catch (error) {
+    console.error(`Erro ao buscar motorista com ID ${id}:`, error.message);
+    return null;
+  }
+};
 
 // Cria um novo motorista vinculado ao usuário autenticado
 exports.createDriver = async (req, res) => {
