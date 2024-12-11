@@ -15,61 +15,100 @@ exports.exportDeliveriesToTxt = async (req, res) => {
       return res.status(400).json({ error: 'ID do usuário não fornecido.' });
     }
 
-    // Busca todas as ordens de entrega do usuário
-    const orders = await DeliveryOrder.findAll({
-      where: { userId },
-      include: [
-        { model: Client, attributes: ['businessName'] },
-        { model: Driver, attributes: ['name'] },
-        { model: Vehicle, attributes: ['licensePlate', 'model'] },
-      ],
-    });
+    // Busca todas as ordens de entrega
+    const deliveries = await DeliveryOrder.findAll({ where: { userId } });
 
-    if (!orders.length) {
+    if (!deliveries.length) {
       return res.status(404).json({ error: 'Nenhuma ordem de entrega encontrada.' });
     }
 
-    // Formata os dados em texto
-    const content = orders
-      .map((order) => {
-        return `
-        Ordem ID: ${order.id}
-        Data de Entrega: ${order.deliveryDate || 'Não definida'}
-        Status: ${order.status}
-        Urgência: ${order.urgency}
-        Cliente: ${order.Client.businessName}
-        Motorista: ${order.Driver.name}
-        Veículo: ${order.Vehicle.model} - ${order.Vehicle.licensePlate}
-        ------------------------------------------------------------
-        `;
-      })
-      .join('\n');
+    // Busca todos os clientes do usuário
+    const clientsResponse = await new Promise((resolve, reject) => {
+      clientController.getClientAll(
+        { query: { userId } },
+        { status: (statusCode) => ({ json: resolve, send: reject }) },
+      );
+    });
 
-    // Define o caminho do arquivo temporário
-    const filePath = path.join(__dirname, `../../exports/deliveries-${userId}.txt`);
+    const clients = Array.isArray(clientsResponse) ? clientsResponse : [];
 
-    // Salva o conteúdo no arquivo .txt
-    fs.writeFileSync(filePath, content, 'utf-8');
+    // Busca todos os motoristas do usuário
+    const driversResponse = await new Promise((resolve, reject) => {
+      driverController.getDriverAll(
+        { query: { userId } },
+        { status: (statusCode) => ({ json: resolve, send: reject }) },
+      );
+    });
 
-    // Envia o arquivo como resposta para download
-    res.download(filePath, `deliveries-${userId}.txt`, (err) => {
-      if (err) {
-        console.error('Erro ao enviar o arquivo:', err);
-        return res.status(500).json({ error: 'Erro ao gerar o arquivo.' });
+    const drivers = Array.isArray(driversResponse) ? driversResponse : [];
+
+    // Busca todos os veículos do usuário
+    const vehiclesResponse = await new Promise((resolve, reject) => {
+      vehicleController.getVehicleAll(
+        { query: { userId } },
+        { status: (statusCode) => ({ json: resolve, send: reject }) },
+      );
+    });
+
+    const vehicles = Array.isArray(vehiclesResponse) ? vehiclesResponse : [];
+
+    // Associa os dados de cliente, motorista e veículo às ordens de entrega
+    const deliveriesWithDetails = deliveries.map((delivery) => {
+      const client = clients.find((c) => c.id === delivery.clientId) || null;
+      const driver = drivers.find((d) => d.id === delivery.driverId) || null;
+      const vehicle = vehicles.find((v) => v.id === delivery.vehicleId) || null;
+
+      return {
+        ...delivery.toJSON(),
+        Client: client ? { id: client.id, businessName: client.businessName } : null,
+        Driver: driver ? { id: driver.id, name: driver.name } : null,
+        Vehicle: vehicle
+          ? {
+              id: vehicle.id,
+              model: vehicle.model,
+              licensePlate: vehicle.licensePlate,
+            }
+          : null,
+      };
+    });
+
+    // Cria o conteúdo do relatório
+    const reportLines = deliveriesWithDetails.map((delivery) => {
+      return `Ordem ID: ${delivery.id}
+Data de Entrega: ${
+        delivery.deliveryDate
+          ? new Date(delivery.deliveryDate).toLocaleDateString()
+          : 'Não definida'
       }
+Status: ${delivery.status}
+Urgência: ${delivery.urgency}
+Cliente: ${delivery.Client?.businessName || 'Desconhecido'}
+Motorista: ${delivery.Driver?.name || 'Desconhecido'}
+Veículo: ${
+        delivery.Vehicle?.model || 'Desconhecido'
+      } (${delivery.Vehicle?.licensePlate || 'Placa desconhecida'})
+------------------------------------------------------------`;
+    });
 
-      // Remove o arquivo temporário após o download
-      fs.unlink(filePath, (unlinkErr) => {
-        if (unlinkErr) {
-          console.error('Erro ao remover o arquivo temporário:', unlinkErr);
-        }
-      });
+    const report = reportLines.join('\n\n');
+    const filePath = path.join(__dirname, `delivery-report-${userId}.txt`);
+
+    // Escreve o relatório no arquivo
+    fs.writeFileSync(filePath, report);
+
+    // Envia o arquivo para download
+    res.download(filePath, `relatorio-entregas-${userId}.txt`, () => {
+      fs.unlinkSync(filePath); // Remove o arquivo após o download
     });
   } catch (error) {
-    console.error('Erro ao exportar ordens de entrega:', error);
-    res.status(500).json({ error: 'Erro ao exportar ordens de entrega.', details: error.message });
+    console.error('Erro ao exportar ordens de entrega:', error.message);
+    res.status(500).json({
+      error: 'Erro ao exportar ordens de entrega.',
+      details: error.message,
+    });
   }
 };
+
 
 // Lista todas as ordens de entrega vinculadas ao usuário autenticado
 exports.getDeliveryOrders = async (req, res) => {
@@ -87,9 +126,21 @@ exports.getDeliveryOrders = async (req, res) => {
     // Itera sobre as ordens para incluir os dados relacionados
     const ordersWithDetails = await Promise.all(
       orders.map(async (order) => {
-        const client = await clientController.getClientById(order.clientId);
-        const driver = await driverController.getDriverById(order.driverId);
-        const vehicle = await vehicleController.getVehicleById(order.vehicleId);
+        // Simula o comportamento esperado por getClientById, etc.
+        const client = await clientController.getClientbyId({
+          params: { id: order.clientId },
+          query: { userId },
+        });
+
+        const driver = await driverController.getDriverbyId({
+          params: { id: order.driverId },
+          query: { userId },
+        });
+
+        const vehicle = await vehicleController.getVehiclebyId({
+          params: { id: order.vehicleId },
+          query: { userId },
+        });
 
         return {
           ...order.toJSON(),

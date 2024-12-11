@@ -52,7 +52,7 @@ exports.createClient = async (req, res) => {
 };
 
 // Função para listar todos os clientes com paginação
-exports.getClientAll = async (req, res) => {
+exports.getClientsAll = async (req, res) => {
   try {
     // Busca todos os clientes
     const clientsResponse = await Client.findAll();
@@ -74,6 +74,29 @@ exports.getClientAll = async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: 'Erro ao listar clientes.', error: error.message });
+  }
+};
+exports.getClientAll = async (req, res) => {
+  try {
+    // Busca todos os clientes
+    const clientsResponse = await Client.findAll();
+
+    // Itera sobre os clientes para buscar seus endereços
+    const clientsWithAddress = await Promise.all(
+      clientsResponse.map(async (client) => {
+        const address = await addressController.getAddressbyId(client.addressId);
+        return {
+          ...client.toJSON(), // Converte o cliente para JSON
+          address, // Adiciona o endereço correspondente
+        };
+      })
+    );
+
+    // Retorna o array de clientes diretamente
+    res.status(200).json(clientsWithAddress);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: 'Erro ao listar clientes.', details: error.message });
   }
 };
 
@@ -106,6 +129,26 @@ exports.getClientById = async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: 'Erro ao obter cliente.', error: error.message });
+  }
+};
+exports.getClientbyId = async (clientId, userId) => {
+  try {
+    if (!userId) {
+      throw new Error('ID do usuário não fornecido.');
+    }
+
+    const client = await Client.findOne({
+      where: { id: clientId, userId },
+    });
+
+    if (!client) {
+      return null;
+    }
+
+    return client;
+  } catch (error) {
+    console.error('Erro ao buscar cliente:', error.message);
+    throw error;
   }
 };
 
