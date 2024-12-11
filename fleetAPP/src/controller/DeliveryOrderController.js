@@ -46,14 +46,17 @@ import {
         throw new Error('Formato inesperado na resposta.');
       }
   
+      // Processa os dados para exibição no componente
       return deliveries.map((order) => ({
         id: order.id,
         client: order.Client?.businessName || 'Cliente não informado',
         driver: order.Driver?.name || 'Motorista não informado',
         vehicle: order.Vehicle
-          ? `${order.Vehicle.model} (${order.Vehicle.licensePlate})`
+          ? `${order.Vehicle.model || 'Modelo não informado'} (${order.Vehicle.licensePlate || 'Placa não informada'})`
           : 'Veículo não informado',
-        deliveryDate: order.deliveryDate || null,
+        deliveryDate: order.deliveryDate
+          ? new Date(order.deliveryDate).toLocaleDateString()
+          : 'Data não definida',
         status: order.status || 'Status não definido',
       }));
     } catch (error) {
@@ -61,6 +64,8 @@ import {
       throw error;
     }
   };
+  
+  
   
   // Buscar uma ordem de entrega por ID
   export const handleFetchDeliveryOrderById = async (id) => {

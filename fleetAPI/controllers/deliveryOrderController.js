@@ -2,11 +2,14 @@ const DeliveryOrder = require('../models/DeliveryOrder');
 const Client = require('../models/Client');
 const Driver = require('../models/Driver');
 const Vehicle = require('../models/Vehicle');
+const { getDriverAll } = require('./driverController');
+const { getVehicleAll } = require('./vehicleController');
 const clientController = require('./clientController');
 const driverController = require('./driverController');
 const vehicleController = require('./vehicleController');
 const fs = require('fs');
 const path = require('path');
+const os = require('os'); // Importa o módulo os para localizar a pasta de downloads
 
 exports.exportDeliveriesToTxt = async (req, res) => {
   try {
@@ -22,37 +25,32 @@ exports.exportDeliveriesToTxt = async (req, res) => {
       return res.status(404).json({ error: 'Nenhuma ordem de entrega encontrada.' });
     }
 
-    // Busca todos os clientes do usuário
+    // Busca todos os clientes, motoristas e veículos relacionados
     const clientsResponse = await new Promise((resolve, reject) => {
       clientController.getClientAll(
         { query: { userId } },
         { status: (statusCode) => ({ json: resolve, send: reject }) },
       );
     });
-
     const clients = Array.isArray(clientsResponse) ? clientsResponse : [];
 
-    // Busca todos os motoristas do usuário
     const driversResponse = await new Promise((resolve, reject) => {
       driverController.getDriverAll(
         { query: { userId } },
         { status: (statusCode) => ({ json: resolve, send: reject }) },
       );
     });
-
     const drivers = Array.isArray(driversResponse) ? driversResponse : [];
 
-    // Busca todos os veículos do usuário
     const vehiclesResponse = await new Promise((resolve, reject) => {
       vehicleController.getVehicleAll(
         { query: { userId } },
         { status: (statusCode) => ({ json: resolve, send: reject }) },
       );
     });
-
     const vehicles = Array.isArray(vehiclesResponse) ? vehiclesResponse : [];
 
-    // Associa os dados de cliente, motorista e veículo às ordens de entrega
+    // Associa os dados aos entregas
     const deliveriesWithDetails = deliveries.map((delivery) => {
       const client = clients.find((c) => c.id === delivery.clientId) || null;
       const driver = drivers.find((d) => d.id === delivery.driverId) || null;
@@ -66,7 +64,7 @@ exports.exportDeliveriesToTxt = async (req, res) => {
           ? {
               id: vehicle.id,
               model: vehicle.model,
-              licensePlate: vehicle.licensePlate,
+              licensePlate: vehicle.licensePlate || 'Placa não informada',
             }
           : null,
       };
@@ -90,15 +88,19 @@ Veículo: ${
 ------------------------------------------------------------`;
     });
 
-    const report = reportLines.join('\n\n');
-    const filePath = path.join(__dirname, `delivery-report-${userId}.txt`);
+    const reportContent = reportLines.join('\n\n');
 
-    // Escreve o relatório no arquivo
-    fs.writeFileSync(filePath, report);
+    // Obtém o caminho para a pasta Downloads
+    const downloadsDir = path.join(os.homedir(), 'Downloads');
+    const filePath = path.join(downloadsDir, `delivery-report-${userId}.txt`);
 
-    // Envia o arquivo para download
-    res.download(filePath, `relatorio-entregas-${userId}.txt`, () => {
-      fs.unlinkSync(filePath); // Remove o arquivo após o download
+    // Salva o conteúdo no arquivo
+    fs.writeFileSync(filePath, reportContent, 'utf-8'); // Certifique-se de gravar o conteúdo correto
+
+    // Retorna o caminho do arquivo na resposta
+    res.status(200).json({
+      message: `Relatório salvo em: ${filePath}`,
+      filePath,
     });
   } catch (error) {
     console.error('Erro ao exportar ordens de entrega:', error.message);
@@ -123,44 +125,69 @@ exports.getDeliveryOrders = async (req, res) => {
       where: { userId },
     });
 
-    // Itera sobre as ordens para incluir os dados relacionados
-    const ordersWithDetails = await Promise.all(
-      orders.map(async (order) => {
-        // Simula o comportamento esperado por getClientById, etc.
-        const client = await clientController.getClientbyId({
-          params: { id: order.clientId },
-          query: { userId },
-        });
+    if (!orders.length) {
+      return res.status(404).json({ error: 'Nenhuma ordem de entrega encontrada.' });
+    }
 
-        const driver = await driverController.getDriverbyId({
-          params: { id: order.driverId },
-          query: { userId },
-        });
+    // Busca todos os clientes do usuário
+    const clientsResponse = await new Promise((resolve, reject) => {
+      clientController.getClientAll(
+        { query: { userId } },
+        { status: (statusCode) => ({ json: resolve, send: reject }) },
+      );
+    });
 
-        const vehicle = await vehicleController.getVehiclebyId({
-          params: { id: order.vehicleId },
-          query: { userId },
-        });
+    const clients = Array.isArray(clientsResponse) ? clientsResponse : [];
 
-        return {
-          ...order.toJSON(),
-          Client: client || { businessName: "Não disponível", companyName: "" },
-          Driver: driver || { name: "Não disponível" },
-          Vehicle: vehicle || { licensePlate: "Não disponível", model: "" },
-        };
-      })
-    );
+    // Busca todos os motoristas do usuário
+    const driversResponse = await new Promise((resolve, reject) => {
+      getDriverAll(
+        { query: { userId } },
+        { status: (statusCode) => ({ json: resolve, send: reject }) },
+      );
+    });
+
+    const drivers = Array.isArray(driversResponse) ? driversResponse : [];
+
+    // Busca todos os veículos do usuário
+    const vehiclesResponse = await new Promise((resolve, reject) => {
+      getVehicleAll(
+        { query: { userId } },
+        { status: (statusCode) => ({ json: resolve, send: reject }) },
+      );
+    });
+
+    const vehicles = Array.isArray(vehiclesResponse) ? vehiclesResponse : [];
+
+    // Associa os dados aos pedidos
+    const ordersWithDetails = orders.map((order) => {
+      const client = clients.find((c) => c.id === order.clientId) || null;
+      const driver = drivers.find((d) => d.id === order.driverId) || null;
+      const vehicle = vehicles.find((v) => v.id === order.vehicleId) || null;
+
+      return {
+        ...order.toJSON(),
+        Client: client ? { id: client.id, businessName: client.businessName } : null,
+        Driver: driver ? { id: driver.id, name: driver.name } : null,
+        Vehicle: vehicle
+          ? {
+              id: vehicle.id,
+              model: vehicle.model,
+              licensePlate: vehicle.licensePlate, // Use o atributo correto
+            }
+          : null,
+      };
+    });
 
     res.status(200).json(ordersWithDetails);
   } catch (error) {
-    console.error("Erro ao listar ordens de entrega:", error.message);
+    console.error('Erro ao listar ordens de entrega:', error.message);
     res.status(500).json({
-      error: "Erro ao listar ordens de entrega.",
+      error: 'Erro ao listar ordens de entrega.',
       details: error.message,
     });
   }
 };
-
 // Busca uma ordem de entrega por ID
 exports.getDeliveryOrderById = async (req, res) => {
   try {

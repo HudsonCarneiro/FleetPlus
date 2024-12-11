@@ -6,6 +6,11 @@ const getUserIdFromSession = () => {
   const userData = localStorage.getItem('userData');
   return userData ? JSON.parse(userData).id : null;
 };
+// Obtém o token do usuário logado do localStorage
+const getTokenFromSession = () => {
+  return localStorage.getItem('token');
+};
+
 
 // Função genérica para requisições
 const apiRequest = async (endpoint, method = 'GET', body = null, queryParams = {}) => {
@@ -49,7 +54,9 @@ const apiRequest = async (endpoint, method = 'GET', body = null, queryParams = {
 // Função para listar todas as ordens de entrega
 export const fetchDeliveryOrders = async () => {
   try {
-    return await apiRequest('/deliveries'); // userId é automaticamente incluído via apiRequest
+    const response = await apiRequest('/deliveries'); 
+    console.log(response);
+    return response;
   } catch (error) {
     console.error('Erro ao buscar ordens de entrega:', error.message);
     throw error;
@@ -114,18 +121,25 @@ export const deleteDeliveryOrder = async (id) => {
   }
 };
 
-// Função para exportar todas as ordens de entrega do usuário autenticado para um arquivo .txt
 export const exportDeliveryOrdersToTxt = async () => {
   try {
     const userId = getUserIdFromSession();
+    const token = getTokenFromSession(); // Obtém o token aqui
     if (!userId) throw new Error('Usuário não autenticado.');
+    if (!token) throw new Error('Token de autenticação não encontrado.');
 
-    const response = await fetch(`${API_URL}/deliveries/export-txt?userId=${userId}`, {
+    const response = await fetch(`${API_URL}/deliveries/report?userId=${userId}`, {
       method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`, // Inclui o token no cabeçalho
+      },
     });
 
     if (!response.ok) {
-      throw new Error(`Erro ao exportar ordens de entrega: ${response.statusText}`);
+      const errorDetails = await response.json().catch(() => ({}));
+      throw new Error(
+        `Erro ao exportar ordens de entrega: ${errorDetails.message || response.statusText}`
+      );
     }
 
     const blob = await response.blob();

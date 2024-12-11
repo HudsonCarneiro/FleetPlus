@@ -133,64 +133,57 @@ const DeliveryTable = () => {
             </tr>
           </thead>
           <tbody>
-            {deliveries.length > 0 ? (
-              deliveries.map((delivery) => (
-                <tr key={delivery.id}>
-                  <td>{delivery.Client?.businessName || "Não informado"}</td>
-                  <td>{delivery.Driver?.name || "Não informado"}</td>
-                  <td>
-                    {delivery.Vehicle
-                      ? `${delivery.Vehicle.model} (${delivery.Vehicle.licensePlate})`
-                      : "Não informado"}
-                  </td>
-                  <td>
-                    {delivery.deliveryDate
-                      ? new Date(delivery.deliveryDate).toLocaleDateString()
-                      : "Não definida"}
-                  </td>
-                  <td>
-                    <select
-                      className={`status-select ${
-                        delivery.status === "aguardando"
-                          ? "status-pending"
-                          : delivery.status === "enviado"
-                          ? "status-sent"
-                          : "status-completed"
-                      }`}
-                      value={delivery.status}
-                      onChange={(e) =>
-                        handleStatusUpdate(delivery.id, e.target.value)
-                      }
-                    >
-                      <option value="aguardando">Aguardando</option>
-                      <option value="enviado">Enviado</option>
-                      <option value="finalizado">Finalizado</option>
-                    </select>
-                  </td>
-                  <td>
-                    <button
-                      className="btn-edit"
-                      onClick={() => handleEditOrder(delivery)}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className="btn-delete"
-                      onClick={() => handleDeleteOrder(delivery.id)}
-                    >
-                      Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" className="no-data">
-                  Nenhuma ordem de entrega encontrada.
-                </td>
-              </tr>
-            )}
-          </tbody>
+  {deliveries.length > 0 ? (
+    deliveries.map((delivery) => (
+      <tr key={delivery.id}>
+        <td>{delivery.client}</td>
+        <td>{delivery.driver}</td>
+        <td>{delivery.vehicle}</td>
+        <td>{delivery.deliveryDate}</td>
+        <td>
+          <select
+            className={`status-select ${
+              delivery.status === "aguardando"
+                ? "status-pending"
+                : delivery.status === "enviado"
+                ? "status-sent"
+                : "status-completed"
+            }`}
+            value={delivery.status}
+            onChange={(e) =>
+              handleStatusUpdate(delivery.id, e.target.value)
+            }
+          >
+            <option value="aguardando">Aguardando</option>
+            <option value="enviado">Enviado</option>
+            <option value="finalizado">Finalizado</option>
+          </select>
+        </td>
+        <td>
+          <button
+            className="btn-edit"
+            onClick={() => handleEditOrder(delivery)}
+          >
+            Editar
+          </button>
+          <button
+            className="btn-delete"
+            onClick={() => handleDeleteOrder(delivery.id)}
+          >
+            Excluir
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="6" className="no-data">
+        Nenhuma ordem de entrega encontrada.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       )}
       {isModalOpen && (

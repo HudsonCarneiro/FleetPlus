@@ -78,25 +78,30 @@ exports.getClientsAll = async (req, res) => {
 };
 exports.getClientAll = async (req, res) => {
   try {
-    // Busca todos os clientes
-    const clientsResponse = await Client.findAll();
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ message: 'ID do usuário não fornecido.' });
+    }
+
+    // Busca todos os clientes do usuário
+    const clientsResponse = await Client.findAll({ where: { userId } });
 
     // Itera sobre os clientes para buscar seus endereços
     const clientsWithAddress = await Promise.all(
       clientsResponse.map(async (client) => {
         const address = await addressController.getAddressbyId(client.addressId);
         return {
-          ...client.toJSON(), // Converte o cliente para JSON
-          address, // Adiciona o endereço correspondente
+          ...client.toJSON(),
+          address,
         };
       })
     );
 
-    // Retorna o array de clientes diretamente
     res.status(200).json(clientsWithAddress);
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ error: 'Erro ao listar clientes.', details: error.message });
+    res.status(500).json({ message: 'Erro ao listar clientes.', error: error.message });
   }
 };
 

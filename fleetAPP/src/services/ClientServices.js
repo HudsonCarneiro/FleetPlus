@@ -59,7 +59,8 @@ const apiRequest = async (endpoint, method = 'GET', body = null, queryParams = {
 export const fetchClients = async () => {
   try {
     const response = await apiRequest('/clients/');
-    return response.clients || []; // Extrai o array "clients" ou retorna um array vazio caso não exista
+    console.log('clients: ', response);
+    return response || []; // Extrai o array "clients" ou retorna um array vazio caso não exista
   } catch (error) {
     console.error('Erro ao buscar clientes:', error.message);
     throw error;
