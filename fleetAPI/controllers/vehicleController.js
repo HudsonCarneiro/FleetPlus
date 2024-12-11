@@ -48,6 +48,9 @@ exports.getVehicleById = async (req, res) => {
 exports.getVehiclebyId = async (id) => {
     try {
       const vehicle = await Vehicle.findByPk(id, { attributes: ['id', 'model', 'licensePlate'] });
+      if (!vehicle) {
+        console.warn(`Veículo com ID ${id} não encontrado.`);
+      }
       return vehicle ? vehicle.toJSON() : null;
     } catch (error) {
       console.error(`Erro ao buscar veículo com ID ${id}:`, error.message);
