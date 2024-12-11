@@ -30,9 +30,9 @@ const AppRoutes = () => {
           <Route
             path="/dashboard"
             element={
-              <PrivateRoute>
+           
                 <Dashboard />
-              </PrivateRoute>
+            
             }
           />
         </Routes>

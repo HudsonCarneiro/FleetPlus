@@ -188,7 +188,7 @@ const DeliveryModal = ({ show, onClose, deliveryData, refreshDeliveries, isEditM
                     <option value="">Selecione um veículo</option>
                     {vehicles.map((vehicle) => (
                       <option key={vehicle.id} value={vehicle.id}>
-                        {vehicle.licensePlate}
+                        {vehicle.model}
                       </option>
                     ))}
                   </select>

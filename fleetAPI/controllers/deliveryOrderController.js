@@ -11,7 +11,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os'); // Importa o módulo os para localizar a pasta de downloads
 
-exports.exportDeliveriesToTxt = async (req, res) => {
+exports.exportDeliveriesReport = async (req, res) => {
   try {
     const { userId } = req.query;
     if (!userId) {
