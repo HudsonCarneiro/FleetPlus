@@ -1,7 +1,7 @@
 html, body {
     height: 100%; /* Garantir que o HTML e o body ocupem toda a altura da tela */
     margin: 0; /* Remover margens padrão */
-    overflow: auto; /* Permitir rolagem */
+    overflow: auto !important; /* Permitir rolagem */
 }
 .background {
     background-color: #002958;
