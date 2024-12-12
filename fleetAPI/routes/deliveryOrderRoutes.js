@@ -10,7 +10,5 @@ router.post('/delivery', deliveryOrderController.createDeliveryOrder); // Cria u
 router.put('/delivery/:id', deliveryOrderController.updateDeliveryOrder); // Atualiza uma ordem completa
 router.delete('/delivery/:id', deliveryOrderController.deleteDeliveryOrder); // Deleta uma ordem
 router.patch('/delivery/:id/status', deliveryOrderController.updateDeliveryOrderStatus); // Atualiza apenas o status
-router.get('/deliveries/report', deliveryOrderController.exportDeliveriesReport);
-
 
 module.exports = router;
