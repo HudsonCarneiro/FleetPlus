@@ -5,6 +5,10 @@ const getUserIdFromSession = () => {
   const userData = localStorage.getItem("userData");
   return userData ? JSON.parse(userData).id : null;
 };
+const getTokenFromSession = () => {
+  return localStorage.getItem('token');
+};
+
 
 // Função para buscar todos os veículos vinculados ao usuário logado
 export const getAllVehicles = async () => {
@@ -101,6 +105,39 @@ export const deleteVehicle = async (id) => {
     return response.ok; // Retorna true se a exclusão foi bem-sucedida
   } catch (error) {
     console.error("Erro ao excluir veículo:", error.message);
+    throw error;
+  }
+};
+export const exportVehiclesReport = async () => {
+  try {
+    const userId = getUserIdFromSession();
+    const token = getTokenFromSession(); // Obtém o token aqui
+    if (!userId) throw new Error('Usuário não autenticado.');
+    if (!token) throw new Error('Token de autenticação não encontrado.');
+
+    const response = await fetch(`${API_URL}/vehicles/report?userId=${userId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`, // Inclui o token no cabeçalho
+      },
+    });
+
+    if (!response.ok) {
+      const errorDetails = await response.json().catch(() => ({}));
+      throw new Error(
+        `Erro ao exportar ordens de entrega: ${errorDetails.message || response.statusText}`
+      );
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vehicles-${userId}.txt`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Erro ao exportar veiculos:', error.message);
     throw error;
   }
 };
