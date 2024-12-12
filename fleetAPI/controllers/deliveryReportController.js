@@ -1,7 +1,7 @@
 const DeliveryOrder = require('../models/DeliveryOrder');
 const { getDriverAll } = require('./driverController');
 const { getVehicleAll } = require('./vehicleController');
-const { getClientAll } = require('./clientController'); // Corrigido o nome
+const { getClientAll } = require('./clientController');
 const htmlPdf = require('html-pdf');
 const path = require('path');
 
@@ -19,7 +19,7 @@ exports.exportDeliveriesReport = async (req, res) => {
       return res.status(404).json({ error: 'Nenhuma ordem de entrega encontrada.' });
     }
 
-    // Busca todos os motoristas do usuário
+    // Busca os motoristas
     const driversResponse = await new Promise((resolve, reject) => {
       getDriverAll(
         { query: { userId } },
@@ -28,7 +28,7 @@ exports.exportDeliveriesReport = async (req, res) => {
     });
     const drivers = Array.isArray(driversResponse) ? driversResponse : [];
 
-    // Busca todos os veículos do usuário
+    // Busca os veículos
     const vehiclesResponse = await new Promise((resolve, reject) => {
       getVehicleAll(
         { query: { userId } },
@@ -37,7 +37,7 @@ exports.exportDeliveriesReport = async (req, res) => {
     });
     const vehicles = Array.isArray(vehiclesResponse) ? vehiclesResponse : [];
 
-    // Busca todos os clientes do usuário
+    // Busca os clientes
     const clientsResponse = await new Promise((resolve, reject) => {
       getClientAll(
         { query: { userId } },
@@ -59,15 +59,15 @@ exports.exportDeliveriesReport = async (req, res) => {
           ? {
               id: vehicle.id,
               model: vehicle.model,
-              licensePlate: vehicle.plate,
+              licensePlate: vehicle.licensePlate,
             }
           : null,
         Client: client
           ? {
               id: client.id,
-              businessName: client.businessName,
+              businessName: client.businessName || 'Desconhecido',
               address: client.address
-                ? `${client.address.road}, ${client.address.number}, ${client.address.city} - ${client.address.state}, ${client.address.cep}`
+                ? `${client.address.road || ''}, ${client.address.number || ''}, ${client.address.city || ''} - ${client.address.state || ''}, ${client.address.cep || ''}`
                 : 'Endereço não disponível',
             }
           : null,
@@ -91,12 +91,14 @@ exports.exportDeliveriesReport = async (req, res) => {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
+            font-size: 12px;
           }
           th {
             background-color: #f4f4f4;
             font-weight: bold;
           }
           tr:nth-child(even) { background-color: #f9f9f9; }
+          td { word-wrap: break-word; }
         </style>
       </head>
       <body>
@@ -119,7 +121,7 @@ exports.exportDeliveriesReport = async (req, res) => {
               .map((delivery) => `
                 <tr>
                   <td>${delivery.id}</td>
-                  <td>${new Date(delivery.deliveryDate).toLocaleDateString() || 'Não definida'}</td>
+                  <td>${delivery.deliveryDate ? new Date(delivery.deliveryDate).toLocaleDateString() : 'Não definida'}</td>
                   <td>${delivery.status}</td>
                   <td>${delivery.urgency}</td>
                   <td>${delivery.Driver?.name || 'Desconhecido'}</td>
@@ -141,7 +143,7 @@ exports.exportDeliveriesReport = async (req, res) => {
     // Opções de configuração do PDF
     const options = {
       format: 'A4',
-      orientation: 'portrait',
+      orientation: 'landscape', // Paisagem
       border: '10mm',
     };
 
