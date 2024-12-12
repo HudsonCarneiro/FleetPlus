@@ -121,7 +121,7 @@ export const deleteDeliveryOrder = async (id) => {
   }
 };
 
-export const exportDeliveryOrdersToTxt = async () => {
+export const exportDeliveryOrders = async () => {
   try {
     const userId = getUserIdFromSession();
     const token = getTokenFromSession(); // Obtém o token aqui
@@ -146,7 +146,7 @@ export const exportDeliveryOrdersToTxt = async () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `deliveries-${userId}.txt`;
+    a.download = `deliveries-${userId}.pdf`; // Atualizado para PDF
     a.click();
     window.URL.revokeObjectURL(url);
   } catch (error) {
@@ -193,7 +193,7 @@ export default {
   updateDeliveryOrder,
   updateDeliveryOrderStatus,
   deleteDeliveryOrder,
-  exportDeliveryOrdersToTxt,
+  exportDeliveryOrders,
   fetchClients,
   fetchVehicles,
   fetchDrivers,

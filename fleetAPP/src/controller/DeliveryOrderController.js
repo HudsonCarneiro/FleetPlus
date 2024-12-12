@@ -5,7 +5,7 @@ import {
     updateDeliveryOrder,
     updateDeliveryOrderStatus,
     deleteDeliveryOrder,
-    exportDeliveryOrdersToTxt,
+    exportDeliveryOrders
   } from "../services/DeliveryOrderServices";
   import { toast } from "react-toastify"; // Notificação amigável para o usuário
   
@@ -160,7 +160,7 @@ import {
   // Exportar todas as ordens de entrega para um arquivo .txt
   export const handleExportDeliveryOrdersToTxt = async () => {
     try {
-      await exportDeliveryOrdersToTxt();
+      await exportDeliveryOrders();
       toast.success("Arquivo gerado com sucesso. O download foi iniciado.");
     } catch (error) {
       console.error("Erro ao exportar ordens de entrega:", error.message);
