@@ -91,7 +91,7 @@ const FuelingTable = () => {
                   <td>{fueling.Driver?.name || "Não informado"}</td>
                   <td>
                     {fueling.Vehicle
-                      ? `${fueling.Vehicle.model} (${fueling.Vehicle.licensePlate})`
+                      ? `${fueling.Vehicle.model} (${fueling.Vehicle.plate})`
                       : "Não informado"}
                   </td>
                   <td>{Number(fueling.liters || 0).toFixed(2)} L</td>
@@ -105,9 +105,6 @@ const FuelingTable = () => {
                   <td>
                     <button className="btn-edit" onClick={() => handleEditFueling(fueling)}>
                       Editar
-                    </button>
-                    <button className="btn-delete" onClick={() => handleDeleteFueling(fueling.id)}>
-                      Excluir
                     </button>
                   </td>
                 </tr>

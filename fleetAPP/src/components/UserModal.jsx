@@ -100,7 +100,6 @@ const UserModal = ({ onClose, onUpdate }) => {
     <div className="modal-overlay">
       <div className="modal-content">
         <button className="btn-close" onClick={onClose}>
-          &times;
         </button>
         <h3 className="text-center">Editar Usuário</h3>
         <form className="mt-4">
