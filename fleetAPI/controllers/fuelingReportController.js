@@ -97,6 +97,7 @@ exports.exportDeliveriesReport = async (req, res) => {
             font-weight: bold;
           }
           tr:nth-child(even) { background-color: #f9f9f9; }
+          td { word-wrap: break-word; }
         </style>
       </head>
       <body>
@@ -134,17 +135,14 @@ exports.exportDeliveriesReport = async (req, res) => {
       </body>
       </html>
     `;
-
     // Caminho para salvar o PDF
     const filePath = path.join(__dirname, `../../downloads/delivery-report-${userId}.pdf`);
 
-    // Opções de configuração do PDF
     const options = {
       format: 'A4',
-      orientation: 'portrait',
+      orientation: 'landscape', // Altera para paisagem
       border: '10mm',
     };
-
     // Gera o PDF
     htmlPdf.create(html, options).toFile(filePath, (err, result) => {
       if (err) {

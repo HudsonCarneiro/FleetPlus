@@ -54,28 +54,36 @@ exports.createClient = async (req, res) => {
 // Função para listar todos os clientes com paginação
 exports.getClientsAll = async (req, res) => {
   try {
-    // Busca todos os clientes
-    const clientsResponse = await Client.findAll();
+    const { userId } = req.query;
 
-    // Itera sobre os clientes para buscar seus endereços
+    if (!userId) {
+      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+    }
+
+    // Busca todos os clientes associados ao usuário
+    const clientsResponse = await Client.findAll({
+      where: { userId }, // Certifique-se de que está filtrando por userId
+    });
+
     const clientsWithAddress = await Promise.all(
       clientsResponse.map(async (client) => {
         const address = await addressController.getAddressbyId(client.addressId);
         return {
-          ...client.toJSON(), // Converte o cliente para JSON
-          address, // Adiciona o endereço correspondente
+          ...client.toJSON(),
+          address,
         };
       })
     );
 
-    res.status(200).json({
-      clients: clientsWithAddress,
-    });
+    res.status(200).json(clientsWithAddress);
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: 'Erro ao listar clientes.', error: error.message });
+    console.error('Erro ao listar clientes:', error.message);
+    res.status(500).json({ error: 'Erro ao listar clientes.', details: error.message });
   }
 };
+
+
+//principal:
 exports.getClientAll = async (req, res) => {
   try {
     const { userId } = req.query;

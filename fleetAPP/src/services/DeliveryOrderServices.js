@@ -121,40 +121,6 @@ export const deleteDeliveryOrder = async (id) => {
   }
 };
 
-export const exportDeliveryOrders = async () => {
-  try {
-    const userId = getUserIdFromSession();
-    const token = getTokenFromSession(); // Obtém o token aqui
-    if (!userId) throw new Error('Usuário não autenticado.');
-    if (!token) throw new Error('Token de autenticação não encontrado.');
-
-    const response = await fetch(`${API_URL}/deliveries/report?userId=${userId}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`, // Inclui o token no cabeçalho
-      },
-    });
-
-    if (!response.ok) {
-      const errorDetails = await response.json().catch(() => ({}));
-      throw new Error(
-        `Erro ao exportar ordens de entrega: ${errorDetails.message || response.statusText}`
-      );
-    }
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `deliveries-${userId}.pdf`; // Atualizado para PDF
-    a.click();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error('Erro ao exportar ordens de entrega:', error.message);
-    throw error;
-  }
-};
-
 // Função para listar todos os clientes
 export const fetchClients = async () => {
   try {
@@ -184,6 +150,39 @@ export const fetchDrivers = async () => {
     throw error;
   }
 };
+export const exportDeliveryOrdersToPDF = async () => {
+  try {
+    const userId = getUserIdFromSession();
+    const token = getTokenFromSession();
+    if (!userId) throw new Error('Usuário não autenticado.');
+    if (!token) throw new Error('Token de autenticação não encontrado.');
+
+    const response = await fetch(`${API_URL}/deliveries/report?userId=${userId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorDetails = await response.json().catch(() => ({}));
+      throw new Error(
+        `Erro ao exportar ordens de entrega: ${errorDetails.message || response.statusText}`
+      );
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio-entregas-${userId}.pdf`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Erro ao exportar ordens de entrega:', error.message);
+    throw error;
+  }
+};
 
 // Exporta todas as funções juntas
 export default {
@@ -193,7 +192,7 @@ export default {
   updateDeliveryOrder,
   updateDeliveryOrderStatus,
   deleteDeliveryOrder,
-  exportDeliveryOrders,
+  exportDeliveryOrdersToPDF,
   fetchClients,
   fetchVehicles,
   fetchDrivers,

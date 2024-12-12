@@ -5,7 +5,7 @@ import {
     updateDeliveryOrder,
     updateDeliveryOrderStatus,
     deleteDeliveryOrder,
-    exportDeliveryOrders
+    exportDeliveryOrdersToPDF
   } from "../services/DeliveryOrderServices";
   import { toast } from "react-toastify"; // Notificação amigável para o usuário
   
@@ -158,14 +158,13 @@ import {
   };
   
   // Exportar todas as ordens de entrega para um arquivo .txt
-  export const handleExportDeliveryOrdersToTxt = async () => {
+  export const handleExportDeliveryOrdersToPDF = async () => {
     try {
-      await exportDeliveryOrders();
-      toast.success("Arquivo gerado com sucesso. O download foi iniciado.");
+      await exportDeliveryOrdersToPDF();
+      toast.success('Relatório gerado com sucesso. O download foi iniciado.');
     } catch (error) {
-      console.error("Erro ao exportar ordens de entrega:", error.message);
-      toast.error("Erro ao exportar ordens de entrega. Tente novamente.");
+      console.error('Erro ao exportar ordens de entrega:', error.message);
+      toast.error('Erro ao exportar ordens de entrega. Tente novamente.');
       throw error;
     }
   };
-  

@@ -4,7 +4,7 @@ import {
   handleFetchAllDeliveryOrders,
   handleDeliveryOrderDeletion,
   handleDeliveryOrderStatusUpdate,
-  handleExportDeliveryOrdersToTxt, // Importa a função de exportação
+  handleExportDeliveryOrdersToPDF, 
 } from "../controller/DeliveryOrderController";
 import DeliveryModal from "./DeliveryModal";
 import { toast } from "react-toastify";
@@ -52,16 +52,13 @@ const DeliveryTable = () => {
   const handleExportReport = async () => {
     try {
       setIsExporting(true);
-      await handleExportDeliveryOrdersToTxt();
-      toast.success("Relatório de entregas gerado com sucesso!");
+      await handleExportDeliveryOrdersToPDF(); // Chamando o controlador correto
     } catch (error) {
       console.error("Erro ao gerar relatório de entregas:", error.message);
-      toast.error("Erro ao gerar relatório de entregas. Tente novamente.");
     } finally {
       setIsExporting(false);
     }
   };
-  
 
   // Função para abrir o modal de edição
   const handleEditOrder = (delivery) => {
@@ -113,8 +110,12 @@ const DeliveryTable = () => {
           <button className="btn-add" onClick={handleAddOrder}>
             Adicionar Nova Ordem
           </button>
-          <button className="btn-export" onClick={handleExportReport}>
-            Exportar Relatório
+          <button
+            className="btn-export"
+            onClick={handleExportReport}
+            disabled={isExporting}
+          >
+            {isExporting ? "Exportando..." : "Exportar Relatório"}
           </button>
         </div>
       </div>
@@ -133,57 +134,56 @@ const DeliveryTable = () => {
             </tr>
           </thead>
           <tbody>
-  {deliveries.length > 0 ? (
-    deliveries.map((delivery) => (
-      <tr key={delivery.id}>
-        <td>{delivery.client}</td>
-        <td>{delivery.driver}</td>
-        <td>{delivery.vehicle}</td>
-        <td>{delivery.deliveryDate}</td>
-        <td>
-          <select
-            className={`status-select ${
-              delivery.status === "aguardando"
-                ? "status-pending"
-                : delivery.status === "enviado"
-                ? "status-sent"
-                : "status-completed"
-            }`}
-            value={delivery.status}
-            onChange={(e) =>
-              handleStatusUpdate(delivery.id, e.target.value)
-            }
-          >
-            <option value="aguardando">Aguardando</option>
-            <option value="enviado">Enviado</option>
-            <option value="finalizado">Finalizado</option>
-          </select>
-        </td>
-        <td>
-          <button
-            className="btn-edit"
-            onClick={() => handleEditOrder(delivery)}
-          >
-            Editar
-          </button>
-          <button
-            className="btn-delete"
-            onClick={() => handleDeleteOrder(delivery.id)}
-          >
-            Excluir
-          </button>
-        </td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan="6" className="no-data">
-        Nenhuma ordem de entrega encontrada.
-      </td>
-    </tr>
-  )}
-</tbody>
-
+            {deliveries.length > 0 ? (
+              deliveries.map((delivery) => (
+                <tr key={delivery.id}>
+                  <td>{delivery.client}</td>
+                  <td>{delivery.driver}</td>
+                  <td>{delivery.vehicle}</td>
+                  <td>{delivery.deliveryDate}</td>
+                  <td>
+                    <select
+                      className={`status-select ${
+                        delivery.status === "aguardando"
+                          ? "status-pending"
+                          : delivery.status === "enviado"
+                          ? "status-sent"
+                          : "status-completed"
+                      }`}
+                      value={delivery.status}
+                      onChange={(e) =>
+                        handleStatusUpdate(delivery.id, e.target.value)
+                      }
+                    >
+                      <option value="aguardando">Aguardando</option>
+                      <option value="enviado">Enviado</option>
+                      <option value="finalizado">Finalizado</option>
+                    </select>
+                  </td>
+                  <td>
+                    <button
+                      className="btn-edit"
+                      onClick={() => handleEditOrder(delivery)}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDeleteOrder(delivery.id)}
+                    >
+                      Excluir
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="no-data">
+                  Nenhuma ordem de entrega encontrada.
+                </td>
+              </tr>
+            )}
+          </tbody>
         </table>
       )}
       {isModalOpen && (

@@ -4,20 +4,21 @@ const Driver = require('../models/Driver');
 const Vehicle = require('../models/Vehicle');
 const { getDriverAll } = require('./driverController');
 const { getVehicleAll } = require('./vehicleController');
+const { getClientAll } = require('./clientController');
 const clientController = require('./clientController');
-const driverController = require('./driverController');
-const vehicleController = require('./vehicleController');
+
 
 
 // Lista todas as ordens de entrega vinculadas ao usuário autenticado
 exports.getDeliveryOrders = async (req, res) => {
   try {
     const { userId } = req.query;
+
     if (!userId) {
       return res.status(400).json({ error: 'ID do usuário não fornecido.' });
     }
 
-    // Busca todas as ordens do usuário
+    // Busca todas as ordens de entrega do usuário
     const orders = await DeliveryOrder.findAll({
       where: { userId },
     });
@@ -26,51 +27,59 @@ exports.getDeliveryOrders = async (req, res) => {
       return res.status(404).json({ error: 'Nenhuma ordem de entrega encontrada.' });
     }
 
-    // Busca todos os clientes do usuário
+    console.log('Ordens disponíveis:', orders);
+
+    // Busca todos os clientes associados ao usuário
     const clientsResponse = await new Promise((resolve, reject) => {
-      clientController.getClientAll(
+      getClientAll(
         { query: { userId } },
-        { status: (statusCode) => ({ json: resolve, send: reject }) },
+        { status: (statusCode) => ({ json: resolve, send: reject }) }
       );
     });
 
     const clients = Array.isArray(clientsResponse) ? clientsResponse : [];
+    console.log('Clientes disponíveis:', clients);
 
     // Busca todos os motoristas do usuário
     const driversResponse = await new Promise((resolve, reject) => {
       getDriverAll(
         { query: { userId } },
-        { status: (statusCode) => ({ json: resolve, send: reject }) },
+        { status: (statusCode) => ({ json: resolve, send: reject }) }
       );
     });
 
     const drivers = Array.isArray(driversResponse) ? driversResponse : [];
+    console.log('Motoristas disponíveis:', drivers);
 
     // Busca todos os veículos do usuário
     const vehiclesResponse = await new Promise((resolve, reject) => {
       getVehicleAll(
         { query: { userId } },
-        { status: (statusCode) => ({ json: resolve, send: reject }) },
+        { status: (statusCode) => ({ json: resolve, send: reject }) }
       );
     });
 
     const vehicles = Array.isArray(vehiclesResponse) ? vehiclesResponse : [];
+    console.log('Veículos disponíveis:', vehicles);
 
-    // Associa os dados aos pedidos
+    // Mapeia os dados detalhados para cada ordem de entrega
     const ordersWithDetails = orders.map((order) => {
-      const client = clients.find((c) => c.id === order.clientId) || null;
-      const driver = drivers.find((d) => d.id === order.driverId) || null;
-      const vehicle = vehicles.find((v) => v.id === order.vehicleId) || null;
+      console.log('Buscando cliente para pedido:', order.clientId);
+      const client = clients.find((c) => Number(c.id) === Number(order.clientId)) || { businessName: 'Cliente não encontrado' };
+      const driver = drivers.find((d) => Number(d.id) === Number(order.driverId)) || null;
+      const vehicle = vehicles.find((v) => Number(v.id) === Number(order.vehicleId)) || null;
 
       return {
         ...order.toJSON(),
-        Client: client ? { id: client.id, businessName: client.businessName } : null,
+        Client: client
+          ? { id: client.id, businessName: client.businessName }
+          : null,
         Driver: driver ? { id: driver.id, name: driver.name } : null,
         Vehicle: vehicle
           ? {
               id: vehicle.id,
               model: vehicle.model,
-              licensePlate: vehicle.plate, // Use o atributo correto
+              licensePlate: vehicle.plate || 'Placa não informada',
             }
           : null,
       };
@@ -85,6 +94,8 @@ exports.getDeliveryOrders = async (req, res) => {
     });
   }
 };
+
+
 // Busca uma ordem de entrega por ID
 exports.getDeliveryOrderById = async (req, res) => {
   try {
