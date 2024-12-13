@@ -131,8 +131,8 @@ exports.exportDeliveriesReport = async (req, res) => {
                   <td>${delivery.urgency}</td>
                   <td>${delivery.Driver?.name || 'Desconhecido'}</td>
                   <td>${delivery.Vehicle ? `${delivery.Vehicle.model} (${delivery.Vehicle.licensePlate})` : 'Desconhecido'}</td>
-                  <td>${delivery.client?.businessName || 'Desconhecido'}</td>
-                  <td>${delivery.client?.address || 'Endereço não disponível'}</td>
+                  <td>${delivery.Client ?.businessName || 'Desconhecido'}</td>
+                  <td>${delivery.Client ?.address || 'Endereço não disponível'}</td>
                 </tr>
               `)
               .join('')}
