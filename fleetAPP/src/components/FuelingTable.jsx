@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import {
   handleFetchAllFuelings,
   handleFetchFuelingById,
@@ -23,12 +22,10 @@ const FuelingTable = () => {
       setFuelings(fetchedFuelings);
 
       if (fetchedFuelings.length === 0 && !hasNoFuelingsToastShown) {
-        toast.info("Nenhum abastecimento cadastrado.");
         setHasNoFuelingsToastShown(true);
       }
     } catch (error) {
-      console.error("Erro ao carregar abastecimentos:", error.message);
-      toast.error("Erro ao carregar abastecimentos. Tente novamente.");
+      console.log("Nenhum abastecimento encontrado ");
     } finally {
       setLoading(false);
     }
@@ -52,10 +49,8 @@ const FuelingTable = () => {
     try {
       setIsExporting(true);
       await exportFuelingsToPDF();
-      toast.success("Relatório exportado com sucesso!");
     } catch (error) {
       console.error("Erro ao exportar relatório:", error.message);
-      toast.error("Erro ao exportar relatório. Tente novamente.");
     } finally {
       setIsExporting(false);
     }
@@ -93,7 +88,7 @@ const FuelingTable = () => {
               <th>Motorista</th>
               <th>Veículo</th>
               <th>Litros</th>
-              <th>Preço</th>
+              <th>Preço Total</th>
               <th>Quilometragem</th>
               <th>Data</th>
               <th>Ações</th>

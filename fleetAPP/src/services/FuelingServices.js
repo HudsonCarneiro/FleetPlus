@@ -68,7 +68,8 @@ export const fetchFuelings = async () => {
 export const fetchFuelingById = async (id) => {
   try {
     if (!id) throw new Error('ID do abastecimento não fornecido.');
-    return await apiRequest(`/fueling/${id}`);
+    const response = await apiRequest(`/fueling/${id}`);
+    return response;
   } catch (error) {
     console.error('Erro ao buscar abastecimento:', error.message);
     throw error;
@@ -163,7 +164,7 @@ export default {
   registerFueling,
   updateFueling,
   deleteFueling,
-  exportFuelingReportToTxt,
+  exportFuelingsToPDF,
   fetchDrivers,
   fetchVehicles,
 };

@@ -60,7 +60,7 @@ import {
           ? new Date(order.deliveryDate).toLocaleDateString()
           : 'Data não definida',
         status: order.status || 'Status não definido',
-        urgency: validUrgencyColors.includes(order.urgency) ? order.urgency : 'verde', // Valida o valor recebido
+        urgency:  order.urgency || 'não identificado'
       }));
     } catch (error) {
       console.error('Erro ao buscar todas as ordens de entrega:', error.message);
@@ -81,8 +81,7 @@ import {
       if (!deliveryOrder) {
         throw new Error("Ordem de entrega não encontrada.");
       }
-  
-      const validUrgencyColors = ["verde", "amarelo", "vermelho"]; // Valores válidos de urgência
+
   
       // Processa os dados para garantir consistência
       return {
@@ -96,10 +95,11 @@ import {
           ? new Date(deliveryOrder.deliveryDate).toLocaleDateString()
           : 'Data não definida',
         status: deliveryOrder.status || 'Status não definido',
-        urgency: validUrgencyColors.includes(deliveryOrder.urgency)
-          ? deliveryOrder.urgency
-          : 'verde', // Valida o valor de urgência
+        urgency: 
+          deliveryOrder.urgency // Retorna a cor válida
+          || 'desconhecida', // Valor padrão para urgências inválidas
       };
+      
     } catch (error) {
       console.error("Erro ao buscar ordem de entrega por ID:", error.message);
       toast.error("Erro ao buscar a ordem de entrega. Tente novamente.");

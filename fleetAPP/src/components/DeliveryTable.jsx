@@ -161,19 +161,10 @@ const DeliveryTable = () => {
                       <option value="finalizado">Finalizado</option>
                     </select>
                   </td>
-                  <td>
-                    <div
-                      className="urgency-indicator"
-                      style={{
-                        backgroundColor:
-                          delivery.urgency === "verde"
-                            ? "green"
-                            : delivery.urgency === "amarelo"
-                            ? "yellow"
-                            : "red",
-                      }}
-                    ></div>
-                  </td>
+              
+                  <td>{delivery.urgency}</td>
+
+
 
                   <td>
                     <button
