@@ -59,9 +59,6 @@ const FuelingModal = ({ show, onClose, fuelingData, refreshFuelings, isEditMode 
   const validateFields = () => {
     const invalidFields = requiredFields.filter((field) => !formData[field]);
     if (invalidFields.length > 0) {
-      toast.error(
-        `Os seguintes campos são obrigatórios: ${invalidFields.join(", ")}`
-      );
       return false;
     }
     return true;
@@ -74,10 +71,8 @@ const FuelingModal = ({ show, onClose, fuelingData, refreshFuelings, isEditMode 
       setLoading(true);
       if (isEditMode) {
         await handleUpdateFueling(fuelingData.id, formData);
-        toast.success("Abastecimento atualizado com sucesso!");
       } else {
         await handleRegisterFueling(formData);
-        toast.success("Abastecimento registrado com sucesso!");
       }
       onClose();
       refreshFuelings?.();

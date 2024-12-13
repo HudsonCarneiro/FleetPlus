@@ -89,7 +89,6 @@ import {
       return response;
     } catch (error) {
       console.error("Erro ao atualizar abastecimento:", error.message);
-      toast.error(`Erro ao atualizar abastecimento: ${error.message}`);
       throw error;
     }
   };
