@@ -46,6 +46,8 @@ import {
         throw new Error('Formato inesperado na resposta.');
       }
   
+      const validUrgencyColors = ["verde", "amarelo", "vermelho"]; // Valores válidos de urgência
+  
       // Processa os dados para exibição no componente
       return deliveries.map((order) => ({
         id: order.id,
@@ -58,6 +60,7 @@ import {
           ? new Date(order.deliveryDate).toLocaleDateString()
           : 'Data não definida',
         status: order.status || 'Status não definido',
+        urgency: validUrgencyColors.includes(order.urgency) ? order.urgency : 'verde', // Valida o valor recebido
       }));
     } catch (error) {
       console.error('Erro ao buscar todas as ordens de entrega:', error.message);
@@ -67,21 +70,43 @@ import {
   
   
   
+  
   // Buscar uma ordem de entrega por ID
   export const handleFetchDeliveryOrderById = async (id) => {
     try {
       if (!id) throw new Error("ID da ordem de entrega não fornecido.");
+      
       const deliveryOrder = await fetchDeliveryOrderById(id);
+      
       if (!deliveryOrder) {
         throw new Error("Ordem de entrega não encontrada.");
       }
-      return deliveryOrder;
+  
+      const validUrgencyColors = ["verde", "amarelo", "vermelho"]; // Valores válidos de urgência
+  
+      // Processa os dados para garantir consistência
+      return {
+        id: deliveryOrder.id,
+        client: deliveryOrder.client?.businessName || 'Cliente não informado',
+        driver: deliveryOrder.driver?.name || 'Motorista não informado',
+        vehicle: deliveryOrder.vehicle
+          ? `${deliveryOrder.vehicle.model || 'Modelo não informado'} (${deliveryOrder.vehicle.licensePlate || 'Placa não informada'})`
+          : 'Veículo não informado',
+        deliveryDate: deliveryOrder.deliveryDate
+          ? new Date(deliveryOrder.deliveryDate).toLocaleDateString()
+          : 'Data não definida',
+        status: deliveryOrder.status || 'Status não definido',
+        urgency: validUrgencyColors.includes(deliveryOrder.urgency)
+          ? deliveryOrder.urgency
+          : 'verde', // Valida o valor de urgência
+      };
     } catch (error) {
       console.error("Erro ao buscar ordem de entrega por ID:", error.message);
       toast.error("Erro ao buscar a ordem de entrega. Tente novamente.");
       throw error;
     }
   };
+  
   
   // Criar uma nova ordem de entrega
   export const handleDeliveryOrderRegistration = async (formData) => {

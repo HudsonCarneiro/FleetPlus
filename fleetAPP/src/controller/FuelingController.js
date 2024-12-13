@@ -30,13 +30,15 @@ import {
   export const handleFetchAllFuelings = async () => {
     try {
       const fuelings = await fetchFuelings();
-      if (!fuelings.length) {
-        toast.info("Nenhum abastecimento encontrado.");
-        return [];
+
+      if (!Array.isArray(fuelings)) {
+        throw new Error('Formato inesperado na resposta.');
       }
+      console.log(fuelings);
+
       return fuelings.map((fueling) => ({
         id: fueling.id,
-        driver: fueling.Driver?.name || "Desconhecido",
+        driver: fueling.Driver?.name || 'Motorista não informado',
         vehicle:
           fueling.Vehicle?.licensePlate && fueling.Vehicle?.model
             ? `${fueling.Vehicle.model} (${fueling.Vehicle.licensePlate})`
@@ -48,7 +50,6 @@ import {
       }));
     } catch (error) {
       console.error("Erro ao buscar abastecimentos:", error.message);
-      toast.error("Erro ao carregar lista de abastecimentos.");
       throw error;
     }
   };
@@ -60,7 +61,6 @@ import {
       return await fetchFuelingById(id);
     } catch (error) {
       console.error("Erro ao buscar abastecimento:", error.message);
-      toast.error("Erro ao carregar detalhes do abastecimento.");
       throw error;
     }
   };

@@ -63,17 +63,33 @@ export const fetchDeliveryOrders = async () => {
   }
 };
 
-// Função para buscar uma ordem de entrega pelo ID
 export const fetchDeliveryOrderById = async (id) => {
   try {
-    if (!id) throw new Error('ID da ordem de entrega não fornecido.');
+    if (!id) throw new Error("ID da ordem de entrega não fornecido.");
 
-    return await apiRequest(`/delivery/${id}`);
+    const response = await apiRequest(`/delivery/${id}`);
+    if (!response) throw new Error("Ordem de entrega não encontrada.");
+
+    // Processar e retornar os dados estruturados
+    return {
+      id: response.id,
+      client: response.Client?.businessName || "Cliente não informado",
+      driver: response.Driver?.name || "Motorista não informado",
+      vehicle: response.Vehicle
+        ? `${response.Vehicle.model || "Modelo não informado"} (${response.Vehicle.licensePlate || "Placa não informada"})`
+        : "Veículo não informado",
+      deliveryDate: response.deliveryDate
+        ? new Date(response.deliveryDate).toLocaleDateString()
+        : "Data não definida",
+      status: response.status || "Status não definido",
+      urgency: response.urgency || "Sem prioridade",
+    };
   } catch (error) {
-    console.error('Erro ao buscar ordem de entrega:', error.message);
+    console.error("Erro ao buscar ordem de entrega:", error.message);
     throw error;
   }
 };
+
 
 // Função para criar uma nova ordem de entrega
 export const registerDeliveryOrder = async (deliveryOrder) => {

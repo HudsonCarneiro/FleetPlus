@@ -120,3 +120,21 @@
   .btn-export:hover {
     background-color: #a430af;
   }
+  .urgency-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+  }
+  
+  .urgency-verde {
+    background-color: green;
+  }
+  
+  .urgency-amarelo {
+    background-color: yellow;
+  }
+  
+  .urgency-vermelho {
+    background-color: red;
+  }
+  

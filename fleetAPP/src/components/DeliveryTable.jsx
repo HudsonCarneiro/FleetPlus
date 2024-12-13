@@ -6,7 +6,7 @@ import {
   handleDeliveryOrderStatusUpdate,
   handleExportDeliveryOrdersToPDF, 
 } from "../controller/DeliveryOrderController";
-import DeliveryModal from "./DeliveryModal";
+import DeliveryModal from "./DeliveryModal.jsx";
 import { toast } from "react-toastify";
 
 const DeliveryTable = () => {
@@ -130,6 +130,7 @@ const DeliveryTable = () => {
               <th>Veículo</th>
               <th>Data da Entrega</th>
               <th>Status</th>
+              <th>Urgência</th>
               <th>Ações</th>
             </tr>
           </thead>
@@ -161,6 +162,20 @@ const DeliveryTable = () => {
                     </select>
                   </td>
                   <td>
+                    <div
+                      className="urgency-indicator"
+                      style={{
+                        backgroundColor:
+                          delivery.urgency === "verde"
+                            ? "green"
+                            : delivery.urgency === "amarelo"
+                            ? "yellow"
+                            : "red",
+                      }}
+                    ></div>
+                  </td>
+
+                  <td>
                     <button
                       className="btn-edit"
                       onClick={() => handleEditOrder(delivery)}
@@ -178,7 +193,7 @@ const DeliveryTable = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="no-data">
+                <td colSpan="7" className="no-data">
                   Nenhuma ordem de entrega encontrada.
                 </td>
               </tr>
@@ -197,6 +212,6 @@ const DeliveryTable = () => {
       )}
     </div>
   );
-};
+}
 
 export default DeliveryTable;

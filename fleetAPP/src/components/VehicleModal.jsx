@@ -101,6 +101,7 @@ const VehicleModal = ({ show, onClose, vehicleData, refreshVehicles }) => {
               value={formData.plate}
               onChange={handleChange}
               className="form-control"
+              placeholder="AAA0A00"
               required
             />
           </div>

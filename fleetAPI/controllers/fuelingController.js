@@ -10,10 +10,10 @@ const fs = require('fs');
 const path = require('path');
 const sequelize = require('../config/database');
 
-// Lista todos os abastecimentos vinculados ao usuário autenticado
 exports.getFuelingAll = async (req, res) => {
   try {
     const { userId } = req.query;
+
     if (!userId) {
       return res.status(400).json({ error: 'ID do usuário não fornecido.' });
     }
@@ -21,7 +21,7 @@ exports.getFuelingAll = async (req, res) => {
     // Busca todos os abastecimentos
     const fuelings = await Fueling.findAll({ where: { userId } });
 
-    if (!fuelings.length) {
+    if (!fuelings || fuelings.length === 0) {
       return res.status(404).json({ error: 'Nenhum abastecimento encontrado.' });
     }
 
@@ -29,9 +29,14 @@ exports.getFuelingAll = async (req, res) => {
     const driversResponse = await new Promise((resolve, reject) => {
       getDriverAll(
         { query: { userId } },
-        { status: (statusCode) => ({ json: resolve, send: reject }) },
+        { 
+          status: (statusCode) => ({
+            json: resolve,
+            send: reject
+          })
+        }
       );
-    });
+    }).catch(() => []);
 
     const drivers = Array.isArray(driversResponse) ? driversResponse : [];
 
@@ -39,35 +44,35 @@ exports.getFuelingAll = async (req, res) => {
     const vehiclesResponse = await new Promise((resolve, reject) => {
       getVehicleAll(
         { query: { userId } },
-        { status: (statusCode) => ({ json: resolve, send: reject }) },
+        { 
+          status: (statusCode) => ({
+            json: resolve,
+            send: reject
+          })
+        }
       );
-    });
+    }).catch(() => []);
 
     const vehicles = Array.isArray(vehiclesResponse) ? vehiclesResponse : [];
 
     // Associa os dados de motorista e veículo aos abastecimentos
     const fuelingsWithDetails = fuelings.map((fueling) => {
-      const driver = drivers.find((d) => d.id === fueling.driverId) || null;
-      const vehicle = vehicles.find((v) => v.id === fueling.vehicleId) || null;
+      const driver = drivers.find((d) => String(d.id) === String(fueling.driverId)) || null;
+      const vehicle = vehicles.find((v) => String(v.id) === String(fueling.vehicleId)) || null;
 
       return {
         ...fueling.toJSON(),
         Driver: driver ? { id: driver.id, name: driver.name } : null,
         Vehicle: vehicle
-          ? {
-              id: vehicle.id,
-              model: vehicle.model,
-              licensePlate: vehicle.plate,
-              mileage: vehicle.mileage,
-            }
+          ? { id: vehicle.id, model: vehicle.model, licensePlate: vehicle.plate, mileage: vehicle.mileage }
           : null,
       };
     });
 
-    res.status(200).json(fuelingsWithDetails);
+    return res.status(200).json(fuelingsWithDetails);
   } catch (error) {
     console.error('Erro ao listar abastecimentos:', error.message);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Erro ao listar abastecimentos.',
       details: error.message,
     });
@@ -115,9 +120,14 @@ exports.createFueling = async (req, res) => {
 
     // Encontra o veículo para verificar e atualizar a quilometragem
     const vehicle = await Vehicle.findByPk(vehicleId, { transaction: t });
+    const driver = await Driver.findByPk(driverId, { transaction: t });
     if (!vehicle) {
       await t.rollback();
       return res.status(404).json({ error: 'Veículo não encontrado.' });
+    }
+    if (!driver) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Motorista não encontrado.' });
     }
 
     if (mileage > vehicle.mileage) {

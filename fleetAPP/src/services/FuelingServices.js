@@ -49,10 +49,18 @@ const apiRequest = async (endpoint, method = 'GET', body = null, queryParams = {
 // Função para listar todos os abastecimentos
 export const fetchFuelings = async () => {
   try {
-    return await apiRequest('/fuelings');
+    const fuelingResponse = await apiRequest('/fuelings');
+
+    // Verifica se o retorno é um array vazio
+    if (Array.isArray(fuelingResponse) && fuelingResponse.length === 0) {
+      console.log("Nenhum abastecimento cadastrado");
+      return []; // Retorna um array vazio para consistência
+    }
+
+    return fuelingResponse;
   } catch (error) {
     console.error('Erro ao buscar abastecimentos:', error.message);
-    throw error;
+    throw error; // Lança o erro para ser tratado em outro lugar
   }
 };
 

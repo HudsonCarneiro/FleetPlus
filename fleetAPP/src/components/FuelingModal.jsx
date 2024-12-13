@@ -94,7 +94,6 @@ const FuelingModal = ({ show, onClose, fuelingData, refreshFuelings, isEditMode 
       <div className="modal-overlay">
         <div className="modal-content">
           <button className="btn-close" onClick={onClose}>
-            &times;
           </button>
           <h3 className="text-center">
             {isEditMode ? "Editar Abastecimento" : "Cadastrar Abastecimento"}

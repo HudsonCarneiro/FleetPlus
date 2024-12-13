@@ -129,7 +129,6 @@ const DeliveryModal = ({ show, onClose, deliveryData, refreshDeliveries, isEditM
       <div className="modal-overlay">
         <div className="modal-content">
           <button className="btn-close" onClick={onClose}>
-            &times;
           </button>
           <h3 className="text-center">
             {isEditMode ? "Editar Ordem de Entrega" : "Nova Ordem de Entrega"}

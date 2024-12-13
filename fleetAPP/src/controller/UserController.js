@@ -69,7 +69,7 @@ export const handleUserRegistration = async (formData, navigate) => {
       formData.password,
     );
 
-    const userResponse = await UserServices.registerUser(user, addressResponse);
+    const userResponse = await userServices.registerUser(user, addressResponse);
 
     if (userResponse) {
       console.log('Usuário cadastrado com sucesso');
@@ -98,6 +98,7 @@ export const handleUserUpdate = async (formData) => {
     if (!formData.cep || !formData.road || !formData.city || !formData.state) {
       throw new Error("Campos obrigatórios do endereço estão ausentes.");
     }
+    
 
     // Criação da instância de endereço
     const address = new Address(
@@ -128,7 +129,7 @@ export const handleUserUpdate = async (formData) => {
     );
 
     // Atualização do usuário
-    const userResponse = await UserServices.updateUser(formData.id, user);
+    const userResponse = await userServices.updateUser(formData.id, user);
 
     if (userResponse) {
       console.log("Usuário atualizado com sucesso:", userResponse);
@@ -147,7 +148,7 @@ export const handleUserDeletion = async (userId, addressId, navigate) => {
   try {
     // Exclui o usuário
     if (userId) {
-      await UserServices.deleteUser(userId);
+      await userServices.deleteUser(userId);
       console.log("Usuário excluído com sucesso.");
     }
 

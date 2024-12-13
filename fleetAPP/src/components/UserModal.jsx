@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // Importa o useNavigate
 import "../styles/Modal.css";
 import {
+  handleUserRegistration,
   handleUserUpdate,
   handleUserDeletion,
   handleFetchUserById,

@@ -11,7 +11,7 @@ import ClientTable from "./ClientTable";
 import FuelingTable from "./FuelingTable";
 import FuelingModal from "./FuelingModal"; // Importa o FuelingModal
 import DeliveryTable from "./DeliveryTable";
-import DeliveryModal from "./DeliveryModal"; 
+import DeliveryModal from "./DeliveryModal.jsx"; 
 import { Sidebar } from "./Sidebar";
 import { fetchDashboardData } from "../controller/DashboardController.js";
 

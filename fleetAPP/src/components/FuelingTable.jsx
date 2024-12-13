@@ -1,76 +1,96 @@
 import React, { useEffect, useState } from "react";
-import { fetchFuelings, deleteFueling, exportFuelingReportToTxt } from "../services/FuelingServices";
-import "../styles/Table.css";
 import { toast } from "react-toastify";
+import {
+  handleFetchAllFuelings,
+  handleFetchFuelingById,
+} from "../controller/FuelingController";
+import { exportFuelingReportToTxt } from "../services/FuelingServices";
 import FuelingModal from "./FuelingModal";
+import "../styles/Table.css";
 
 const FuelingTable = () => {
   const [fuelings, setFuelings] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFueling, setSelectedFueling] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [hasNoFuelingsToastShown, setHasNoFuelingsToastShown] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
-  useEffect(() => {
-    const loadFuelings = async () => {
-      try {
-        setLoading(true);
-        const fetchedFuelings = await fetchFuelings();
-        setFuelings(fetchedFuelings);
-      } catch (error) {
-        console.error("Erro ao carregar abastecimentos:", error.message);
-        toast.error("Erro ao carregar abastecimentos. Tente novamente.");
-      } finally {
-        setLoading(false);
+  // Função para buscar abastecimentos
+  const fetchFuelings = async () => {
+    try {
+      setLoading(true);
+      const fetchedFuelings = await handleFetchAllFuelings();
+      setFuelings(fetchedFuelings);
+
+      if (fetchedFuelings.length === 0 && !hasNoFuelingsToastShown) {
+        toast.info("Nenhum abastecimento cadastrado.");
+        setHasNoFuelingsToastShown(true);
       }
-    };
-
-    loadFuelings();
-  }, []);
-
-  const handleDeleteFueling = async (id) => {
-    const confirmDelete = window.confirm("Tem certeza que deseja excluir este abastecimento?");
-    if (confirmDelete) {
-      try {
-        await deleteFueling(id);
-        setFuelings((prev) => prev.filter((fueling) => fueling.id !== id));
-        toast.success("Abastecimento excluído com sucesso!");
-      } catch (error) {
-        console.error("Erro ao excluir abastecimento:", error.message);
-        toast.error("Erro ao excluir abastecimento. Tente novamente.");
-      }
+    } catch (error) {
+      console.error("Erro ao carregar abastecimentos:", error.message);
+      toast.error("Erro ao carregar abastecimentos. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchFuelings();
+  }, []);
+
+  // Adicionar um novo abastecimento
   const handleAddFueling = () => {
     setSelectedFueling(null);
     setIsModalOpen(true);
   };
 
+  // Editar um abastecimento existente
   const handleEditFueling = (fueling) => {
     setSelectedFueling(fueling);
     setIsModalOpen(true);
   };
 
+  // Exportar relatório
+  const handleExportReport = async () => {
+    try {
+      setIsExporting(true);
+      await exportFuelingReportToTxt();
+      toast.success("Relatório exportado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao exportar relatório:", error.message);
+      toast.error("Erro ao exportar relatório. Tente novamente.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Fechar modal
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedFueling(null);
+    fetchFuelings(); // Atualizar lista após edição/adição
   };
 
   return (
     <div className="fueling-table">
       <div className="table-header">
         <h2>Abastecimentos</h2>
-        <div>
+        <div className="table-actions">
           <button className="btn-add" onClick={handleAddFueling}>
             Adicionar Novo Abastecimento
           </button>
-          <button className="btn-export" onClick={exportFuelingReportToTxt}>
-            Exportar Relatório
+          <button
+            className="btn-export"
+            onClick={handleExportReport}
+            disabled={isExporting}
+          >
+            {isExporting ? "Exportando..." : "Exportar Relatório"}
           </button>
         </div>
       </div>
       {loading ? (
-        <p>Carregando...</p>
+        <p className="loading-text">Carregando...</p>
       ) : (
         <table>
           <thead>
@@ -88,12 +108,8 @@ const FuelingTable = () => {
             {fuelings.length > 0 ? (
               fuelings.map((fueling) => (
                 <tr key={fueling.id}>
-                  <td>{fueling.Driver?.name || "Não informado"}</td>
-                  <td>
-                    {fueling.Vehicle
-                      ? `${fueling.Vehicle.model} (${fueling.Vehicle.plate})`
-                      : "Não informado"}
-                  </td>
+                  <td>{fueling.driver || "Não informado"}</td>
+                  <td>{fueling.vehicle || "Não informado"}</td>
                   <td>{Number(fueling.liters || 0).toFixed(2)} L</td>
                   <td>R$ {Number(fueling.price || 0).toFixed(2)}</td>
                   <td>{Number(fueling.mileage || 0).toFixed(2)} km</td>
@@ -103,7 +119,10 @@ const FuelingTable = () => {
                       : "Não definida"}
                   </td>
                   <td>
-                    <button className="btn-edit" onClick={() => handleEditFueling(fueling)}>
+                    <button
+                      className="btn-edit"
+                      onClick={() => handleEditFueling(fueling)}
+                    >
                       Editar
                     </button>
                   </td>
@@ -120,7 +139,11 @@ const FuelingTable = () => {
         </table>
       )}
       {isModalOpen && (
-        <FuelingModal show={isModalOpen} onClose={closeModal} fuelingData={selectedFueling} />
+        <FuelingModal
+          show={isModalOpen}
+          onClose={closeModal}
+          fuelingData={selectedFueling}
+        />
       )}
     </div>
   );
