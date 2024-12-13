@@ -1,6 +1,6 @@
 import Address from '../model/Address';
 import User from '../model/User';
-import UserServices from '../services/UserServices';
+import userServices from '../services/userServices';
 import AddressServices from '../services/AddressServices';
 import { handleLogout } from './AuthController';
 
@@ -10,7 +10,7 @@ import { fetchAddressById } from '../services/AddressServices';
 // Buscar usuário por ID e endereço associado
 export const handleFetchUserById = async (id) => {
   try {
-    const user = await UserServices.fetchUserById(id);
+    const user = await userServices.fetchUserById(id);
     if (!user) {
       throw new Error('Usuário não encontrado.');
     }
