@@ -4,7 +4,7 @@ import {
     registerFueling,
     updateFueling,
     deleteFueling,
-    exportFuelingReportToTxt,
+    exportFuelingsToPDF,
     fetchDrivers,
     fetchVehicles,
   } from "../services/FuelingServices";
@@ -117,7 +117,7 @@ import {
   // Gerar relatório de abastecimentos em .txt
   export const handleExportFuelingReport = async () => {
     try {
-      await exportFuelingReportToTxt();
+      await exportFuelingsToPDF();
       toast.success("Relatório de abastecimentos gerado com sucesso!");
     } catch (error) {
       console.error("Erro ao gerar relatório de abastecimentos:", error.message);

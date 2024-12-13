@@ -107,33 +107,6 @@ export const deleteFueling = async (id) => {
   }
 };
 
-// Função para gerar relatório de abastecimentos em formato .txt
-export const exportFuelingReportToTxt = async () => {
-  try {
-    const userId = getUserIdFromSession();
-    if (!userId) throw new Error("Usuário não autenticado.");
-
-    const response = await fetch(`${API_URL}/fuelings/report?userId=${userId}`, {
-      method: "GET",
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erro ao exportar relatório de abastecimentos: ${response.statusText}`);
-    }
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `fueling-report-${userId}.txt`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Erro ao exportar relatório de abastecimentos:", error.message);
-    throw error;
-  }
-};
-
 // Função para buscar todos os motoristas
 export const fetchDrivers = async () => {
   try {
@@ -153,6 +126,35 @@ export const fetchVehicles = async () => {
     throw error;
   }
 };
+
+export const exportFuelingsToPDF = async () => {
+  try {
+    const userId = getUserIdFromSession();
+    if (!userId) throw new Error("Usuário não autenticado.");
+
+    const response = await fetch(`${API_URL}/fuelings/report?userId=${userId}`, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Erro ao exportar relatório de abastecimentos: ${response.statusText}`
+      );
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `fueling-report-${userId}.pdf`; // Corrigido para PDF
+    a.click();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Erro ao exportar relatório de abastecimentos:", error);
+    throw error;
+  }
+};
+
 
 // Exporta todas as funções juntas
 export default {

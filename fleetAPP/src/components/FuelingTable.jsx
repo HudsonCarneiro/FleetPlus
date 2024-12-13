@@ -4,7 +4,7 @@ import {
   handleFetchAllFuelings,
   handleFetchFuelingById,
 } from "../controller/FuelingController";
-import { exportFuelingReportToTxt } from "../services/FuelingServices";
+import { exportFuelingsToPDF } from "../services/FuelingServices";
 import FuelingModal from "./FuelingModal";
 import "../styles/Table.css";
 
@@ -16,7 +16,6 @@ const FuelingTable = () => {
   const [hasNoFuelingsToastShown, setHasNoFuelingsToastShown] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
-  // Função para buscar abastecimentos
   const fetchFuelings = async () => {
     try {
       setLoading(true);
@@ -39,23 +38,20 @@ const FuelingTable = () => {
     fetchFuelings();
   }, []);
 
-  // Adicionar um novo abastecimento
   const handleAddFueling = () => {
     setSelectedFueling(null);
     setIsModalOpen(true);
   };
 
-  // Editar um abastecimento existente
   const handleEditFueling = (fueling) => {
     setSelectedFueling(fueling);
     setIsModalOpen(true);
   };
 
-  // Exportar relatório
   const handleExportReport = async () => {
     try {
       setIsExporting(true);
-      await exportFuelingReportToTxt();
+      await exportFuelingsToPDF();
       toast.success("Relatório exportado com sucesso!");
     } catch (error) {
       console.error("Erro ao exportar relatório:", error.message);
@@ -65,11 +61,10 @@ const FuelingTable = () => {
     }
   };
 
-  // Fechar modal
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedFueling(null);
-    fetchFuelings(); // Atualizar lista após edição/adição
+    fetchFuelings();
   };
 
   return (
