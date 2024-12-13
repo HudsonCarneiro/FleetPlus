@@ -44,13 +44,17 @@ exports.exportDeliveriesReport = async (req, res) => {
         { status: (statusCode) => ({ json: resolve, send: reject }) }
       );
     });
-    const clients = Array.isArray(clientsResponse.clients) ? clientsResponse.clients : [];
+    
+    const clients = Array.isArray(clientsResponse) ? clientsResponse : [];
 
     // Associa os dados aos pedidos
     const deliveriesWithDetails = deliveries.map((delivery) => {
       const driver = drivers.find((d) => d.id === delivery.driverId) || null;
       const vehicle = vehicles.find((v) => v.id === delivery.vehicleId) || null;
-      const client = clients.find((c) => c.id === delivery.clientId) || null;
+      const client =
+      clients.find((c) => Number(c.id) === Number(delivery.clientId)) || {
+        businessName: 'Cliente não encontrado',
+      };
 
       return {
         ...delivery.toJSON(),
@@ -59,9 +63,10 @@ exports.exportDeliveriesReport = async (req, res) => {
           ? {
               id: vehicle.id,
               model: vehicle.model,
-              licensePlate: vehicle.licensePlate,
+              licensePlate: vehicle.plate,
             }
           : null,
+  
         Client: client
           ? {
               id: client.id,
@@ -126,8 +131,8 @@ exports.exportDeliveriesReport = async (req, res) => {
                   <td>${delivery.urgency}</td>
                   <td>${delivery.Driver?.name || 'Desconhecido'}</td>
                   <td>${delivery.Vehicle ? `${delivery.Vehicle.model} (${delivery.Vehicle.licensePlate})` : 'Desconhecido'}</td>
-                  <td>${delivery.Client?.businessName || 'Desconhecido'}</td>
-                  <td>${delivery.Client?.address || 'Endereço não disponível'}</td>
+                  <td>${delivery.client?.businessName || 'Desconhecido'}</td>
+                  <td>${delivery.client?.address || 'Endereço não disponível'}</td>
                 </tr>
               `)
               .join('')}
