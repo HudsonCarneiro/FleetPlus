@@ -1,20 +1,20 @@
 const pool = require('../config/database');
 
-const Vehicle = {
-    async getAll(userId) {
-        const [rows] = await pool.query('SELECT * FROM vehicles WHERE userId = ?', [userId]);
+const Driver = {
+    async getAll(companyId) {
+        const [rows] = await pool.query('SELECT * FROM drivers WHERE companyId = ?', [companyId]);
         return rows;
     },
 
-    async getById(id, userId) {
-        const [rows] = await pool.query('SELECT * FROM vehicles WHERE id = ? AND userId = ?', [id, userId]);
+    async getById(id, companyId) {
+        const [rows] = await pool.query('SELECT * FROM drivers WHERE id = ? AND companyId = ?', [id, companyId]);
         return rows[0] || null;
     },
 
-    async create(vehicleData) {
-        const { plate, model, automaker, year, fuelType, mileage, userId } = vehicleData;
+    async create(driverData) {
+        const { cnh, phone, companyId } = driverData;
         const [result] = await pool.query(
-            'INSERT INTO vehicles (plate, model, automaker, year, fuelType, mileage, userId) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO drivers (plate, model, automaker, year, fuelType, mileage, userId) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [plate, model, automaker, year, fuelType, mileage, userId]
         );
         return { id: result.insertId, ...vehicleData };

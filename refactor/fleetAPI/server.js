@@ -2,7 +2,7 @@ const express = require('express');
 require('dotenv').config();
 const cors = require('cors');
 const morgan = require('morgan'); // Logger para requisições
-const sequelize = require('./config/database');
+const pool = require('./config/database'); // Conexão manual ao banco
 const app = express();
 const port = 3000;
 
@@ -41,16 +41,17 @@ const routers = [
 
 routers.forEach((router) => app.use('/api/', router));
 
-// Sincroniza os modelos/tabelas e inicia o servidor após a sincronização
-sequelize.sync()
-  .then(() => {
-    console.log('Banco de dados sincronizado com sucesso!');
+// Teste de conexão com o banco antes de iniciar o servidor
+pool.connect()
+  .then(client => {
+    console.log('Conectado ao banco de dados com sucesso!');
+    client.release(); // Libera a conexão para o pool
     app.listen(port, () => {
-      console.log('Servidor rodando na porta: ' + port);
+      console.log(`Servidor rodando na porta: ${port}`);
     });
   })
   .catch(err => {
-    console.log('Erro ao sincronizar o banco de dados: ' + err);
+    console.error('Erro ao conectar ao banco de dados:', err);
   });
 
 // Rota inicial

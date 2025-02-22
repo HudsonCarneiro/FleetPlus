@@ -6,9 +6,11 @@ const dbConfig = {
     user: 'root',
     password: '',
     database: 'fleetplus',
+   
 };
 
 const pool = mysql.createPool(dbConfig);
+
 
 async function testConnection() {
     try {
