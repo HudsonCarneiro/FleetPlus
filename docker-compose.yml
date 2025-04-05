@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./fleetAPI
+    ports:
+      - '3333:3333'
+    volumes:
+      - ./fleetAPI:/app
+    command: npm run dev
+
+  frontend:
+    build:
+      context: ./fleetAPP
+    ports:
+      - '3000:80'

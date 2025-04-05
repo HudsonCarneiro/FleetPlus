@@ -1,7 +1,7 @@
 import React from "react";
 import "../styles/Navbar.css";
 import { Link, useNavigate } from "react-router-dom";
-import { handleLogout } from "../controller/authController";
+import { handleLogout } from "../controller/AuthController";
 
 export const Navbar = () => {
   const navigate = useNavigate();
