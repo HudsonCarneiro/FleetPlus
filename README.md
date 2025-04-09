@@ -20,5 +20,18 @@ Ordens de Entrega: Controle das ordens de entrega, associando motoristas, veícu
 Endereços: Cadastro de endereços para usuários, motoristas e clientes.
 Usuários: Controle de acesso e gerenciamento de perfis de usuários do sistema.
 
-Para o funcionamento do mysql certifique-se que a porta esta como 3307 no xampp
-- crie um database chamado "fleetplus"
+## 📦 Tecnologias
+
+- Node.js
+- Express
+- Sequelize
+- MySQL
+- Docker & Docker Compose
+- React
+
+## 🚀 Como executar
+
+1. Clone o repositório:
+```bash
+git clone https://github.com/HudsonCarneiro/fleetplus.git
+cd fleetplus

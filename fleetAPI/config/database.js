@@ -1,29 +1,28 @@
 const { Sequelize } = require('sequelize');
 
-// Configuração do banco de dados
-const dbConfig = {
-  host: 'localhost',     
-  port: 3307,            
-  user: 'root',          
-  password: '',       
-  database: 'fleetplus', 
-};
-
-const sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, {
-  host: dbConfig.host,
-  port: dbConfig.port,
-  dialect: 'mysql', 
-});
+// Configuração do banco de dados via variáveis de ambiente
+const sequelize = new Sequelize(
+  process.env.DB_NAME || 'fleetplus',
+  process.env.DB_USER || 'root',
+  process.env.DB_PASS || 'root',
+  {
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 3306,
+    dialect: 'mysql',
+  }
+);
 
 // Testando a conexão com o banco de dados
-sequelize.authenticate()
-  .then(() => {
+const connectWithRetry = async () => {
+  try {
+    await sequelize.authenticate();
     console.log('Conexão bem-sucedida ao banco de dados!');
-  })
-  .catch((error) => {
-    console.error('Erro ao conectar com o banco de dados:', error);
-    process.exit(1); // Encerra o processo em caso de erro
-  });
+  } catch (error) {
+    console.error('Erro ao conectar com o banco de dados. Tentando novamente em 5 segundos...');
+    setTimeout(connectWithRetry, 5000);
+  }
+};
+
+connectWithRetry();
 
 module.exports = sequelize;
-

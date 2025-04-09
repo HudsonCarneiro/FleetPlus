@@ -4,7 +4,8 @@ const cors = require('cors');
 const morgan = require('morgan'); // Logger para requisições
 const sequelize = require('./config/database');
 const app = express();
-const port = 3000;
+const port = 3333;
+
 
 // Middlewares
 app.use(cors());
