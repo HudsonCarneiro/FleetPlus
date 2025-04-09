@@ -21,3 +21,4 @@ Endereços: Cadastro de endereços para usuários, motoristas e clientes.
 Usuários: Controle de acesso e gerenciamento de perfis de usuários do sistema.
 
 Para o funcionamento do mysql certifique-se que a porta esta como 3307 no xampp
+- crie um database chamado "fleetplus"
