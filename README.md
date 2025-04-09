@@ -19,3 +19,5 @@ Gerenciamento de Clientes: Registro e manutenção de dados dos clientes que rec
 Ordens de Entrega: Controle das ordens de entrega, associando motoristas, veículos e clientes.
 Endereços: Cadastro de endereços para usuários, motoristas e clientes.
 Usuários: Controle de acesso e gerenciamento de perfis de usuários do sistema.
+
+Para o funcionamento do mysql certifique-se que a porta esta como 3307 no xampp
