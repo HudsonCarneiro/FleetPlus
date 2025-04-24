@@ -43,6 +43,10 @@ Address.associate = (models) => {
     foreignKey: 'addressId',
     as: 'clients', // Alias deve ser usado nos controllers
   });
+  Address.hasMany(models.Company, {
+    foreignKey: 'addressId',
+    as: 'companys', // Alias deve ser usado nos controllers
+  });
 };
 
 module.exports = Address;
