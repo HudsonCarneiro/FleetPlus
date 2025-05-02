@@ -1,6 +1,7 @@
 const Fueling = require('../models/Fueling');
 const Vehicle = require('../models/Vehicle');
 const Driver = require('../models/Driver');
+const Company = require('../models/Company');
 const { getDriverAll } = require('./driverController');
 const { getVehicleAll } = require('./vehicleController');
 const { getDriverbyId } = require('./driverController');
@@ -12,14 +13,14 @@ const sequelize = require('../config/database');
 
 exports.getFuelingAll = async (req, res) => {
   try {
-    const { userId } = req.query;
+    const { companyId } = req.query;
 
-    if (!userId) {
-      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+    if (!companyId) {
+      return res.status(400).json({ error: 'ID da empresa não fornecido.' });
     }
 
     // Busca todos os abastecimentos
-    const fuelings = await Fueling.findAll({ where: { userId } });
+    const fuelings = await Fueling.findAll({ where: { companyId } });
 
     if (!fuelings || fuelings.length === 0) {
       return res.status(404).json({ error: 'Nenhum abastecimento encontrado.' });
@@ -40,10 +41,10 @@ exports.getFuelingAll = async (req, res) => {
 
     const drivers = Array.isArray(driversResponse) ? driversResponse : [];
 
-    // Busca todos os veículos do usuário
+    // Busca todos os veículos da empresa
     const vehiclesResponse = await new Promise((resolve, reject) => {
       getVehicleAll(
-        { query: { userId } },
+        { query: { companyId } },
         { 
           status: (statusCode) => ({
             json: resolve,
@@ -82,9 +83,9 @@ exports.getFuelingAll = async (req, res) => {
 // Busca um abastecimento por ID
 exports.getFuelingById = async (req, res) => {
   try {
-    const { userId } = req.query;
-    if (!userId) {
-      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+    const { companyId } = req.query;
+    if (!companyId) {
+      return res.status(400).json({ error: 'ID da empresa não fornecido.' });
     }
 
     const fueling = await Fueling.findOne({
@@ -113,8 +114,8 @@ exports.getFuelingById = async (req, res) => {
 exports.createFueling = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { userId, driverId, vehicleId, liters, price, mileage, dateFueling } = req.body;
-    if (!userId || !driverId || !vehicleId || !mileage) {
+    const { companyId, driverId, vehicleId, liters, price, mileage, dateFueling } = req.body;
+    if (!companyId || !driverId || !vehicleId || !mileage) {
       return res.status(400).json({ error: 'Campos obrigatórios não fornecidos.' });
     }
 
@@ -136,7 +137,7 @@ exports.createFueling = async (req, res) => {
 
     const newFueling = await Fueling.create(
       {
-        userId,
+        companyId,
         driverId,
         vehicleId,
         liters,
@@ -163,13 +164,13 @@ exports.createFueling = async (req, res) => {
 exports.updateFueling = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { userId, driverId, vehicleId, liters, price, mileage, dateFueling } = req.body;
-    if (!userId || !driverId || !vehicleId || !mileage) {
+    const { companyId, driverId, vehicleId, liters, price, mileage, dateFueling } = req.body;
+    if (!companyId || !driverId || !vehicleId || !mileage) {
       return res.status(400).json({ error: 'Campos obrigatórios não fornecidos.' });
     }
 
     const fueling = await Fueling.findOne({
-      where: { id: req.params.id, userId },
+      where: { id: req.params.id, companyId },
       transaction: t,
     });
 
@@ -204,13 +205,13 @@ exports.updateFueling = async (req, res) => {
 // Exclui um abastecimento
 exports.deleteFueling = async (req, res) => {
   try {
-    const { userId } = req.query;
-    if (!userId) {
+    const { companyId } = req.query;
+    if (!companyId) {
       return res.status(400).json({ error: 'ID do usuário não fornecido.' });
     }
 
     const fueling = await Fueling.findOne({
-      where: { id: req.params.id, userId },
+      where: { id: req.params.id, companyId },
     });
 
     if (!fueling) {
