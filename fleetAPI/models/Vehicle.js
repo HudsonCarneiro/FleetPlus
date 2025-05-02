@@ -6,7 +6,7 @@ const Vehicle = sequelize.define('Vehicle', {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
-      },
+    },
     plate: {
         type: DataTypes.STRING(7), 
         allowNull: false,
@@ -14,48 +14,49 @@ const Vehicle = sequelize.define('Vehicle', {
     },
     model: {
         type: DataTypes.STRING(100),
-        allowNull: false
+        allowNull: false,
     },
     automaker: {
-        type: DataTypes.STRING(100), 
-        allowNull: true
+        type: DataTypes.STRING(100),
+        allowNull: true,
     },
     year: {
         type: DataTypes.INTEGER,
         allowNull: true,
         validate: {
-            min: 1900, // Ano mínimo
-            max: new Date().getFullYear() // Não pode ser maior que o ano atual
-        }
+            min: 1900,
+            max: new Date().getFullYear(),
+        },
     },
     fuelType: {
-        type: DataTypes.STRING(50), 
+        type: DataTypes.STRING(50),
         allowNull: true,
     },
     mileage: {
         type: DataTypes.INTEGER,
         allowNull: true,
         validate: {
-            min: 0 // A quilometragem não pode ser negativa
-        }
+            min: 0,
+        },
     },
-    userId: {
+    companyId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'Users',
+            model: 'Companies',
             key: 'id',
-          },
-      
-    }
+        },
+    },
 });
 
 Vehicle.associate = (models) => {
     Vehicle.hasMany(models.Fueling, {
-        foreignKey: 'vehicleId'
+        foreignKey: 'vehicleId',
+        as: 'fuelings',
     });
-    Vehicle.belongsTo(models.User, { 
-        foreignKey: 'userId' 
+    Vehicle.belongsTo(models.Company, {
+        foreignKey: 'companyId',
+        as: 'company',
     });
 };
 

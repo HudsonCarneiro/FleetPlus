@@ -2,11 +2,16 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Fueling = sequelize.define('Fueling', {
-  userId: {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  companyId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Users',
+      model: 'Companies',
       key: 'id',
     },
   },
@@ -61,10 +66,22 @@ const Fueling = sequelize.define('Fueling', {
   },
 });
 
+// Associação padrão com alias
 Fueling.associate = (models) => {
-  Fueling.belongsTo(models.User, { foreignKey: 'userId' });
-  Fueling.belongsTo(models.Driver, { foreignKey: 'driverId' });
-  Fueling.belongsTo(models.Vehicle, { foreignKey: 'vehicleId' });
+  Fueling.belongsTo(models.Company, {
+    foreignKey: 'companyId',
+    as: 'company',
+  });
+
+  Fueling.belongsTo(models.Driver, {
+    foreignKey: 'driverId',
+    as: 'driver',
+  });
+
+  Fueling.belongsTo(models.Vehicle, {
+    foreignKey: 'vehicleId',
+    as: 'vehicle',
+  });
 };
 
 module.exports = Fueling;

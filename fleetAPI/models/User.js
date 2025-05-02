@@ -16,7 +16,7 @@ User.init({
   },
   cpf: {
     type: DataTypes.STRING(14),
-    allowNull: true,
+    allowNull: false,
   },
   phone: {
     type: DataTypes.STRING,
@@ -46,6 +46,15 @@ User.init({
       key: 'id',
     },
   },
+  companyId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'Companies',
+      key: 'id',
+    },
+    onDelete: 'RESTRICT',
+  },
 }, {
   sequelize,
   modelName: 'User',
@@ -55,33 +64,25 @@ User.init({
 
 // Definindo associações
 User.associate = (models) => {
-  // Relacionamentos de um para muitos
-  User.hasMany(models.Client, {
-    foreignKey: 'userId',
-    as: 'clients',
-  });
-  User.hasMany(models.DeliveryOrder, {
-    foreignKey: 'userId',
-    as: 'deliveryOrders',
-  });
-  User.hasMany(models.Driver, {
-    foreignKey: 'userId',
-    as: 'drivers',
-  });
-  User.hasMany(models.Fueling, {
-    foreignKey: 'userId',
-    as: 'fuelings',
-  });
-  User.hasMany(models.Vehicle, {
-    foreignKey: 'userId',
-    as: 'vehicles',
+  // Cada usuário pertence a uma empresa
+  User.belongsTo(models.Company, {
+    foreignKey: 'companyId',
+    as: 'company',
+    onDelete: 'RESTRICT'
   });
 
-  // Relacionamento com Address (pertence a um endereço)
+  // Cada usuário pode ter um endereço (se for o caso do sistema)
   User.belongsTo(models.Address, {
     foreignKey: 'addressId',
-    as: 'address', // Ajustado para singular, já que é um único endereço
+    as: 'address',
   });
 };
 
+
 module.exports = User;
+/*
+'CASCADE'	Se apagar a empresa, apaga todos os usuários ligados a ela. 
+'SET NULL'	Se apagar a empresa, o companyId dos usuários vira null. 🫥
+'RESTRICT'	Não deixa apagar a empresa se ainda tiver usuário ligado a ela. 
+'NO ACTION'	Igual o RESTRICT, mas depende do DB. Não faz nada automaticamente.
+*/

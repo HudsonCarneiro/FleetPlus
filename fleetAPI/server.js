@@ -17,6 +17,7 @@ app.use(morgan('dev')); // Logger para requisições
 const addressRouter = require('./routes/addressRoutes');
 const authRouter = require('./routes/authRoutes');
 const clientRouter = require('./routes/clientRoutes');
+const companyRouter = require('./routes/companyRoutes.js');
 const dashboardRouter = require('./routes/dashboardRoutes');
 const deliveryOrderRouter = require('./routes/deliveryOrderRoutes');
 const driverRouter = require('./routes/driverRoutes');
@@ -30,6 +31,7 @@ const routers = [
   addressRouter,
   authRouter,
   clientRouter,
+  companyRouter,
   dashboardRouter,
   deliveryOrderRouter,
   driverRouter,

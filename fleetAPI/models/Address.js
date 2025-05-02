@@ -37,15 +37,15 @@ const Address = sequelize.define('Address', {
 Address.associate = (models) => {
   Address.hasMany(models.User, {
     foreignKey: 'addressId',
-    as: 'users', // Alias deve ser usado nos controllers
+    as: 'users',
   });
   Address.hasMany(models.Client, {
     foreignKey: 'addressId',
-    as: 'clients', // Alias deve ser usado nos controllers
+    as: 'clients', 
   });
   Address.hasMany(models.Company, {
     foreignKey: 'addressId',
-    as: 'companys', // Alias deve ser usado nos controllers
+    as: 'companies', 
   });
 };
 

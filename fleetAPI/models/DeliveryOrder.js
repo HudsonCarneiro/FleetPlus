@@ -2,6 +2,11 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const DeliveryOrder = sequelize.define('DeliveryOrder', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+    },
     deliveryDate: {
         type: DataTypes.DATE, 
         allowNull: true,
@@ -41,11 +46,11 @@ const DeliveryOrder = sequelize.define('DeliveryOrder', {
           },
         
     },
-    userId: {
+    companyId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'Users',
+            model: 'Companies',
             key: 'id',
           },
     }
@@ -53,10 +58,22 @@ const DeliveryOrder = sequelize.define('DeliveryOrder', {
 
 //Associações do modelo Delivery
 DeliveryOrder.associate = (models) => {
-    DeliveryOrder.belongsTo(models.Client, { foreignKey: 'clientId' });
-    DeliveryOrder.belongsTo(models.Driver, { foreignKey: 'driverId' });
-    DeliveryOrder.belongsTo(models.Vehicle, { foreignKey: 'vehicleId' });
-    DeliveryOrder.belongsTo(models.User, { foreignKey: 'userId' });
+    DeliveryOrder.belongsTo(models.Client, { 
+        foreignKey: 'clientId',
+        as: 'client' 
+    });
+    DeliveryOrder.belongsTo(models.Driver, { 
+        foreignKey: 'driverId',
+        as: 'driver'
+    });
+    DeliveryOrder.belongsTo(models.Vehicle, { 
+        foreignKey: 'vehicleId',
+        as: 'vehicle'
+    });
+    DeliveryOrder.belongsTo(models.Company, { 
+        foreignKey: 'companyId',
+        as: 'company'
+    });
 };
 
 module.exports = DeliveryOrder;

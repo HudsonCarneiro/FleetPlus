@@ -44,17 +44,17 @@ const Client = sequelize.define('Client', {
       key: 'id',
     },
   },
-  userId: {
+  companyId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Users', // Nome correto da tabela no banco de dados
+      model: 'Companies', 
       key: 'id',
     },
   },
 }, {
-  timestamps: true, // Habilita campos createdAt e updatedAt
-  paranoid: true, // Habilita o campo deletedAt para soft deletes
+  timestamps: true, 
+  paranoid: true,
   indexes: [
     { unique: true, fields: ['email'] },
     { unique: true, fields: ['cnpj'] },
@@ -63,17 +63,17 @@ const Client = sequelize.define('Client', {
 
 // Definindo associações
 Client.associate = (models) => {
-  Client.hasMany(models.Freight, {
+  Client.hasMany(models.DeliveryOrder, {
     foreignKey: 'clientId',
-    as: 'freights', // Alias para as cargas relacionadas
+    as: 'deliveryOrders', 
   });
   Client.belongsTo(models.Address, {
     foreignKey: 'addressId',
-    as: 'addresses', // Alias deve ser usado nos controllers
+    as: 'address', 
   });
-  Client.belongsTo(models.User, { 
-    foreignKey: 'userId',
-    as: 'user', // Alias para o usuário associado
+  Client.belongsTo(models.Company, { 
+    foreignKey: 'companyId',
+    as: 'company', 
   });
 };
 
