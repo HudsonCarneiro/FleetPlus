@@ -1,15 +1,15 @@
 const Driver = require('../models/Driver');
 
-// Lista todos os motoristas vinculados ao usuário autenticado
+// Lista todos os motoristas vinculados à empresa
 exports.getDriverAll = async (req, res) => {
   try {
-    const { userId } = req.query;
-    if (!userId) {
-      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+    const { companyId } = req.query;
+    if (!companyId) {
+      return res.status(400).json({ error: 'ID da empresa não fornecido.' });
     }
 
     const drivers = await Driver.findAll({
-      where: { userId },
+      where: { companyId },
     });
 
     res.status(200).json(drivers);
@@ -21,16 +21,16 @@ exports.getDriverAll = async (req, res) => {
   }
 };
 
-// Busca um motorista por ID, garantindo que pertença ao usuário autenticado
+// Busca um motorista por ID, garantindo que pertença à empresa
 exports.getDriverById = async (req, res) => {
   try {
-    const { userId } = req.query;
-    if (!userId) {
-      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+    const { companyId } = req.query;
+    if (!companyId) {
+      return res.status(400).json({ error: 'ID da empresa não fornecido.' });
     }
 
     const driver = await Driver.findOne({
-      where: { id: req.params.id, userId },
+      where: { id: req.params.id, companyId },
     });
 
     if (driver) {
@@ -45,6 +45,8 @@ exports.getDriverById = async (req, res) => {
     });
   }
 };
+
+// Função utilitária para uso interno (sem res)
 exports.getDriverbyId = async (id) => {
   try {
     const driver = await Driver.findByPk(id, { attributes: ['id', 'name'] });
@@ -55,12 +57,12 @@ exports.getDriverbyId = async (id) => {
   }
 };
 
-// Cria um novo motorista vinculado ao usuário autenticado
+// Cria um novo motorista vinculado à empresa
 exports.createDriver = async (req, res) => {
   try {
-    const { userId } = req.body;
-    if (!userId) {
-      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+    const { companyId } = req.body;
+    if (!companyId) {
+      return res.status(400).json({ error: 'ID da empresa não fornecido.' });
     }
 
     const newDriver = await Driver.create(req.body);
@@ -73,16 +75,16 @@ exports.createDriver = async (req, res) => {
   }
 };
 
-// Atualiza um motorista, garantindo que pertença ao usuário autenticado
+// Atualiza um motorista, garantindo que pertença à empresa
 exports.updateDriver = async (req, res) => {
   try {
-    const { userId } = req.body;
-    if (!userId) {
-      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+    const { companyId } = req.body;
+    if (!companyId) {
+      return res.status(400).json({ error: 'ID da empresa não fornecido.' });
     }
 
     const driver = await Driver.findOne({
-      where: { id: req.params.id, userId },
+      where: { id: req.params.id, companyId },
     });
 
     if (driver) {
@@ -99,21 +101,21 @@ exports.updateDriver = async (req, res) => {
   }
 };
 
-// Deleta um motorista, garantindo que pertença ao usuário autenticado
+// Deleta um motorista, garantindo que pertença à empresa
 exports.deleteDriver = async (req, res) => {
   try {
-    const { userId } = req.query;
-    if (!userId) {
-      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+    const { companyId } = req.query;
+    if (!companyId) {
+      return res.status(400).json({ error: 'ID da empresa não fornecido.' });
     }
 
     const driver = await Driver.findOne({
-      where: { id: req.params.id, userId },
+      where: { id: req.params.id, companyId },
     });
 
     if (driver) {
       await Driver.destroy({
-        where: { id: req.params.id, userId },
+        where: { id: req.params.id, companyId },
       });
       res.status(204).send();
     } else {
