@@ -48,7 +48,7 @@ User.init({
   },
   companyId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     references: {
       model: 'Companies',
       key: 'id',

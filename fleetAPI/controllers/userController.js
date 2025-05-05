@@ -69,26 +69,28 @@ exports.createUser = async (req, res) => {
 // Atualizar usuário
 exports.updateUser = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id);
-    if (user) {
-      const { password, ...updateData } = req.body;
+    const userId = req.params.id || req.body.id;
+    const user = await User.findByPk(userId);
 
-      if (password) {
-        // Gerar novo hash e salt
-        const { salt, hashedPassword } = await hashPassword(password);
-        updateData.password = hashedPassword;
-        updateData.salt = salt;
-      }
-
-      await user.update(updateData);
-      res.status(200).json(user);
-    } else {
-      res.status(404).json({ error: 'Usuário não encontrado' });
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
     }
+
+    const { password, ...updateData } = req.body;
+
+    if (password) {
+      const { salt, hashedPassword } = await hashPassword(password);
+      updateData.password = hashedPassword;
+      updateData.salt = salt;
+    }
+
+    await user.update(updateData);
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao atualizar o usuário', details: error.message });
   }
 };
+
 
 // Excluir usuário
 exports.deleteUser = async (req, res) => {

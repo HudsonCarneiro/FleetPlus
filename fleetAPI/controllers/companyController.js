@@ -27,16 +27,20 @@ exports.getCompanyById = async (req, res) => {
   }
 };
 
-// Criar empresa com endereço
+// Criar empresa com endereço e vincular usuário
 exports.createCompany = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { cnpj, companyName, businessName, address } = req.body;
+    const { cnpj, companyName, businessName, address, userId } = req.body;
 
-    // Verifica se o CNPJ já existe
+    if (!userId) {
+      await t.rollback();
+      return res.status(400).json({ message: 'ID do usuário é obrigatório.' });
+    }
+
     const existingCompany = await Company.findOne({
       where: { cnpj },
-      transaction: t
+      transaction: t,
     });
 
     if (existingCompany) {
@@ -44,7 +48,6 @@ exports.createCompany = async (req, res) => {
       return res.status(400).json({ message: 'CNPJ já cadastrado.' });
     }
 
-    // Cria o endereço
     const createdAddress = await Address.create({
       cep: address.cep,
       number: address.number,
@@ -54,7 +57,6 @@ exports.createCompany = async (req, res) => {
       state: address.state,
     }, { transaction: t });
 
-    // Cria a empresa
     const company = await Company.create({
       cnpj,
       companyName,
@@ -62,14 +64,25 @@ exports.createCompany = async (req, res) => {
       addressId: createdAddress.id,
     }, { transaction: t });
 
+    // Atualizar o usuário com o companyId
+    const user = await User.findByPk(userId, { transaction: t });
+
+    if (!user) {
+      await t.rollback();
+      return res.status(404).json({ message: 'Usuário não encontrado para vincular à empresa.' });
+    }
+
+    await user.update({ companyId: company.id }, { transaction: t });
+
     await t.commit();
-    res.status(201).json(company);
+    res.status(201).json({ company, message: 'Empresa criada e usuário vinculado com sucesso.' });
   } catch (error) {
     await t.rollback();
     console.error(error.message);
     res.status(500).json({ message: 'Erro ao criar empresa.', error: error.message });
   }
 };
+
 
 // Atualizar empresa e seu endereço
 exports.updateCompany = async (req, res) => {
