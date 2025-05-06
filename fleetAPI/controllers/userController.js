@@ -28,23 +28,24 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-
-// Criar usuário
 exports.createUser = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
-    const { name, cpf, phone, email, password, addressId } = req.body;
+    const { name, cpf, phone, email, password, address } = req.body;
 
-    if (!name || !cpf || !phone || !email || !password || !addressId) {
+    if (!name || !cpf || !phone || !email || !password || !address) {
+      await t.rollback();
       return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
     }
 
-    // Verificar se o usuário já existe
-    const existingUser = await User.findOne({ where: { email } });
+    const existingUser = await User.findOne({ where: { email }, transaction: t });
     if (existingUser) {
+      await t.rollback();
       return res.status(400).json({ error: 'Usuário já registrado com este email.' });
     }
 
-    // Gerar hash e salt para a senha
+    const createdAddress = await Address.create(address, { transaction: t });
+
     const { salt, hashedPassword } = await hashPassword(password);
 
     const newUser = await User.create({
@@ -52,19 +53,19 @@ exports.createUser = async (req, res) => {
       cpf,
       phone,
       email,
-      password: hashedPassword, // Salvar apenas o hash no banco de dados
+      password: hashedPassword,
       salt,
-      addressId,
-    });
+      addressId: createdAddress.id,
+    }, { transaction: t });
 
+    await t.commit();
     res.status(201).json(newUser);
   } catch (error) {
-    res.status(500).json({
-      error: 'Erro ao criar usuário',
-      details: error.message,
-    });
+    await t.rollback();
+    res.status(500).json({ error: 'Erro ao criar usuário', details: error.message });
   }
 };
+
 
 // Atualizar usuário
 exports.updateUser = async (req, res) => {
