@@ -22,6 +22,7 @@ const dashboardRouter = require('./routes/dashboardRoutes');
 const deliveryOrderRouter = require('./routes/deliveryOrderRoutes');
 const driverRouter = require('./routes/driverRoutes');
 const fuelingRouter = require('./routes/fuelingRoutes');
+const invitationRouter = require('./routes/invitationRoutes.js')
 const reportRouter = require('./routes/reportRoutes.js');
 const userRouter = require('./routes/userRoutes');
 const validateTokenRouter = require('./routes/validateTokenRoutes');
@@ -36,6 +37,7 @@ const routers = [
   deliveryOrderRouter,
   driverRouter,
   fuelingRouter,
+  invitationRouter,
   reportRouter,
   userRouter,
   validateTokenRouter,
