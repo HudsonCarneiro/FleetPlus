@@ -80,6 +80,7 @@ User.associate = (models) => {
 
 
 module.exports = User;
+
 /*
 'CASCADE'	Se apagar a empresa, apaga todos os usuários ligados a ela. 
 'SET NULL'	Se apagar a empresa, o companyId dos usuários vira null. 🫥

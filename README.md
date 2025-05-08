@@ -35,3 +35,4 @@ Usuários: Controle de acesso e gerenciamento de perfis de usuários do sistema.
 ```bash
 git clone https://github.com/HudsonCarneiro/fleetplus.git
 cd fleetplus
+docker-compose up

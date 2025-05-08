@@ -53,6 +53,7 @@ exports.createCompany = async (req, res) => {
       number: address.number,
       road: address.road,
       complement: address.complement,
+      district:  address.district,
       city: address.city,
       state: address.state,
     }, { transaction: t });
