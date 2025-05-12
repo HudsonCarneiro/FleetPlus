@@ -41,18 +41,19 @@ async function getUserById(id) {
 async function createUser(data) {
   const t = await sequelize.transaction();
   try {
-    const { name, cpf, phone, email, password, address } = data;
+    const { name, cpf, phone, email, password, address, companyId } = data;
 
     // Verifica antes de tudo
-    //if (!name || !cpf || !phone || !email || !password || !address) {
-     // throw new Error('Todos os campos são obrigatórios.');
-    //}
+    if (!name || !cpf || !phone || !email || !password || !address) {
+      throw new Error('Todos os campos são obrigatórios.');
+    }
 
     // Validações
     try {
       new Email(email);
-      new Cpf(cpf);
+      const cleanedCpf = new Cpf(cpf).toString(); // limpa caracteres especiais
       new Phone(phone);
+      data.cpf = cleanedCpf;
     } catch (validationError) {
       throw new Error(`Erro de validação: ${validationError.message}`);
     }
@@ -62,7 +63,7 @@ async function createUser(data) {
       throw new Error('Usuário já registrado com este email.');
     }
 
-    // Só agora cria o endereço
+    // Cria o endereço
     const createdAddress = await Address.create({
       cep: address.cep,
       number: address.number,
@@ -74,15 +75,16 @@ async function createUser(data) {
 
     const { salt, hashedPassword } = await hashPassword(password);
 
+    // Cria o usuário, sem companyId se não for enviado
     const newUser = await User.create({
       name,
-      cpf,
+      cpf: data.cpf,
       phone,
       email,
       password: hashedPassword,
       salt,
       addressId: createdAddress.id,
-      ...(companyId ? { companyId } : {}) // ← só adiciona se tiver
+      ...(companyId ? { companyId } : {}) // ← importante
     }, { transaction: t });
 
     await t.commit();
@@ -92,6 +94,7 @@ async function createUser(data) {
     throw err;
   }
 }
+
 
 
 
