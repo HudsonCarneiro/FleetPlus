@@ -4,9 +4,6 @@ const Driver = require('../models/Driver');
 const Company = require('../models/Company');
 const { getDriverAll } = require('./driverController');
 const { getVehicleAll } = require('./vehicleController');
-const { getDriverbyId } = require('./driverController');
-const { getVehiclebyId } = require('./vehicleController');
-
 const fs = require('fs');
 const path = require('path');
 const sequelize = require('../config/database');
@@ -19,17 +16,16 @@ exports.getFuelingAll = async (req, res) => {
       return res.status(400).json({ error: 'ID da empresa não fornecido.' });
     }
 
-    // Busca todos os abastecimentos
     const fuelings = await Fueling.findAll({ where: { companyId } });
 
     if (!fuelings || fuelings.length === 0) {
       return res.status(404).json({ error: 'Nenhum abastecimento encontrado.' });
     }
 
-    // Busca todos os motoristas do usuário
+    // Busca todos os motoristas da empresa
     const driversResponse = await new Promise((resolve, reject) => {
       getDriverAll(
-        { query: { userId } },
+        { query: { companyId } },
         { 
           status: (statusCode) => ({
             json: resolve,
@@ -80,7 +76,6 @@ exports.getFuelingAll = async (req, res) => {
   }
 };
 
-// Busca um abastecimento por ID
 exports.getFuelingById = async (req, res) => {
   try {
     const { companyId } = req.query;
@@ -89,7 +84,7 @@ exports.getFuelingById = async (req, res) => {
     }
 
     const fueling = await Fueling.findOne({
-      where: { id: req.params.id, userId },
+      where: { id: req.params.id, companyId },
       include: [
         { model: Driver, attributes: ['id', 'name'] },
         { model: Vehicle, attributes: ['id', 'model', 'licensePlate', 'mileage'] },
@@ -110,7 +105,6 @@ exports.getFuelingById = async (req, res) => {
   }
 };
 
-// Cria um novo abastecimento e atualiza a quilometragem do veículo, se necessário
 exports.createFueling = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -119,9 +113,9 @@ exports.createFueling = async (req, res) => {
       return res.status(400).json({ error: 'Campos obrigatórios não fornecidos.' });
     }
 
-    // Encontra o veículo para verificar e atualizar a quilometragem
     const vehicle = await Vehicle.findByPk(vehicleId, { transaction: t });
     const driver = await Driver.findByPk(driverId, { transaction: t });
+
     if (!vehicle) {
       await t.rollback();
       return res.status(404).json({ error: 'Veículo não encontrado.' });
@@ -160,7 +154,6 @@ exports.createFueling = async (req, res) => {
   }
 };
 
-// Atualiza um abastecimento e verifica atualizações na quilometragem do veículo
 exports.updateFueling = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -179,7 +172,6 @@ exports.updateFueling = async (req, res) => {
       return res.status(404).json({ error: 'Abastecimento não encontrado.' });
     }
 
-    // Atualiza a quilometragem do veículo, se necessário
     const vehicle = await Vehicle.findByPk(vehicleId, { transaction: t });
     if (mileage > vehicle.mileage) {
       await vehicle.update({ mileage }, { transaction: t });
@@ -202,12 +194,11 @@ exports.updateFueling = async (req, res) => {
   }
 };
 
-// Exclui um abastecimento
 exports.deleteFueling = async (req, res) => {
   try {
     const { companyId } = req.query;
     if (!companyId) {
-      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+      return res.status(400).json({ error: 'ID da empresa não fornecido.' });
     }
 
     const fueling = await Fueling.findOne({
