@@ -1,6 +1,6 @@
 export async function fetchAddressById(id) {
     try {
-      const response = await fetch(`http://localhost:3000/api/address/${id}`, {
+      const response = await fetch(`http://localhost:3333/api/address/${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -21,7 +21,7 @@ export async function fetchAddressById(id) {
   
 export async function registerAddress(address) {
     try{
-        const response = await fetch('http://localhost:3000/api/address', { 
+        const response = await fetch('http://localhost:3333/api/address', { 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -43,7 +43,7 @@ export async function registerAddress(address) {
 }
 export async function updateAddress(id, updatedAddress) {
     try {
-      const response = await fetch(`http://localhost:3000/api/address/${id}`, {
+      const response = await fetch(`http://localhost:3333/api/address/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ export async function updateAddress(id, updatedAddress) {
   }
   export async function deleteAddress(id) {
     try {
-      const response = await fetch(`http://localhost:3000/api/address/${id}`, {
+      const response = await fetch(`http://localhost:3333/api/address/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
