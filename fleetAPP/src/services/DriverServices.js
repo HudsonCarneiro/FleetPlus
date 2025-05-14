@@ -1,5 +1,5 @@
 // URL base da API (ajuste conforme necessário)
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'http://localhost:3333/api';
 
 // Obtém o ID do usuário logado da sessão (localStorage)
 const getUserIdFromSession = () => {

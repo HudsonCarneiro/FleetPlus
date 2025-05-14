@@ -1,6 +1,6 @@
 export async function protectDashboard(token) {
     try {
-        const response = await fetch('http://localhost:3000/api/dashboard', {
+        const response = await fetch('http://localhost:3333/api/dashboard', {
             method: 'GET', // Ajustado para GET, conforme o backend
             headers: {
                 'Content-Type': 'application/json',

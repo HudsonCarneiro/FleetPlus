@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000/api";
+const API_URL = "http://localhost:3333/api";
 
 // Centraliza a lógica para obter o ID do usuário autenticado
 const getUserIdFromSession = () => {

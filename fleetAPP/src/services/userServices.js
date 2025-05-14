@@ -3,7 +3,7 @@ export async function registerUser(user, addressId) {
       user.addressId = addressId;
   
       // Faz a requisição ao backend
-      const response = await fetch('http://localhost:3000/api/user', {
+      const response = await fetch('http://localhost:3333/api/user', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ export async function registerUser(user, addressId) {
   }
   export async function fetchUserById(id) {
     try {
-      const response = await fetch(`http://localhost:3000/api/user/${id}`, {
+      const response = await fetch(`http://localhost:3333/api/user/${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -56,7 +56,7 @@ export async function registerUser(user, addressId) {
   
   export async function fetchUsers() {
     try {
-      const response = await fetch('http://localhost:3000/api/users', {
+      const response = await fetch('http://localhost:3333/api/users', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ export async function registerUser(user, addressId) {
   
   export async function updateUser(id, updatedUser) {
     try {
-      const response = await fetch(`http://localhost:3000/api/user/${id}`, {
+      const response = await fetch(`http://localhost:3333/api/user/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ export async function registerUser(user, addressId) {
   
   export async function deleteUser(id) {
     try {
-      const response = await fetch(`http://localhost:3000/api/user/${id}`, {
+      const response = await fetch(`http://localhost:3333/api/user/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
