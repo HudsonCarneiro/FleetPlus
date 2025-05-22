@@ -8,6 +8,13 @@ export const Sidebar = ({ activeSection, setActiveSection }) => {
       title: "Meu Perfil",
       links: [{ label: "Ver Perfil", section: "verPerfil" }],
     },
+      {
+      title: "Empresa",
+      links: [
+        { label: "Ver Empresa", section: "verEmpresa" },
+        { label: "Criar Empresa", section: "criarEmpresa" },
+      ],
+    },
     {
       title: "Ordem de Entrega",
       links: [

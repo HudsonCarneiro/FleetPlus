@@ -4,28 +4,35 @@ const Company = require('../models/Company');
 const Address = require('../models/Address');
 const addressController = require('./addressController');
 
-exports.getCompanyById = async (req, res) => {
+// companyController.ts
+
+export const getCompanyByUser = async (req, res) => {
   try {
-    const company = await Company.findByPk(req.params.id, {
-      attributes: ['id', 'cnpj', 'companyName', 'businessName', 'addressId'],
-      include: {
-        model: Address,
-        as: 'address', // Nome da associação (deve ser configurado no model)
-      }
+    const userId = req.userId; // ou extraído de req.query / req.params
+
+    const user = await User.findByPk(userId, {
+      include: [{ model: Company }]
     });
 
-    if (company) {
-      res.json(company);
-    } else {
-      res.status(404).json({ error: 'Empresa não encontrada.' });
+    if (!user || !user.companyId) {
+      return res.status(200).json(null); // Retorna null se o usuário não tiver empresa
     }
-  } catch (error) {
-    res.status(500).json({
-      error: 'Erro ao buscar empresa',
-      details: error.message,
+
+    const company = await Company.findByPk(user.companyId, {
+      include: [Address]
     });
+
+    if (!company) {
+      return res.status(200).json(null);
+    }
+
+    res.status(200).json(company);
+  } catch (error) {
+    console.error("Erro ao buscar empresa por usuário:", error);
+    res.status(500).json({ error: "Erro interno ao buscar empresa" });
   }
 };
+
 
 // Criar empresa com endereço e vincular usuário
 exports.createCompany = async (req, res) => {

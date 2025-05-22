@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import UserModal from "./UserModal.jsx";
-import "../styles/UserProfile.css";
+import "../styles/Profile.css";
 import { handleFetchUserById } from "../controller/UserController.js";
 
 const UserProfile = () => {
