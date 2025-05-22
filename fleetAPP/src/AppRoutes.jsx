@@ -10,36 +10,26 @@ import PrivateRoute from './routes/PrivateRoute.jsx'; // Rota protegida (se nece
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
-
-
+import { AuthProvider } from "./context/AuthContext"; // importa o contexto
 
 const AppRoutes = () => {
   return (
     <Router>
-      <div className="background">
-        <ToastContainer />
-        <Navbar />
-        <Routes>
-          {/* Rotas públicas */}
-          <Route path="/" element={<HeroSection />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/login" element={<AuthForm />} />
-          <Route path="/register" element={<UserForm />} />
-
-          {/* Rota protegida */}
-          <Route
-            path="/dashboard"
-            element={
-           
-                <Dashboard />
-            
-            }
-          />
-        </Routes>
-      </div>
+      <AuthProvider> {/* Envolve toda a aplicação */}
+        <div className="background">
+          <ToastContainer />
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<HeroSection />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/login" element={<AuthForm />} />
+            <Route path="/register" element={<UserForm />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Routes>
+        </div>
+      </AuthProvider>
     </Router>
   );
 };
-
 export default AppRoutes;
 

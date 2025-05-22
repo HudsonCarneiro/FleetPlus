@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
 import ClientModal from "./ClientModal.jsx";
 import UserProfile from "./UserProfile";
+import CompanyProfile from "./CompanyProfile.jsx"
 import VehicleTable from "./VehicleTable.jsx";
 import VehicleModal from "./VehicleModal.jsx";
 import DriverTable from "./DriverTable";
@@ -17,6 +18,8 @@ import { fetchDashboardData } from "../controller/DashboardController.js";
 
 const SECTIONS = {
   VIEW_PROFILE: "verPerfil",
+  VIEW_COMPANY: "verEmpresa",
+  CREATE_COMPANY: "criarEmpresa",
   VIEW_DELIVERIES: "verEntregas",
   CREATE_ORDER: "criarOrdem",
   VIEW_FUELING: "verAbastecimentos",
@@ -32,6 +35,7 @@ const SECTIONS = {
 const Content = ({
   activeSection,
   userData,
+  onRequestAddCompany,
   onRequestAddClient,
   onRequestAddDriver,
   onRequestAddVehicle,
@@ -42,28 +46,40 @@ const Content = ({
     switch (activeSection) {
       case SECTIONS.VIEW_PROFILE:
         return <UserProfile userData={userData} />;
+
+      case SECTIONS.VIEW_COMPANY:
+        return <CompanyProfile/>;
+      case SECTIONS.CREATE_COMPANY:
+        onRequestAddCompany();
+        return null;
+
       case SECTIONS.VIEW_DELIVERIES:
         return <DeliveryTable />;
       case SECTIONS.CREATE_ORDER:
         onRequestAddDelivery();
         return null;
+
       case SECTIONS.VIEW_FUELING:
         return <FuelingTable />;
       case SECTIONS.REGISTER_FUELING:
         onRequestAddFueling(); // Chama o modal de criação de abastecimento
         return null;
+
       case SECTIONS.VIEW_DRIVERS:
         return <DriverTable />;
       case SECTIONS.ADD_DRIVER:
         return <p>Preparando o modal para cadastrar motorista...</p>;
+
       case SECTIONS.VIEW_VEHICLE:
         return <VehicleTable />;
       case SECTIONS.ADD_VEHICLE:
         return <p>Preparando o modal para cadastrar veículo...</p>;
+
       case SECTIONS.VIEW_CLIENTS:
         return <ClientTable />;
       case SECTIONS.ADD_CLIENT:
         return <p>Preparando o modal para cadastrar cliente...</p>;
+
       default:
         return (
           <p>
@@ -79,16 +95,21 @@ const Content = ({
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("");
+
+  const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
   const [isFuelingModalOpen, setIsFuelingModalOpen] = useState(false); // Estado para o FuelingModal
+
+  const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedClient, setSelectedClient] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDelivery, setSelectedDelivery] = useState(null);
   const [selectedFueling, setSelectedFueling] = useState(null); // Estado para dados de abastecimento
+
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -111,7 +132,9 @@ const Dashboard = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (activeSection === SECTIONS.ADD_CLIENT) {
+    if (activeSection === SECTIONS.ADD_COMPANY) {
+      setIsCompanyModalOpen(true);
+    } else if (activeSection === SECTIONS.ADD_CLIENT) {
       setIsClientModalOpen(true);
     } else if (activeSection === SECTIONS.ADD_DRIVER) {
       setIsDriverModalOpen(true);
@@ -120,9 +143,14 @@ const Dashboard = () => {
     } else if (activeSection === SECTIONS.CREATE_ORDER) {
       setIsDeliveryModalOpen(true);
     } else if (activeSection === SECTIONS.REGISTER_FUELING) {
-      setIsFuelingModalOpen(true); // Abre o FuelingModal
+      setIsFuelingModalOpen(true); 
     }
   }, [activeSection]);
+
+  const closeCompanyModal = () => {
+    setIsCompanyModalOpen(false);
+    setActiveSection(SECTIONS.VIEW_COMPANY);
+  };
 
   const closeClientModal = () => {
     setIsClientModalOpen(false);
@@ -172,12 +200,20 @@ const Dashboard = () => {
       <Content
         activeSection={activeSection}
         userData={userData}
+        onRequestAddCompany={() => setActiveSection(SECTIONS.ADD_COMPANY)}
         onRequestAddClient={() => setActiveSection(SECTIONS.ADD_CLIENT)}
         onRequestAddDriver={() => setActiveSection(SECTIONS.ADD_DRIVER)}
         onRequestAddVehicle={() => setActiveSection(SECTIONS.ADD_VEHICLE)}
         onRequestAddDelivery={() => setActiveSection(SECTIONS.CREATE_ORDER)}
         onRequestAddFueling={() => setActiveSection(SECTIONS.REGISTER_FUELING)} // Callback para o FuelingModal
       />
+      {isCompanyModalOpen && (
+        <CompanyModal
+          show={isCompanyModalOpen}
+          onClose={closeCompanyModal}
+          companyData={selectedCompany}
+        />
+      )}
       {isClientModalOpen && (
         <ClientModal
           show={isClientModalOpen}

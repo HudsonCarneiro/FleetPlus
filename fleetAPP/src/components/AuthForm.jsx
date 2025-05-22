@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { handleLogin } from "../controller/AuthController"; 
+import { AuthContext } from "../context/AuthContext"; // importa o contexto
 import "../styles/Form.css";
 
 const AuthForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useContext(AuthContext); // usa login do contexto
   const [message, setMessage] = useState(location.state?.message || "");
 
   const [formData, setFormData] = useState({
@@ -21,11 +22,10 @@ const AuthForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage(""); // Limpa mensagens anteriores
+
     try {
-      const success = await handleLogin(formData, navigate);
-      if (success) {
-        console.log("Login realizado com sucesso!");
-      } else {
+      const success = await login(formData, navigate); // usa função do contexto
+      if (!success) {
         setMessage("Credenciais inválidas.");
       }
     } catch (error) {

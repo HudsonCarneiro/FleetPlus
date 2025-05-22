@@ -7,10 +7,6 @@ const Company = sequelize.define('Company', {
     autoIncrement: true, 
     primaryKey: true,
   },
-  cnpj: {
-    type: DataTypes.STRING(14),
-    allowNull: true,
-  },
   companyName: {
     type: DataTypes.STRING(55),
     allowNull: false,
@@ -18,6 +14,10 @@ const Company = sequelize.define('Company', {
   businessName: {
     type: DataTypes.STRING(55),
     allowNull: false,
+  },
+  cnpj: {
+    type: DataTypes.STRING(14),
+    allowNull: true,
   },
   addressId: {
     type: DataTypes.INTEGER,
