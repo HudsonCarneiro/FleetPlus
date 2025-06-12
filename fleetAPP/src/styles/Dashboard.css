@@ -1,0 +1,25 @@
+  html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+  }
+  .main {
+    display: flex;
+    flex-grow: 1 !important; /* Permite que a `.main` ocupe o restante do espaço disponível */
+    height: calc(100vh - 55px); /* Ajusta a altura considerando o topo */
+    width: 100%;
+    margin-top: 55px;
+  }
+  
+  .content {
+    flex-grow: 1 !important; /* Permite que a `.content` cresça e ocupe o espaço restante dentro da `.main` */
+    width: 100%;
+    background-color: rgb(245, 245, 245);
+    padding: 20px;
+  }
+  
+  .sectionContainer{
+    border-top: 2px !important;
+    border-top: 2px !important;
+    margin: 10px 0 ;
+  }

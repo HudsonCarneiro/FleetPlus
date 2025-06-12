@@ -1,0 +1,47 @@
+.background {
+    background-color: #002958; 
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.hero-section {
+    color: white;
+    padding: 100px 0;
+    text-align: center;
+}
+
+.title h1 {
+    font-weight: 700;
+    color: #f8f9fa;
+}
+
+.title p {
+    font-size: 1.25rem;
+    margin-top: 20px;
+    color: #dcdcdc;
+}
+
+.btn-primary{
+    border: none;
+    width: auto !important;
+    padding: 8px 25px !important; 
+    font-size: 1.5rem !important; 
+    border-radius: 5px; /* Adiciona cantos arredondados */
+    transition: background-color 0.3s ease; /* Efeito ao passar o mouse */
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 40px 20px;
+    }
+
+    .title h1 {
+        font-size: 2rem;
+    }
+
+    .title p {
+        font-size: 1rem;
+    }
+}

@@ -1,0 +1,86 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* Fundo claro */
+  .background-about { 
+    background-color: #f8f9fa !important;
+     /* Cinza bem claro */ 
+     padding: 5% 30%; 
+     width: 100vw !important; /* Viewport Width para ocupar toda a largura da tela */ 
+     height: 100vw !important; /* Viewport Height para ocupar toda a altura da tela */ 
+  }
+  /* Títulos principais */
+  title-about {
+    font-size: 2.5rem;
+    color: #007bff; /* Azul primário */
+  }
+  
+  .lead {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: #6c757d; /* Texto cinza claro */
+  }
+  .img-fluid {
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 5%;
+    margin-left: 1%;
+  }
+  
+  /* Linhas e Separadores */
+  hr {
+    border: 0;
+    height: 1px;
+    background: #e9ecef;
+    margin: 2rem 0;
+  }
+  
+  /* Títulos Secundários */
+  h2.fw-bold {
+    font-size: 2rem;
+    color: #6c757d; /* Cinza secundário */
+  }
+  
+  /* Ícones */
+  .text-center i {
+    color: #007bff;
+    margin-bottom: 0.5rem;
+  }
+  
+  .fs-1 {
+    font-size: 2.5rem;
+  }
+  
+  /* Colunas */
+  .col-md-4 h5 {
+    font-size: 1.25rem;
+    margin-top: 1rem;
+    color: #343a40; /* Preto leve */
+  }
+  
+  .col-md-4 p {
+    font-size: 0.95rem;
+    color: #6c757d; /* Texto cinza claro */
+  }
+  
+  /* Espaçamentos */
+  .mt-3 {
+    margin-top: 1rem !important;
+  }
+  
+  .mt-4 {
+    margin-top: 1.5rem !important;
+  }
+  
+  .my-5 {
+    margin-top: 3rem !important;
+    margin-bottom: 3rem !important;
+  }
+  
+  .pt-5 {
+    padding-top: 3rem !important;
+  }
+  
+  

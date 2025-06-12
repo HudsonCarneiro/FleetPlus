@@ -1,0 +1,62 @@
+body{
+  position: relative; /* Substitua fixed por relative ou remova completamente */
+  height: 100%;
+  margin: 0;
+  overflow:hidden;
+    
+}
+.title-font{
+    font-size: 18px;
+    color: #424242 !important;
+    font-weight: 600;
+  }
+
+  .link-font {
+    font-weight: 600;
+    color: #808080 !important;
+    padding: 5px;
+    margin: 0 0 !important;
+    transition: background-color 0.3s ease;
+  }
+
+  .link-font:hover,
+  .link-font.active {
+      background-color: #e7e7e7; /* Cor de fundo para hover e ativo */
+  }
+  .sidebar {
+    display: flex;
+    flex-direction: column; /* Garante que o conteúdo da sidebar se organize verticalmente */
+    width: 250px;
+    background-color: white;
+    height: 100%; /* Altere para 100% para herdar a altura do elemento pai */
+    padding: 20px;
+    border-right: 1px solid #ddd;
+    box-sizing: border-box; /* Garante que padding e border não alterem o tamanho total */
+    overflow-y: auto; /* Permite rolagem na sidebar se o conteúdo ultrapassar */
+  }
+  
+  .sidebar h3 {
+    color: #333;
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  
+  .sidebar a {
+    display: block;
+    text-decoration: none;
+    margin-top: 15px;
+    font-size: 18px;
+    color: #555;
+    transition: color 0.3s ease;
+  }
+  
+  .sidebar a:hover {
+    color: #73b4ff;
+  }
+  .separator{
+    width: 100%;
+    padding: 2px;
+    background-color: #ececec;
+    margin: 20px 0 !important;
+  }
+  

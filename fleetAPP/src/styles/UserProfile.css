@@ -1,0 +1,10 @@
+.user-profile {
+  margin-top: 0 !important;
+    max-width: 800px;
+    margin: auto;
+  }
+  
+  .user-profile .btn {
+    margin-top: 20px;
+  }
+  
