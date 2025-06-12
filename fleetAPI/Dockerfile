@@ -1,19 +1,22 @@
-FROM node:18
+FROM node:24-slim
 
-# Define o diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copia os arquivos de dependência primeiro para aproveitar o cache
+# Instala dependências para compilar pacotes nativos
+RUN apt-get update && apt-get install -y \
+  python3 \
+  make \
+  g++ \
+  && rm -rf /var/lib/apt/lists/*
+
 COPY package*.json ./
 
-# Instala dependências do projeto
 RUN npm install
 
-# Copia o restante dos arquivos da aplicação
 COPY . .
 
-# Expõe a porta da API
 EXPOSE 3333
 
 CMD ["node", "server.js"]
+
 

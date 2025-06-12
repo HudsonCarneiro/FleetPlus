@@ -45,15 +45,19 @@ routers.forEach((router) => app.use('/api/', router));
 sequelize.sync()
   .then(() => {
     console.log('Banco de dados sincronizado com sucesso!');
-    app.listen(port, () => {
-      console.log('Servidor rodando na porta: ' + port);
-    });
+    if (require.main === module) {
+      app.listen(port, () => {
+        console.log('Servidor rodando na porta: ' + port);
+      });
+    }
+    module.exports = app;
+
     if (process.env.NODE_ENV !== 'production') {
       const runTests = async () => {
         try {
-          console.log('\n🔧 Executando testes automáticos...');
+          console.log('\nExecutando testes automáticos...');
           const { exec } = require('child_process');
-          exec('yarn test', (error, stdout, stderr) => {
+          exec('npm test', (error, stdout, stderr) => {
             if (error) {
               console.error(`Erro ao executar os testes: ${error.message}`);
               return;
@@ -79,3 +83,4 @@ sequelize.sync()
 app.get('/', (req, res) => {
   res.send('API está rodando!');
 });
+

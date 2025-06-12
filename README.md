@@ -20,7 +20,7 @@ Ordens de Entrega: Controle das ordens de entrega, associando motoristas, veícu
 Endereços: Cadastro de endereços para usuários, motoristas e clientes.
 Usuários: Controle de acesso e gerenciamento de perfis de usuários do sistema.
 
-## 📦 Tecnologias
+## Tecnologias
 
 - Node.js
 - Express
@@ -29,10 +29,13 @@ Usuários: Controle de acesso e gerenciamento de perfis de usuários do sistema.
 - Docker & Docker Compose
 - React
 
-## 🚀 Como executar
+## Como executar
 
 1. Clone o repositório:
 ```bash
 git clone https://github.com/HudsonCarneiro/fleetplus.git
 cd fleetplus
+docker-compose build
 docker-compose up
+docker compose up -d --build 
+```

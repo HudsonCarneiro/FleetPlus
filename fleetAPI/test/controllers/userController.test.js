@@ -1,28 +1,80 @@
-//exemplo
 const request = require('supertest');
-const app = require('../../server'); // só se necessário
+const app = require('../../server'); // seu server.js deve exportar o `app`
 const sequelize = require('../../config/database');
-const { User } = require('../../models');
 
-describe('Testes do UserController', () => {
-  let createdUserId;
+let createdUserId;
+let createdAddressId;
 
-  it('Deve criar um usuário', async () => {
-    const response = await request('http://localhost:3333')
-      .post('/api/users')
-      .send({
-        name: 'Usuário Teste',
-        email: 'teste@example.com',
-        password: 'senha123'
-      });
+beforeAll(async () => {
+  await sequelize.sync({ force: true }); // zera o banco
+});
 
-    expect(response.statusCode).toBe(201);
-    createdUserId = response.body.id;
+afterAll(async () => {
+  await sequelize.close();
+});
+
+describe('User Controller', () => {
+  it('deve criar um endereço', async () => {
+    const addressPayload = {
+      cep: '12345-678',
+      number: '123',
+      road: 'Rua Teste',
+      complement: "Casa",
+      city: 'Cidade Teste',
+      state: 'Estado Teste',
+      
+    };
+
+    const res = await request(app)
+      .post('/api/address')
+      .send(addressPayload);
+
+    expect(res.status).toBe(201);
+    expect(res.body.id).toBeDefined();
+    createdAddressId = res.body.id;
   });
 
-  afterAll(async () => {
-    // Limpa os dados criados
-    await User.destroy({ where: { id: createdUserId } });
-   // await sequelize.close(); se necessário
+  it('deve criar um usuário', async () => {
+    const userPayload = {
+      name: 'João da Silva',
+      cpf: '12345678900',
+      phone: '11999999999',
+      email: 'joao@email.com',
+      password: 'senhaSegura123',
+      addressId: createdAddressId,
+    };
+
+    const res = await request(app)
+      .post('/api/user')
+      .send(userPayload);
+
+    expect(res.status).toBe(201);
+    expect(res.body.id).toBeDefined();
+    createdUserId = res.body.id;
+  });
+
+  it('deve buscar o usuário pelo ID', async () => {
+    const res = await request(app).get(`/api/user/${createdUserId}`);
+    expect(res.status).toBe(200);
+    expect(res.body.email).toBe('joao@email.com');
+  });
+
+  it('deve atualizar o usuário', async () => {
+    const res = await request(app)
+      .put(`/api/user/${createdUserId}`)
+      .send({ phone: '11988888888' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.phone).toBe('11988888888');
+  });
+
+  it('deve deletar o usuário', async () => {
+    const res = await request(app).delete(`/api/user/${createdUserId}`);
+    expect(res.status).toBe(204);
+  });
+
+  it('deve deletar o endereço', async () => {
+    const res = await request(app).delete(`/api/address/${createdAddressId}`);
+    expect(res.status).toBe(204);
   });
 });

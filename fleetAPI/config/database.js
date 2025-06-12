@@ -2,12 +2,13 @@ const { Sequelize } = require('sequelize');
 
 // Configuração do banco de dados
 const dbConfig = {
-  host: 'localhost',     
-  port: 3307,            
-  user: 'root',          
-  password: '',       
-  database: 'fleetplus', 
+  host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 3306,
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASS || 'root',
+  database: process.env.DB_NAME || 'fleetplus',
 };
+
 
 const sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, {
   host: dbConfig.host,
