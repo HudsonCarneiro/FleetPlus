@@ -1,7 +1,6 @@
-const Fueling = require('../models/Fueling');
+/*const Fueling = require('../models/Fueling');
 const { getDriverAll } = require('./driverController');
 const { getVehicleAll } = require('./vehicleController');
-const htmlPdf = require('html-pdf'); 
 const path = require('path');
 
 exports.exportFuelingReport = async (req, res) => {
@@ -153,3 +152,4 @@ exports.exportFuelingReport = async (req, res) => {
     });
   }
 };
+*/

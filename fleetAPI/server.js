@@ -4,7 +4,8 @@ const cors = require('cors');
 const morgan = require('morgan'); // Logger para requisições
 const sequelize = require('./config/database');
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3333;
+
 
 // Middlewares
 app.use(cors());
@@ -20,7 +21,7 @@ const dashboardRouter = require('./routes/dashboardRoutes');
 const deliveryOrderRouter = require('./routes/deliveryOrderRoutes');
 const driverRouter = require('./routes/driverRoutes');
 const fuelingRouter = require('./routes/fuelingRoutes');
-const reportRouter = require('./routes/reportRoutes.js');
+//const reportRouter = require('./routes/reportRoutes.js');
 const userRouter = require('./routes/userRoutes');
 const validateTokenRouter = require('./routes/validateTokenRoutes');
 const vehicleRouter = require('./routes/vehicleRoutes');
@@ -33,7 +34,7 @@ const routers = [
   deliveryOrderRouter,
   driverRouter,
   fuelingRouter,
-  reportRouter,
+  //reportRouter,
   userRouter,
   validateTokenRouter,
   vehicleRouter,
@@ -51,29 +52,6 @@ sequelize.sync()
       });
     }
     module.exports = app;
-
-    if (process.env.NODE_ENV !== 'production') {
-      const runTests = async () => {
-        try {
-          console.log('\nExecutando testes automáticos...');
-          const { exec } = require('child_process');
-          exec('npm test', (error, stdout, stderr) => {
-            if (error) {
-              console.error(`Erro ao executar os testes: ${error.message}`);
-              return;
-            }
-            if (stderr) {
-              console.error(`Erros nos testes: ${stderr}`);
-            }
-            console.log(stdout);
-          });
-        } catch (err) {
-          console.error('Erro ao rodar testes:', err);
-        }
-      };
-
-      runTests();
-    }
   })
   .catch(err => {
     console.log('Erro ao sincronizar o banco de dados: ' + err);

@@ -37,5 +37,7 @@ git clone https://github.com/HudsonCarneiro/fleetplus.git
 cd fleetplus
 docker-compose build
 docker-compose up
-docker compose up -d --build 
+docker compose up -d --build //producao
+docker-compose -f docker-compose.dev.yml up --build //desenvolvimentu
+
 ```

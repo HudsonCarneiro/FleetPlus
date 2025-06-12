@@ -1,4 +1,4 @@
-const DeliveryOrder = require('../models/DeliveryOrder');
+/*const DeliveryOrder = require('../models/DeliveryOrder');
 const { getDriverAll } = require('./driverController');
 const { getVehicleAll } = require('./vehicleController');
 const { getClientAll } = require('./clientController');
@@ -172,3 +172,4 @@ exports.exportDeliveriesReport = async (req, res) => {
     });
   }
 };
+*/
