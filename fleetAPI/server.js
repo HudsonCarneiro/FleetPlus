@@ -48,6 +48,28 @@ sequelize.sync()
     app.listen(port, () => {
       console.log('Servidor rodando na porta: ' + port);
     });
+    if (process.env.NODE_ENV !== 'production') {
+      const runTests = async () => {
+        try {
+          console.log('\n🔧 Executando testes automáticos...');
+          const { exec } = require('child_process');
+          exec('yarn test', (error, stdout, stderr) => {
+            if (error) {
+              console.error(`Erro ao executar os testes: ${error.message}`);
+              return;
+            }
+            if (stderr) {
+              console.error(`Erros nos testes: ${stderr}`);
+            }
+            console.log(stdout);
+          });
+        } catch (err) {
+          console.error('Erro ao rodar testes:', err);
+        }
+      };
+
+      runTests();
+    }
   })
   .catch(err => {
     console.log('Erro ao sincronizar o banco de dados: ' + err);

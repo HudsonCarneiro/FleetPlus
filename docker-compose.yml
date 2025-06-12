@@ -5,10 +5,10 @@ services:
     image: mysql:8
     container_name: fleetplus-db
     ports:
-      - "3307:3306"  
+      - "3307:3306"
     environment:
       MYSQL_DATABASE: fleetplus
-      MYSQL_ROOT_PASSWORD: root  
+      MYSQL_ROOT_PASSWORD: root
     volumes:
       - mysql-data:/var/lib/mysql
     restart: unless-stopped
@@ -21,10 +21,11 @@ services:
       - "3333:3333"
     volumes:
       - ./fleetAPI:/app
-    command: npm run dev
+    command: node server.js
     depends_on:
       - db
     environment:
+      NODE_ENV: development  # Importante para rodar os testes
       DB_HOST: db
       DB_PORT: 3306
       DB_NAME: fleetplus
