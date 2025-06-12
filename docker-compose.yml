@@ -1,17 +1,53 @@
 version: '3.8'
 
 services:
+  db:
+    image: mysql:8
+    container_name: fleetplus-db
+    ports:
+      - "3307:3306"  
+    environment:
+      MYSQL_DATABASE: fleetplus
+      MYSQL_ROOT_PASSWORD: root  
+    volumes:
+      - mysql-data:/var/lib/mysql
+    restart: unless-stopped
+
   backend:
     build:
       context: ./fleetAPI
+    container_name: fleetplus-backend
     ports:
-      - '3333:3333'
+      - "3333:3333"
     volumes:
       - ./fleetAPI:/app
     command: npm run dev
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: fleetplus
+      DB_USER: root
+      DB_PASS: root
+    restart: unless-stopped
 
   frontend:
     build:
       context: ./fleetAPP
+    container_name: fleetplus-frontend
     ports:
-      - '3000:80'
+      - "3000:80"
+    restart: unless-stopped
+
+  adminer:
+    image: adminer
+    container_name: fleetplus-adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  mysql-data:

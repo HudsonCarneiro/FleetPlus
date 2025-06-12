@@ -19,3 +19,20 @@ Gerenciamento de Clientes: Registro e manutenção de dados dos clientes que rec
 Ordens de Entrega: Controle das ordens de entrega, associando motoristas, veículos e clientes.
 Endereços: Cadastro de endereços para usuários, motoristas e clientes.
 Usuários: Controle de acesso e gerenciamento de perfis de usuários do sistema.
+
+## 📦 Tecnologias
+
+- Node.js
+- Express
+- Sequelize
+- MySQL
+- Docker & Docker Compose
+- React
+
+## 🚀 Como executar
+
+1. Clone o repositório:
+```bash
+git clone https://github.com/HudsonCarneiro/fleetplus.git
+cd fleetplus
+docker-compose up
