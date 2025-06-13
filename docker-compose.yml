@@ -37,14 +37,6 @@ services:
       DB_PASS: root
     restart: unless-stopped
 
-  frontend:
-    build:
-      context: ./fleetAPP
-    container_name: fleetplus-frontend
-    ports:
-      - "3000:80"
-    restart: unless-stopped
-
   adminer:
     image: adminer
     container_name: fleetplus-adminer
