@@ -31,7 +31,7 @@ export async function registerUser(user, addressId) {
   }
   export async function fetchUserById(id) {
     try {
-      const response = await fetch (`${API_BASE_URL}/user`,{
+      const response = await fetch (`${API_BASE_URL}/user/${id}`,{
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

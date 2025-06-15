@@ -6,8 +6,8 @@
     deleteFueling,
     exportFuelingsToPDF,
   } from "../services/FuelingServices";
-  import { fetchDrivers } from "../services/DriverService";
-  import { fetchVehicles } from "../services/VehicleService";
+  import { fetchDrivers } from "../services/DriverServices"
+  import { fetchVehicles } from "../services/VehicleServices"
   import { toast } from "react-toastify";
   
   // Valida os dados de abastecimento antes do registro ou atualização

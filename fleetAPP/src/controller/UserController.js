@@ -4,9 +4,6 @@ import userServices from '../services/userServices';
 import AddressServices from '../services/AddressServices';
 import { handleLogout } from './AuthController';
 
-// Buscar usuário por ID
-import { fetchAddressById } from '../services/AddressServices';
-
 // Buscar usuário por ID e endereço associado
 export const handleFetchUserById = async (id) => {
   try {
