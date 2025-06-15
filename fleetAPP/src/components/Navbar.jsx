@@ -1,29 +1,19 @@
-import React from "react";
-import "../styles/Navbar.css";
+import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { handleLogout } from "../controller/AuthController";
+import { AuthContext } from "../context/AuthContext.jsx";
+import "../styles/Navbar.css";
 
 export const Navbar = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token"); // Verifica se o usuário está logado
+  const { isAuthenticated, logout } = useContext(AuthContext);
 
-  const handleLogoutClick = () => {
-    handleLogout(navigate); // Chama a função de logout e redireciona
-  };
-
-  const handleLogoClick = () => {
-    // Chama a função de logout ao clicar no logo FleetPlus
-    handleLogout(navigate); // Redireciona para a página de login após logout
-  };
+  const handleLogoutClick = () => logout(navigate);
+  const handleLogoClick = () => logout(navigate);
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light custom-bg fixed-top navbar-brand">
       <div className="container-fluid">
-        <a
-          className="navbar-brand"
-          href="#"
-          onClick={handleLogoClick} // Chama a função de logout ao clicar no logo
-        >
+        <a className="navbar-brand" href="#" onClick={handleLogoClick}>
           FleetPlus
         </a>
         <button
@@ -40,30 +30,15 @@ export const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
-              <Link className="nav-link" to="/about">
-                Sobre
-              </Link>
+              <Link className="nav-link" to="/about">Sobre</Link>
             </li>
             <li className="nav-item">
-              {token ? (
-                // Exibe Logout se o token estiver presente (usuário está logado)
-                <button
-                  className="btn nav-link"
-                  onClick={handleLogoutClick}
-                  style={{
-                    border: "none",
-                    background: "none",
-                    color: "inherit",
-                    cursor: "pointer",
-                  }}
-                >
+              {isAuthenticated ? (
+                <button className="btn nav-link" onClick={handleLogoutClick}>
                   Sair
                 </button>
               ) : (
-                // Exibe Login se o token não estiver presente
-                <Link className="nav-link" to="/login">
-                  Login
-                </Link>
+                <Link className="nav-link" to="/login">Login</Link>
               )}
             </li>
           </ul>
@@ -72,3 +47,4 @@ export const Navbar = () => {
     </nav>
   );
 };
+
