@@ -1,13 +1,13 @@
-import {
+  import {
     fetchFuelings,
     fetchFuelingById,
     registerFueling,
     updateFueling,
     deleteFueling,
     exportFuelingsToPDF,
-    fetchDrivers,
-    fetchVehicles,
   } from "../services/FuelingServices";
+  import { fetchDrivers } from "../services/DriverService";
+  import { fetchVehicles } from "../services/VehicleService";
   import { toast } from "react-toastify";
   
   // Valida os dados de abastecimento antes do registro ou atualização

@@ -1,9 +1,11 @@
+import API_BASE_URL from '../constants/api';
+
 export async function registerUser(user, addressId) {
     try {
       user.addressId = addressId;
   
       // Faz a requisição ao backend
-      const response = await fetch('http://localhost:3000/api/user', {
+      const response = await fetch (`${API_BASE_URL}/user`,{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -12,7 +14,6 @@ export async function registerUser(user, addressId) {
       });
   
       if (!response.ok) {
-        // Captura detalhes do erro retornado pelo backend
         const errorData = await response.json();
         throw new Error(
           `Erro ao criar o usuário: ${errorData.error || response.statusText}`
@@ -30,7 +31,7 @@ export async function registerUser(user, addressId) {
   }
   export async function fetchUserById(id) {
     try {
-      const response = await fetch(`http://localhost:3000/api/user/${id}`, {
+      const response = await fetch (`${API_BASE_URL}/user`,{
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -56,7 +57,7 @@ export async function registerUser(user, addressId) {
   
   export async function fetchUsers() {
     try {
-      const response = await fetch('http://localhost:3000/api/users', {
+      const response = await fetch (`${API_BASE_URL}/user`,{
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +82,7 @@ export async function registerUser(user, addressId) {
   
   export async function updateUser(id, updatedUser) {
     try {
-      const response = await fetch(`http://localhost:3000/api/user/${id}`, {
+      const response = await fetch (`${API_BASE_URL}/user`,{
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +107,7 @@ export async function registerUser(user, addressId) {
   
   export async function deleteUser(id) {
     try {
-      const response = await fetch(`http://localhost:3000/api/user/${id}`, {
+      const response = await fetch (`${API_BASE_URL}/user`,{
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -127,8 +128,6 @@ export async function registerUser(user, addressId) {
     }
   }
   
-  
-  // Exportando todas as funções juntas
   export default {
     registerUser,
     fetchUserById,

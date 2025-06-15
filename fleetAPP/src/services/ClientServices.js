@@ -58,7 +58,6 @@ export const deleteClient = async (id) => {
   }
 };
 
-// Exporta funções como objeto padrão
 export default {
   registerClient,
   fetchClients,

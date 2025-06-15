@@ -1,4 +1,3 @@
-// src/services/authService.js
 import API_BASE_URL from '../constants/api';
 
 export const loginUser = async (formData) => {

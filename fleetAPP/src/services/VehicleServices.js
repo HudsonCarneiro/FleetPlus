@@ -1,131 +1,85 @@
-const API_URL = "http://localhost:3000/api";
+import apiRequest from '../utils/apiRequest';
+import { getUserIdFromSession, getTokenFromSession } from '../utils/session'; 
 
-// Centraliza a lógica para obter o ID do usuário autenticado
-const getUserIdFromSession = () => {
-  const userData = localStorage.getItem("userData");
-  return userData ? JSON.parse(userData).id : null;
-};
-const getTokenFromSession = () => {
-  return localStorage.getItem('token');
-};
-
-
-// Função para buscar todos os veículos vinculados ao usuário logado
-export const getAllVehicles = async () => {
+export const fetchVehicles = async () => {
   try {
     const userId = getUserIdFromSession();
     if (!userId) throw new Error("Usuário não autenticado.");
 
-    const response = await fetch(`${API_URL}/vehicles?userId=${userId}`);
-    if (!response.ok) {
-      throw new Error(`Erro ao obter veículos: ${response.statusText}`);
-    }
-    return await response.json();
+    return await apiRequest(`/vehicles?userId=${userId}`);
   } catch (error) {
     console.error("Erro ao obter veículos:", error.message);
     throw error;
   }
 };
 
-// Função para buscar um veículo específico pelo ID
-export const getVehicleById = async (id) => {
+export const fetchVehicleById = async (id) => {
   try {
     const userId = getUserIdFromSession();
     if (!userId) throw new Error("Usuário não autenticado.");
 
-    const response = await fetch(`${API_URL}/vehicle/${id}?userId=${userId}`);
-    if (!response.ok) {
-      throw new Error(`Erro ao obter veículo: ${response.statusText}`);
-    }
-    return await response.json();
+    return await apiRequest(`/vehicle/${id}?userId=${userId}`);
   } catch (error) {
     console.error("Erro ao obter veículo:", error.message);
     throw error;
   }
 };
 
-// Função para criar um novo veículo
-export const createVehicle = async (vehicleData) => {
+export const registerVehicle = async (vehicleData) => {
   try {
     const userId = getUserIdFromSession();
     if (!userId) throw new Error("Usuário não autenticado.");
 
-    const response = await fetch(`${API_URL}/vehicle`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ ...vehicleData, userId }),
-    });
-    if (!response.ok) {
-      throw new Error(`Erro ao criar veículo: ${response.statusText}`);
-    }
-    return await response.json();
+    return await apiRequest('/vehicle', 'POST', { ...vehicleData, userId });
   } catch (error) {
-    console.error("Erro ao criar veículo: ", error.message);
+    console.error("Erro ao criar veículo:", error.message);
     throw error;
   }
 };
 
-// Função para atualizar um veículo existente
 export const updateVehicle = async (id, vehicleData) => {
   try {
     const userId = getUserIdFromSession();
     if (!userId) throw new Error("Usuário não autenticado.");
 
-    const response = await fetch(`${API_URL}/vehicle/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ ...vehicleData, userId }),
-    });
-    if (!response.ok) {
-      throw new Error(`Erro ao atualizar veículo: ${response.statusText}`);
-    }
-    return await response.json();
+    return await apiRequest(`/vehicle/${id}`, 'PUT', { ...vehicleData, userId });
   } catch (error) {
     console.error("Erro ao atualizar veículo:", error.message);
     throw error;
   }
 };
 
-// Função para excluir um veículo
 export const deleteVehicle = async (id) => {
   try {
     const userId = getUserIdFromSession();
     if (!userId) throw new Error("Usuário não autenticado.");
 
-    const response = await fetch(`${API_URL}/vehicle/${id}?userId=${userId}`, {
-      method: "DELETE",
-    });
-    if (!response.ok) {
-      throw new Error(`Erro ao excluir veículo: ${response.statusText}`);
-    }
-    return response.ok; // Retorna true se a exclusão foi bem-sucedida
+    return await apiRequest(`/vehicle/${id}?userId=${userId}`, 'DELETE');
   } catch (error) {
     console.error("Erro ao excluir veículo:", error.message);
     throw error;
   }
 };
+
 export const exportVehiclesReport = async () => {
   try {
     const userId = getUserIdFromSession();
-    const token = getTokenFromSession(); // Obtém o token aqui
+    const token = getTokenFromSession();
+
     if (!userId) throw new Error('Usuário não autenticado.');
     if (!token) throw new Error('Token de autenticação não encontrado.');
 
-    const response = await fetch(`${API_URL}/vehicles/report?userId=${userId}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/vehicles/report?userId=${userId}`, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`, // Inclui o token no cabeçalho
+        Authorization: `Bearer ${token}`,
       },
     });
 
     if (!response.ok) {
       const errorDetails = await response.json().catch(() => ({}));
       throw new Error(
-        `Erro ao exportar ordens de entrega: ${errorDetails.message || response.statusText}`
+        `Erro ao exportar veículos: ${errorDetails.message || response.statusText}`
       );
     }
 
@@ -137,7 +91,16 @@ export const exportVehiclesReport = async () => {
     a.click();
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('Erro ao exportar veiculos:', error.message);
+    console.error('Erro ao exportar veículos:', error.message);
     throw error;
   }
+};
+
+export default {
+  fetchVehicles,
+  fetchVehicleById,
+  registerVehicle,
+  updateVehicle,
+  deleteVehicle,
+  exportVehiclesReport,
 };

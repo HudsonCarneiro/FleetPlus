@@ -1,9 +1,6 @@
 import apiRequest from "../utils/apiRequest";
 import { getUserIdFromSession } from '../utils/session';
 
-
-
-
 export const fetchDeliveryOrders = async () => {
   try {
     const response = await apiRequest('/deliveries');
