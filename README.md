@@ -38,6 +38,6 @@ cd fleetplus
 docker-compose build
 docker-compose up
 docker compose up -d --build //producao
-docker-compose -f docker-compose.dev.yml up --build //desenvolvimentu
+
 
 ```
