@@ -5,64 +5,62 @@ import {
   handleServiceProviderUpdate,
 } from "../controller/ServiceProviderController";
 
-const ServiceProviderModal = ({ show, onClose, driverData, refreshDrivers }) => {
+const ServiceProviderModal = ({ show, onClose, providerData, refreshProviders }) => {
   const [formData, setFormData] = useState({
     id: null,
-    name: "",
-    cnh: "",
+    businessName: "",
+    companyName: "",
+    cnpj: "",
     phone: "",
   });
 
-  // Resetar ou carregar dados quando o modal é aberto
   useEffect(() => {
     if (show) {
-      if (driverData) {
-        // Carregar os dados do motorista para edição
+      if (providerData) {
         setFormData({
-          id: driverData.id || null,
-          name: driverData.name || "",
-          cnh: driverData.cnh || "",
-          phone: driverData.phone || "",
+          id: providerData.id || null,
+          businessName: providerData.businessName || "",
+          companyName: providerData.companyName || "",
+          cnpj: providerData.cnpj || "",
+          phone: providerData.phone || "",
         });
       } else {
-        // Resetar o formulário para cadastro de novo motorista
         setFormData({
           id: null,
-          name: "",
-          cnh: "",
+          businessName: "",
+          companyName: "",
+          cnpj: "",
           phone: "",
         });
       }
     }
-  }, [show, driverData]);
+  }, [show, providerData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.id) {
-      // Atualizar motorista
-      const updated = await handleDriverUpdate(formData);
+      const updated = await handleServiceProviderUpdate(formData);
       if (updated) {
-        alert("Motorista atualizado com sucesso!");
-        refreshDrivers();
+        alert("Prestador de serviço atualizado com sucesso!");
+        refreshProviders();
         onClose();
       } else {
-        alert("Erro ao atualizar motorista.");
+        alert("Erro ao atualizar prestador de serviço.");
       }
     } else {
-      // Criar novo motorista
-      const created = await handleDriverRegistration(formData);
+      const created = await handleServiceProviderRegistration(formData);
       if (created) {
-        alert("Motorista cadastrado com sucesso!");
-        refreshDrivers();
+        alert("Prestador de serviço cadastrado com sucesso!");
+        refreshProviders();
         onClose();
       } else {
-        alert("Erro ao cadastrar motorista.");
+        alert("Erro ao cadastrar prestador de serviço.");
       }
     }
   };
@@ -72,42 +70,50 @@ const ServiceProviderModal = ({ show, onClose, driverData, refreshDrivers }) => 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <button className="btn-close" onClick={onClose} aria-label="Fechar"></button>
-        <h5 className="mb-4">{formData.id ? "Editar Motorista" : "Cadastrar Motorista"}</h5>
+        <button className="btn-close" onClick={onClose} aria-label="Fechar" />
+        <h5 className="mb-4">
+          {formData.id ? "Editar Prestador de Serviço" : "Cadastrar Prestador de Serviço"}
+        </h5>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label htmlFor="name" className="form-label">
-              Nome
-            </label>
+            <label htmlFor="businessName" className="form-label">Nome Fantasia</label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="businessName"
+              name="businessName"
+              value={formData.businessName}
               onChange={handleChange}
               className="form-control"
               required
             />
           </div>
           <div className="mb-3">
-            <label htmlFor="cnh" className="form-label">
-              CNH
-            </label>
+            <label htmlFor="companyName" className="form-label">Razão Social</label>
             <input
               type="text"
-              id="cnh"
-              name="cnh"
-              value={formData.cnh}
+              id="companyName"
+              name="companyName"
+              value={formData.companyName}
               onChange={handleChange}
               className="form-control"
               required
-              maxLength="11"
             />
           </div>
           <div className="mb-3">
-            <label htmlFor="phone" className="form-label">
-              Telefone
-            </label>
+            <label htmlFor="cnpj" className="form-label">CNPJ</label>
+            <input
+              type="text"
+              id="cnpj"
+              name="cnpj"
+              value={formData.cnpj}
+              onChange={handleChange}
+              className="form-control"
+              required
+              maxLength="18"
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="phone" className="form-label">Telefone</label>
             <input
               type="text"
               id="phone"
@@ -127,4 +133,4 @@ const ServiceProviderModal = ({ show, onClose, driverData, refreshDrivers }) => 
   );
 };
 
-export default DriverModal;
+export default ServiceProviderModal;
