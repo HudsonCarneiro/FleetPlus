@@ -1,6 +1,6 @@
 const ServiceProviderService = require('../services/serviceProviderService.js');
-const addressController = require('./addressController');
-const sequelize = require('../config/database');
+const addressController = require('./addressController.js');
+const sequelize = require('../config/database.js');
 
 // Criar prestador de serviço
 exports.createServiceProvider = async (req, res) => {
