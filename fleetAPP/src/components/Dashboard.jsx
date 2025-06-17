@@ -6,6 +6,7 @@ import DriverModal from "./DriverModal";
 import VehicleModal from "./VehicleModal";
 import DeliveryModal from "./DeliveryModal";
 import FuelingModal from "./FuelingModal";
+import ServiceProviderModal from "./ServiceProviderModal";
 import useDashboard from "../hooks/useDashboard";
 import { SECTIONS } from "../constants/dashboardSections";
 import "../styles/Dashboard.css";
@@ -19,20 +20,22 @@ const Dashboard = () => {
     isVehicleModalOpen,
     isDeliveryModalOpen,
     isFuelingModalOpen,
+    isServiceProviderModalOpen,
     selectedClient,
     selectedDriver,
     selectedVehicle,
     selectedDelivery,
     selectedFueling,
+    selectedServiceProvider,
     userData,
     loading,
     error,
-    closeCompanyModal,
     closeClientModal,
     closeDriverModal,
     closeVehicleModal,
     closeDeliveryModal,
     closeFuelingModal,
+    closeServiceProviderModal,
   } = useDashboard();
 
   if (loading) return <p>Carregando...</p>;
@@ -51,12 +54,12 @@ const Dashboard = () => {
       <Content
         activeSection={activeSection}
         userData={userData}
-        onRequestAddCompany={() => setActiveSection(SECTIONS.ADD_COMPANY)}
         onRequestAddClient={() => setActiveSection(SECTIONS.ADD_CLIENT)}
         onRequestAddDriver={() => setActiveSection(SECTIONS.ADD_DRIVER)}
         onRequestAddVehicle={() => setActiveSection(SECTIONS.ADD_VEHICLE)}
         onRequestAddDelivery={() => setActiveSection(SECTIONS.CREATE_ORDER)}
         onRequestAddFueling={() => setActiveSection(SECTIONS.REGISTER_FUELING)}
+        onRequestAddServiceProvider={() => setActiveSection(SECTIONS.REGISTER_SERVICE_PROVIDER)}
       />
       {isClientModalOpen && (
         <ClientModal
@@ -94,6 +97,15 @@ const Dashboard = () => {
           onClose={closeFuelingModal}
           fuelingData={selectedFueling}
           refreshFuelings={() => setActiveSection(SECTIONS.VIEW_FUELING)}
+          isEditMode={false}
+        />
+      )}
+      {isServiceProviderModalOpen && (
+        <ServiceProviderModal
+          show={isServiceProviderModalOpen}
+          onClose={closeServiceProviderModal}
+          fuelingData={selectedServiceProvider}
+          refreshFuelings={() => setActiveSection(SECTIONS.VIEW_SERVICE_PROVIDERS)}
           isEditMode={false}
         />
       )}

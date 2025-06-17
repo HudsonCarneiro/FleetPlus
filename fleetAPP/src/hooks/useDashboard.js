@@ -10,12 +10,14 @@ const useDashboard = () => {
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
   const [isFuelingModalOpen, setIsFuelingModalOpen] = useState(false);
+  const [isServiceProviderModalOpen, setIsServiceProviderModalOpen] = useState(false);
 
   const [selectedClient, setSelectedClient] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDelivery, setSelectedDelivery] = useState(null);
   const [selectedFueling, setSelectedFueling] = useState(null);
+  const [selectedServiceProvider, setSelectedServiceProvider] = useState(null);
 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -56,6 +58,9 @@ const useDashboard = () => {
       case SECTIONS.REGISTER_FUELING:
         setIsFuelingModalOpen(true);
         break;
+      case SECTIONS.REGISTER_SERVICE_PROVIDER:
+        setIsServiceProviderModalOpen(true);
+        break;
       default:
         break;
     }
@@ -74,6 +79,7 @@ const useDashboard = () => {
     selectedVehicle,
     selectedDelivery,
     selectedFueling,
+    selectedServiceProvider,
     userData,
     loading,
     error,
@@ -82,6 +88,7 @@ const useDashboard = () => {
     closeVehicleModal: () => setIsVehicleModalOpen(false) || setActiveSection(SECTIONS.VIEW_VEHICLE),
     closeDeliveryModal: () => setIsDeliveryModalOpen(false) || setActiveSection(SECTIONS.VIEW_DELIVERIES),
     closeFuelingModal: () => setIsFuelingModalOpen(false) || setActiveSection(SECTIONS.VIEW_FUELING),
+    closeServiceProviderModal: () => setIsServiceProviderModalOpen(false) || setActiveSection(SECTIONS.VIEW_SERVICE_PROVIDERS),
   };
 };
 
