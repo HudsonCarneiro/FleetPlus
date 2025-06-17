@@ -7,11 +7,38 @@ const crypto = require('crypto');
 const JWT_SECRET = process.env.JWT_SECRET || 's3cR3t@123456789!minha-chave-segura-para-jwt';
 const JWT_EXPIRES_IN = '1h';
 
-// Função para validar senha
+
 async function validatePassword(password, hashedPassword, salt) {
     const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
     return hash === hashedPassword;
 }
+
+const isUserBlocked = (user) => {
+  return user.blockExpires && new Date(user.blockExpires) > new Date();
+};
+
+const getRemainingBlockTime = (user) => {
+  return Math.ceil((new Date(user.blockExpires) - new Date()) / (1000 * 60));
+};
+
+const resetLoginAttempts = async (user) => {
+  user.loginAttempts = 0;
+  user.blockExpires = null;
+  await user.save();
+};
+
+const handleFailedLogin = async (user) => {
+  const MAX_ATTEMPTS = 3;
+  const BLOCK_TIME_MINUTES = 5;
+  
+  user.loginAttempts += 1;
+  
+  if (user.loginAttempts >= MAX_ATTEMPTS) {
+    user.blockExpires = new Date(Date.now() + BLOCK_TIME_MINUTES * 60000);
+  }
+  
+  await user.save();
+};
 
 exports.login = async (req, res) => {
     try {
@@ -28,20 +55,36 @@ exports.login = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Usuário não encontrado.' });
         }
 
+        // Verificar se o usuário está bloqueado
+        if (isUserBlocked(user)) {
+            const remainingTime = getRemainingBlockTime(user);
+            return res.status(403).json({ 
+                success: false, 
+                message: `Conta temporariamente bloqueada devido a muitas tentativas falhas. Tente novamente em ${remainingTime} minutos.` 
+            });
+        }
+
         // Validar a senha
         const isValid = await validatePassword(password, user.password, user.salt);
         if (!isValid) {
-            return res.status(401).json({ success: false, message: 'Senha incorreta.' });
+            await handleFailedLogin(user);
+            
+            const attemptsLeft = 3 - user.loginAttempts;
+            return res.status(401).json({ 
+                success: false, 
+                message: `Senha incorreta. ${attemptsLeft > 0 ? `Você tem ${attemptsLeft} tentativa(s) restante(s).` : 'Sua conta foi bloqueada por 5 minutos.'}` 
+            });
         }
 
-        // Buscar o endereço associado
+        // Se chegou aqui, o login foi bem-sucedido
+        await resetLoginAttempts(user);
+
         const address = await Address.findOne({ where: { id: user.addressId } });
 
         if (!address) {
             return res.status(500).json({ success: false, message: 'Endereço não encontrado.' });
         }
 
-        // Dados para incluir no token
         const payload = {
             id: user.id,
             email: user.email,
@@ -49,21 +92,17 @@ exports.login = async (req, res) => {
             addressId: user.addressId,
         };
 
-        // Gerar o token
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-
-        // Excluir informações sensíveis do usuário antes de retornar
         const { password: _, salt: __, ...userData } = user.toJSON();
 
-        // Retornar os dados do usuário, o ID do endereço e o token
         res.status(200).json({
             success: true,
             message: 'Login bem-sucedido!',
             token,
-            expiresIn: JWT_EXPIRES_IN, // Tempo de expiração do token
+            expiresIn: JWT_EXPIRES_IN,
             user: {
                 ...userData,
-                addressId: address.id, // Inclui o ID do endereço
+                addressId: address.id,
             },
         });
     } catch (error) {
