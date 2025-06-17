@@ -1,4 +1,4 @@
-class CNPJ {
+export default class Cnpj {
   constructor(value) {
     if (typeof value !== 'string') {
       throw new Error('CNPJ deve ser uma string.');
@@ -20,4 +20,3 @@ class CNPJ {
   }
 }
 
-module.exports = CNPJ;

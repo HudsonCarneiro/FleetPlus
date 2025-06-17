@@ -1,4 +1,4 @@
-class Phone {
+export default class Phone {
     constructor(number) {
       const cleaned = number.replace(/\D/g, '');
   
@@ -13,6 +13,5 @@ class Phone {
       return this.value;
     }
   }
-  
-  module.exports = Phone;
+
   

@@ -1,4 +1,4 @@
-import ServiceProvider from '../model/ServiceProvider.js';
+import ServiceProvider from '../model/ServiceProvider.js'
 import {
   fetchServiceProviders,
   fetchServiceProviderById,

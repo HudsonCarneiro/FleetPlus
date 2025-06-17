@@ -1,4 +1,4 @@
-import CNPJ from '../validators/CNPJ';
+import Cnpj from '../validators/cnpj';
 import Phone from '../validators/Phone';
 
 export default class ServiceProvider {
@@ -9,7 +9,7 @@ export default class ServiceProvider {
 
     this.businessName = businessName;
     this.companyName = companyName;
-    this.cnpj = new CNPJ(cnpj).toString();
+    this.cnpj = new Cnpj(cnpj).toString();
     this.phone = new Phone(phone).toString();
   }
 }

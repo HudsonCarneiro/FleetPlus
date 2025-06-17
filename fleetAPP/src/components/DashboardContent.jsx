@@ -5,17 +5,18 @@ import DriverTable from "./DriverTable";
 import ClientTable from "./ClientTable";
 import FuelingTable from "./FuelingTable";
 import DeliveryTable from "./DeliveryTable";
+import ServiceProviderTable from "./ServiceProviderTable";
 import { SECTIONS } from "../constants/dashboardSections.js";
 
 const Content = ({
   activeSection,
   userData,
-  onRequestAddCompany,
   onRequestAddClient,
   onRequestAddDriver,
   onRequestAddVehicle,
   onRequestAddDelivery,
   onRequestAddFueling,
+  onRequestAddServiceProvider,
 }) => {
   const renderContent = () => {
     switch (activeSection) {
@@ -43,6 +44,10 @@ const Content = ({
         return <ClientTable />;
       case SECTIONS.ADD_CLIENT:
         return <p>Preparando o modal para cadastrar cliente...</p>;
+       case SECTIONS.VIEW_SERVICE_PROVIDERS:
+        return <ServiceProviderTable />;
+      case SECTIONS.ADD_SERVICE_PROVIDER:
+        return <p>Preparando o modal para cadastrar prestador de serviço...</p>;
       default:
         return (
           <p>
