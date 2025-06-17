@@ -1,8 +1,15 @@
-export default class ServiceProfider{
-    constructor(businessName, companyName, cnpj, phone){
-        this.businessName = businessName;
-        this.companyName = companyName;
-        this.cnpj = cnpj;
-        this.phone = phone;
+import CNPJ from '../validators/CNPJ';
+import Phone from '../validators/Phone';
+
+export default class ServiceProvider {
+  constructor(businessName, companyName, cnpj, phone) {
+    if (!businessName || !companyName || !cnpj || !phone) {
+      throw new Error('Todos os campos são obrigatórios para o prestador de serviço.');
     }
+
+    this.businessName = businessName;
+    this.companyName = companyName;
+    this.cnpj = new CNPJ(cnpj).toString();
+    this.phone = new Phone(phone).toString();
+  }
 }
