@@ -55,14 +55,25 @@ exports.login = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Usuário não encontrado.' });
         }
 
-        // Verificar se o usuário está bloqueado
-        if (isUserBlocked(user)) {
-            const remainingTime = getRemainingBlockTime(user);
-            return res.status(403).json({ 
-                success: false, 
-                message: `Conta temporariamente bloqueada devido a muitas tentativas falhas. Tente novamente em ${remainingTime} minutos.` 
+        if (user.isBlocked && user.blockExpiresAt > Date.now()) {
+            const remainingMs = user.blockExpiresAt - Date.now();
+            const remainingMinutes = Math.ceil(remainingMs / 60000);
+
+            return res.status(403).json({
+                success: false,
+                message: `Sua conta foi bloqueada por ${remainingMinutes} minuto(s).`,
+                remainingTime: remainingMinutes,
+                isBlocked: true,
             });
-        }
+            }
+
+            // Se o bloqueio expirou, reseta
+        if (user.isBlocked && user.blockExpiresAt <= Date.now()) {
+            user.isBlocked = false;
+            user.failedAttempts = 0;
+            user.blockExpiresAt = null;
+            await user.save();
+            }
 
         // Validar a senha
         const isValid = await validatePassword(password, user.password, user.salt);

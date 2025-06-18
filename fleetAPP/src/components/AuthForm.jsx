@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { handleLogin } from "../controller/AuthController"; 
+import { useAuth } from "../context/AuthContext"; // <- USE o contexto
 import "../styles/Form.css";
 
 const AuthForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth(); // <- PEGA A FUNÇÃO login DO CONTEXTO
+
+  const [blockTimeLeft, setBlockTimeLeft] = useState(0);
+  const blockTimerRef = useRef(null);
+
   const [message, setMessage] = useState({
     text: location.state?.message || "",
     type: "" // 'error', 'warning', 'success'
@@ -15,40 +20,70 @@ const AuthForm = () => {
     email: "",
     password: "",
   });
-
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  useEffect(() => {
+    return () => clearInterval(blockTimerRef.current);
+  }, []);
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
+
+  const startCountdown = (seconds) => {
+    clearInterval(blockTimerRef.current);
+    setBlockTimeLeft(seconds);
+
+    const timer = setInterval(() => {
+      setBlockTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setIsSubmitting(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    blockTimerRef.current = timer;
+  };
   
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setMessage({ text: "", type: "" });
+  e.preventDefault();
+  setIsSubmitting(true);
+  setMessage({ text: "", type: "" });
 
-    
-    try {
-      const { success, message: responseMessage, isBlocked } = await handleLogin(formData, navigate);
-      
-      if (!success) {
-        setMessage({
-          text: responseMessage,
-          type: isBlocked ? 'warning' : 'error'
-        });
+  try {
+    const response = await login(formData, navigate);
+
+    if (!response.success) {
+      const msg = response.message?.toLowerCase() || "";
+      const isBlocked = response.isBlocked;
+
+      setMessage({
+        text: response.message,
+        type: isBlocked ? "warning" : "error",
+      });
+
+      if (isBlocked && response.remainingTime) {
+        const totalSeconds = response.remainingTime * 60;
+        setBlockTimeLeft(totalSeconds);
+        setIsSubmitting(true);
+        startCountdown(totalSeconds);
+      } else {
+        setIsSubmitting(false);
       }
+    }
     } catch (error) {
       setMessage({
         text: "Erro inesperado. Tente novamente mais tarde.",
-        type: 'error'
+        type: "error",
       });
-    } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Estilo dinâmico para a mensagem
   const getAlertClass = () => {
     switch (message.type) {
       case 'error': return 'alert-danger';
@@ -115,6 +150,13 @@ const AuthForm = () => {
                 "Enviar"
               )}
             </button>
+
+            {blockTimeLeft > 0 && (
+              <p className="text-center mt-3 text-warning" aria-live="polite">
+                Tente novamente em: {Math.floor(blockTimeLeft / 60)}m {blockTimeLeft % 60}s
+              </p>
+            )}
+
             <p className="mb-3 mt-3 text-center">
               Não tem uma conta?{" "}
               <Link to="/register" className="text-primary">

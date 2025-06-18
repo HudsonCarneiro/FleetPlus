@@ -9,18 +9,20 @@ export const loginUser = async (formData) => {
       },
       body: JSON.stringify(formData),
     });
-    
+
     const responseData = await response.json();
-    
+
     if (!response.ok) {
-      // Tratar casos específicos de bloqueio
+      // Tratamento de bloqueio
       if (response.status === 403) {
-        throw new Error(responseData.message || "Conta temporariamente bloqueada.");
+        const error = new Error(responseData.message || "Conta temporariamente bloqueada.");
+        error.isBlocked = true;
+        error.remainingTime = responseData.remainingTime || null; // ← aqui
+        throw error;
       }
       throw new Error(responseData.message || "Erro ao autenticar.");
     }
 
-    // Processar resposta de sucesso
     if (!responseData.success || !responseData.token || !responseData.user) {
       throw new Error("Resposta da API malformada ou incompleta.");
     }
