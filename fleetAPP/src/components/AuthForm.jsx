@@ -6,12 +6,17 @@ import "../styles/Form.css";
 const AuthForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [message, setMessage] = useState(location.state?.message || "");
+  const [message, setMessage] = useState({
+    text: location.state?.message || "",
+    type: "" // 'error', 'warning', 'success'
+  });
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -20,23 +25,51 @@ const AuthForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(""); // Limpa mensagens anteriores
+    setIsSubmitting(true);
+    setMessage({ text: "", type: "" });
+    
     try {
-      const success = await handleLogin(formData, navigate);
-      if (success) {
-        console.log("Login realizado com sucesso!");
-      } else {
-        setMessage("Credenciais inválidas.");
+      const { success, message: responseMessage, isBlocked } = await handleLogin(formData, navigate);
+      
+      if (!success) {
+        setMessage({
+          text: responseMessage,
+          type: isBlocked ? 'warning' : 'error'
+        });
       }
     } catch (error) {
-      console.error("Erro ao realizar login:", error);
-      setMessage("Erro ao conectar ao servidor. Tente novamente mais tarde.");
+      setMessage({
+        text: "Erro inesperado. Tente novamente mais tarde.",
+        type: 'error'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Estilo dinâmico para a mensagem
+  const getAlertClass = () => {
+    switch (message.type) {
+      case 'error': return 'alert-danger';
+      case 'warning': return 'alert-warning';
+      case 'success': return 'alert-success';
+      default: return 'alert-info';
     }
   };
 
   return (
     <div className="container form-container mt-5 pt-5">
-      {message && <p className="alert alert-warning">{message}</p>}
+      {message.text && (
+        <div className={`alert ${getAlertClass()} alert-dismissible fade show`}>
+          {message.text}
+          <button 
+            type="button" 
+            className="btn-close" 
+            onClick={() => setMessage({ text: "", type: "" })}
+          />
+        </div>
+      )}
+      
       <div className="card p-4">
         <div className="card-body">
           <h3 className="text-center">Entrar</h3>
@@ -51,6 +84,7 @@ const AuthForm = () => {
                 className="form-control"
                 placeholder="email@exemplo.com"
                 required
+                disabled={isSubmitting}
               />
             </div>
             <div className="mb-3">
@@ -63,14 +97,26 @@ const AuthForm = () => {
                 className="form-control"
                 placeholder="******"
                 required
+                disabled={isSubmitting}
               />
             </div>
-            <button type="submit" className="btn btn-primary w-100">
-              Enviar
+            <button 
+              type="submit" 
+              className="btn btn-primary w-100"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Carregando...
+                </>
+              ) : (
+                "Enviar"
+              )}
             </button>
-            <p className="mb-3">
+            <p className="mb-3 mt-3 text-center">
               Não tem uma conta?{" "}
-              <Link to="/register" style={{ color: "#0d6efd", fontSize: "12px" }}>
+              <Link to="/register" className="text-primary">
                 Cadastre-se
               </Link>
             </p>

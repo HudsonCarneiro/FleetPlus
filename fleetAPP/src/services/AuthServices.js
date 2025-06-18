@@ -9,30 +9,35 @@ export const loginUser = async (formData) => {
       },
       body: JSON.stringify(formData),
     });
-
+    
+    const responseData = await response.json();
+    
     if (!response.ok) {
-      const errorDetails = await response.json();
-      throw new Error(errorDetails.message || 'Erro ao autenticar.');
+      // Tratar casos específicos de bloqueio
+      if (response.status === 403) {
+        throw new Error(responseData.message || "Conta temporariamente bloqueada.");
+      }
+      throw new Error(responseData.message || "Erro ao autenticar.");
     }
 
-    const data = await response.json();
-    if (!data.success || !data.token || !data.user) {
-      throw new Error('Resposta da API malformada ou incompleta.');
+    // Processar resposta de sucesso
+    if (!responseData.success || !responseData.token || !responseData.user) {
+      throw new Error("Resposta da API malformada ou incompleta.");
     }
 
-    const { id, name, cpf, phone, email, addressId } = data.user;
+    const { id, name, cpf, phone, email, addressId } = responseData.user;
     return {
-      token: data.token,
+      token: responseData.token,
       userId: id,
       userName: name,
       userCpf: cpf,
       userPhone: phone,
       userEmail: email,
       addressId,
-      expiresIn: data.expiresIn,
+      expiresIn: responseData.expiresIn,
     };
   } catch (error) {
-    console.error('Erro no serviço de login:', error.message);
+    console.error("Erro no serviço de login:", error.message);
     throw error;
   }
 };
