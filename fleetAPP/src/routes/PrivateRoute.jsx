@@ -1,22 +1,15 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId");
+  const { isAuthenticated, loading } = useAuth();
 
-  // Verifica se o token e o ID do usuário existem
-  if (!token || !userId) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-        state={{ message: "Você precisa estar logado para acessar o dashboard." }}
-      />
-    );
+  if (loading) {
+    return <p>Carregando...</p>; 
   }
 
-  return children; // Permite o acesso à página protegida
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 export default PrivateRoute;

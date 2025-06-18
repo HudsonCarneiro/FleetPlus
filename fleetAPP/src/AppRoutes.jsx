@@ -24,7 +24,14 @@ const AppRoutes = () => {
             <Route path="/about" element={<About />} />
             <Route path="/login" element={<AuthForm />} />
             <Route path="/register" element={<UserForm />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
+            />
           </Routes>
         </div>
       </AuthProvider>

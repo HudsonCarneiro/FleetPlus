@@ -1,19 +1,19 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useContext } from "react";
 import { handleLogin, handleLogout } from "../controller/AuthController";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true); // <- Adicionado
 
   const checkAuth = () => {
     const token = localStorage.getItem("token");
     const expiresAt = localStorage.getItem("expiresAt");
-    if (token && expiresAt && Date.now() < parseInt(expiresAt, 10)) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
+    const stillValid = token && expiresAt && Date.now() < parseInt(expiresAt, 10);
+    
+    setIsAuthenticated(stillValid);
+    setLoading(false); // <- Garante que o loading seja falso após a verificação
   };
 
   useEffect(() => {
@@ -23,19 +23,27 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (formData, navigate) => {
-    const success = await handleLogin(formData, navigate);
-    if (success) setIsAuthenticated(true);
-    return success;
+  const result = await handleLogin(formData, navigate);
+  if (result.success) {
+    setIsAuthenticated(true);
+    setLoading(false);
+  }
+  return result;
   };
+
 
   const logout = (navigate) => {
     handleLogout(navigate);
     setIsAuthenticated(false);
+    setLoading(false);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
+// Hook personalizado para consumir o contexto
+export const useAuth = () => useContext(AuthContext);

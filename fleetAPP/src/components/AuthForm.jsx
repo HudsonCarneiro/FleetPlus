@@ -22,11 +22,12 @@ const AuthForm = () => {
     const { id, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage({ text: "", type: "" });
+
     
     try {
       const { success, message: responseMessage, isBlocked } = await handleLogin(formData, navigate);
