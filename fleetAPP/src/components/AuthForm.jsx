@@ -50,17 +50,19 @@ const AuthForm = () => {
   };
   
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsSubmitting(true);
-  setMessage({ text: "", type: "" });
+    e.preventDefault();
+    setIsSubmitting(true);
+    setMessage({ text: "", type: "" });
 
-  try {
-    const response = await login(formData, navigate);
+    try {
+      if (blockTimeLeft > 0) {
+        return; // ← Evita múltiplos submits enquanto bloqueado
+      }
 
-    if (!response.success) {
-      const msg = response.message?.toLowerCase() || "";
+      const response = await login(formData, navigate);
+
+     if (!response.success) {
       const isBlocked = response.isBlocked;
-
       setMessage({
         text: response.message,
         type: isBlocked ? "warning" : "error",
@@ -68,29 +70,30 @@ const AuthForm = () => {
 
       if (isBlocked && response.remainingTime) {
         const totalSeconds = response.remainingTime * 60;
-        setBlockTimeLeft(totalSeconds);
-        setIsSubmitting(true);
         startCountdown(totalSeconds);
       } else {
+        setIsSubmitting(false); // ← Corrige o estado de carregamento infinito
+      }
+
+      return; // ← Evita seguir adiante
+    }
+
+      } catch (error) {
+        setMessage({
+          text: "Erro inesperado. Tente novamente mais tarde.",
+          type: "error",
+        });
         setIsSubmitting(false);
       }
-    }
-    } catch (error) {
-      setMessage({
-        text: "Erro inesperado. Tente novamente mais tarde.",
-        type: "error",
-      });
-      setIsSubmitting(false);
-    }
-  };
+    };
 
-  const getAlertClass = () => {
-    switch (message.type) {
-      case 'error': return 'alert-danger';
-      case 'warning': return 'alert-warning';
-      case 'success': return 'alert-success';
-      default: return 'alert-info';
-    }
+    const getAlertClass = () => {
+      switch (message.type) {
+        case 'error': return 'alert-danger';
+        case 'warning': return 'alert-warning';
+        case 'success': return 'alert-success';
+        default: return 'alert-info';
+      }
   };
 
   return (

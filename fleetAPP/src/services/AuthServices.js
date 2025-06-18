@@ -16,8 +16,9 @@ export const loginUser = async (formData) => {
       // Tratamento de bloqueio
       if (response.status === 403) {
         const error = new Error(responseData.message || "Conta temporariamente bloqueada.");
+        error.name = "BlockedError"; // ← identifica tipo de erro
         error.isBlocked = true;
-        error.remainingTime = responseData.remainingTime || null; // ← aqui
+        error.remainingTime = responseData.remainingTime || null;
         throw error;
       }
       throw new Error(responseData.message || "Erro ao autenticar.");

@@ -46,6 +46,19 @@ User.init({
       key: 'id',
     },
   },
+  loginAttempts: {
+  type: DataTypes.INTEGER,
+  defaultValue: 0,
+  },
+  isBlocked: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  blockExpires: {
+    type: DataTypes.DATE,
+    defaultValue: null,
+  },
+
 }, {
   sequelize,
   modelName: 'User',

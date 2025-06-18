@@ -1,117 +1,58 @@
-require('dotenv').config();
-const User = require('../models/User');
-const Address = require('../models/Address');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
+ import { loginUser } from "../services/AuthServices";
 
-const JWT_SECRET = process.env.JWT_SECRET || 's3cR3t@123456789!minha-chave-segura-para-jwt';
-const JWT_EXPIRES_IN = '1h';
-
-async function validatePassword(password, hashedPassword, salt) {
-  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
-  return hash === hashedPassword;
-}
-
-const resetLoginAttempts = async (user) => {
-  user.failedAttempts = 0;
-  user.isBlocked = false;
-  user.blockExpiresAt = null;
-  await user.save();
-};
-
-const handleFailedLogin = async (user) => {
-  const MAX_ATTEMPTS = 3;
-  const BLOCK_TIME_MINUTES = 5;
-
-  user.failedAttempts += 1;
-
-  if (user.failedAttempts >= MAX_ATTEMPTS) {
-    user.isBlocked = true;
-    user.blockExpiresAt = new Date(Date.now() + BLOCK_TIME_MINUTES * 60 * 1000);
-  }
-
-  await user.save();
-};
-
-exports.login = async (req, res) => {
+export const handleLogin = async (formData, navigate) => {
   try {
-    const { email, password } = req.body;
+    const response = await loginUser(formData);
 
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: 'Email e senha são obrigatórios.' });
+    const {
+      token,
+      userId = null,
+      userName = "",
+      userCpf = "",
+      userPhone = "",
+      userEmail = "",
+      addressId = null,
+      expiresIn = 0,
+    } = response || {};
+
+    if (!token || !userId) {
+      throw new Error("Dados inválidos retornados pelo servidor.");
     }
 
-    const user = await User.findOne({ where: { email } });
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'Usuário não encontrado.' });
-    }
-
-    // Verifica se está bloqueado
-    if (user.isBlocked && user.blockExpiresAt > Date.now()) {
-      const remainingMinutes = Math.ceil((user.blockExpiresAt - Date.now()) / 60000);
-      return res.status(403).json({
-        success: false,
-        message: `Senha incorreta. Sua conta foi bloqueada por ${remainingMinutes} minuto(s).`,
-        isBlocked: true,
-        remainingTime: remainingMinutes,
-      });
-    }
-
-    // Se o bloqueio expirou, limpa os dados
-    if (user.isBlocked && user.blockExpiresAt <= Date.now()) {
-      await resetLoginAttempts(user);
-    }
-
-    const isValid = await validatePassword(password, user.password, user.salt);
-    if (!isValid) {
-      await handleFailedLogin(user);
-
-      const remainingAttempts = Math.max(0, 3 - user.failedAttempts);
-
-      return res.status(401).json({
-        success: false,
-        message: remainingAttempts > 0
-          ? `Senha incorreta. Você tem ${remainingAttempts} tentativa(s) restante(s).`
-          : `Senha incorreta. Sua conta foi bloqueada por 5 minutos.`,
-        isBlocked: user.isBlocked || false,
-        remainingTime: user.isBlocked ? 5 : null,
-      });
-    }
-
-    // Login bem-sucedido
-    await resetLoginAttempts(user);
-
-    const address = await Address.findOne({ where: { id: user.addressId } });
-
-    const payload = {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      addressId: user.addressId,
+    const userData = {
+      id: userId,
+      name: userName,
+      cpf: userCpf,
+      phone: userPhone,
+      email: userEmail,
+      addressId,
     };
 
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+    localStorage.setItem("token", token);
+    localStorage.setItem("userData", JSON.stringify(userData));
+    localStorage.setItem("expiresAt", Date.now() + expiresIn * 1000);
 
-    const { password: _, salt: __, ...userData } = user.toJSON();
-
-    res.status(200).json({
-      success: true,
-      message: 'Login bem-sucedido!',
-      token,
-      expiresIn: 3600, // segundos, equivalente a 1h
-      user: {
-        ...userData,
-        addressId: address ? address.id : null,
-      },
-    });
+    navigate("/dashboard");
+    return { success: true };
 
   } catch (error) {
-    console.error("Erro no login:", error.message);
-    res.status(500).json({
+    return {
       success: false,
-      message: 'Erro ao realizar login.',
-      details: error.message,
-    });
+      message: error.message,
+      isBlocked: error.isBlocked || false,
+      remainingTime: error.remainingTime || null, // ← importante para o contador
+    };
+  }
+};
+
+
+export const handleLogout = (navigate) => {
+  try {
+    // Remove todos os itens relacionados à autenticação
+    ["token", "userData", "expiresAt"].forEach((key) => localStorage.removeItem(key));
+
+    navigate("/");
+  } catch (error) {
+    console.error("Erro ao realizar logout:", error.message);
   }
 };
