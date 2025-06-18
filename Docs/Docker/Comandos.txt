@@ -1,0 +1,11 @@
+docker-compose down -v -> remover os containers
+
+docker-compose up --build -d -> recriar os containers
+
+docker volume rm nome_do_volume -> remover os container manualmente
+//exemplo:
+docker volume rm fleetplus_mysql-data
+
+//acessar container:
+docker exec -it fleetplus-backend sh
+

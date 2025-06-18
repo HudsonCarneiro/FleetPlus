@@ -43,6 +43,13 @@ export const Sidebar = ({ activeSection, setActiveSection }) => {
         { label: "Cadastrar Cliente", section: "cadastrarCliente" },
       ],
     },
+    {
+      title: "Prestadores de Serviço",
+      links: [
+        { label: "Ver Prestadores", section: "verPrestadores" },
+        { label: "Cadastrar Prestador", section: "cadastrarPrestador" },
+      ],
+    },
   ];
 
   const handleSectionChange = (section) => {

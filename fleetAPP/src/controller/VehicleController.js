@@ -1,7 +1,7 @@
 import {
-    getAllVehicles,
-    getVehicleById,
-    createVehicle,
+    fetchVehicles,
+    fetchVehicleById,
+    registerVehicle,
     updateVehicle,
     deleteVehicle,
     exportVehiclesReport,
@@ -18,7 +18,7 @@ import {
   
   export const handleFetchAllVehicles = async () => {
     try {
-      const vehicles = await getAllVehicles();
+      const vehicles = await fetchVehicles();
   
       if (!vehicles || vehicles.length === 0) {
         console.warn("Nenhum registro de veículo encontrado.");
@@ -34,7 +34,7 @@ import {
   
   export const handleFetchVehicleById = async (id) => {
     try {
-      const vehicle = await getVehicleById(id);
+      const vehicle = await fetchVehicleById(id);
   
       if (!vehicle) {
         throw new Error("Veículo não encontrado.");
@@ -59,7 +59,7 @@ import {
         throw new Error("Digite uma PLACA válida no formato Mercosul (AAA0A00).");
       }
   
-      const vehicleResponse = await createVehicle(formData);
+      const vehicleResponse = await registerVehicle(formData);
   
       if (vehicleResponse) {
         console.log("Veículo cadastrado com sucesso:", vehicleResponse);

@@ -4,7 +4,8 @@ const cors = require('cors');
 const morgan = require('morgan'); // Logger para requisições
 const sequelize = require('./config/database');
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3333;
+
 
 // Middlewares
 app.use(cors());
@@ -20,7 +21,8 @@ const dashboardRouter = require('./routes/dashboardRoutes');
 const deliveryOrderRouter = require('./routes/deliveryOrderRoutes');
 const driverRouter = require('./routes/driverRoutes');
 const fuelingRouter = require('./routes/fuelingRoutes');
-const reportRouter = require('./routes/reportRoutes.js');
+//const reportRouter = require('./routes/reportRoutes.js');
+const serviceProfiderRouter = require('./routes/serviceProviderRoutes')
 const userRouter = require('./routes/userRoutes');
 const validateTokenRouter = require('./routes/validateTokenRoutes');
 const vehicleRouter = require('./routes/vehicleRoutes');
@@ -33,7 +35,8 @@ const routers = [
   deliveryOrderRouter,
   driverRouter,
   fuelingRouter,
-  reportRouter,
+  //reportRouter,
+  serviceProfiderRouter,
   userRouter,
   validateTokenRouter,
   vehicleRouter,
@@ -45,31 +48,12 @@ routers.forEach((router) => app.use('/api/', router));
 sequelize.sync()
   .then(() => {
     console.log('Banco de dados sincronizado com sucesso!');
-    app.listen(port, () => {
-      console.log('Servidor rodando na porta: ' + port);
-    });
-    if (process.env.NODE_ENV !== 'production') {
-      const runTests = async () => {
-        try {
-          console.log('\n🔧 Executando testes automáticos...');
-          const { exec } = require('child_process');
-          exec('yarn test', (error, stdout, stderr) => {
-            if (error) {
-              console.error(`Erro ao executar os testes: ${error.message}`);
-              return;
-            }
-            if (stderr) {
-              console.error(`Erros nos testes: ${stderr}`);
-            }
-            console.log(stdout);
-          });
-        } catch (err) {
-          console.error('Erro ao rodar testes:', err);
-        }
-      };
-
-      runTests();
+    if (require.main === module) {
+      app.listen(port, () => {
+        console.log('Servidor rodando na porta: ' + port);
+      });
     }
+    module.exports = app;
   })
   .catch(err => {
     console.log('Erro ao sincronizar o banco de dados: ' + err);
@@ -79,3 +63,4 @@ sequelize.sync()
 app.get('/', (req, res) => {
   res.send('API está rodando!');
 });
+

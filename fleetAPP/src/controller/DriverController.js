@@ -1,7 +1,7 @@
 import { 
-  getAllDrivers, 
-  getDriverById, 
-  createDriver, 
+  fetchDrivers, 
+  fetchDriverById, 
+  registerDriver, 
   updateDriver, 
   deleteDriver 
 } from '../services/DriverServices.js';
@@ -9,7 +9,7 @@ import {
 // Buscar todos os motoristas do usuário logado
 export const handleFetchAllDrivers = async () => {
   try {
-    const drivers = await getAllDrivers();
+    const drivers = await fetchDrivers();
 
     if (!drivers || drivers.length === 0) {
       console.warn('Nenhum registro de motorista encontrado.');
@@ -26,7 +26,7 @@ export const handleFetchAllDrivers = async () => {
 // Buscar um motorista pelo ID
 export const handleFetchDriverById = async (id) => {
   try {
-    const driver = await getDriverById(id);
+    const driver = await fetchDriverById(id);
 
     if (!driver) {
       throw new Error('Motorista não encontrado.');
@@ -51,11 +51,11 @@ export const handleDriverRegistration = async (formData) => {
     }
 
     // Chama o service para criar o motorista
-    const driverResponse = await createDriver(formData);
+    const driverResponse = await registerDriver(formData);
 
     if (driverResponse) {
       console.log('Motorista cadastrado com sucesso:', driverResponse);
-      return driverResponse; // Retorna o motorista criado
+      return driverResponse; 
     } else {
       throw new Error('Erro ao registrar motorista no services.');
     }
