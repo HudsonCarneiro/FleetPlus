@@ -1,5 +1,5 @@
 import Cnpj from '../validators/Cnpj';
-import Phone from '../validators/Phone';
+import Phone from '../validators/phone';
 
 export default class ServiceProvider {
   constructor(businessName, companyName, cnpj, phone) {
