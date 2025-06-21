@@ -1,9 +1,10 @@
-import { 
-  fetchDrivers, 
-  fetchDriverById, 
-  registerDriver, 
-  updateDriver, 
-  deleteDriver 
+import Driver from '../model/Driver.js';
+import {
+  fetchDrivers,
+  fetchDriverById,
+  registerDriver,
+  updateDriver,
+  deleteDriver
 } from '../services/DriverServices.js';
 
 // Buscar todos os motoristas do usuário logado
@@ -42,20 +43,17 @@ export const handleFetchDriverById = async (id) => {
 // Registrar um novo motorista
 export const handleDriverRegistration = async (formData) => {
   try {
-    // Verifica os campos obrigatórios
-    if (!formData.name || !formData.cnh || !formData.phone) {
-      throw new Error("Campos obrigatórios do motorista estão ausentes.");
-    }
-    if(formData.cnh.length != 11){
-      throw new Error("Digite uma CNH válida!");
-    }
+    const driver = new Driver(formData.name, formData.cnh, formData.phone);
 
-    // Chama o service para criar o motorista
-    const driverResponse = await registerDriver(formData);
+    const driverResponse = await registerDriver({
+      name: driver.name,
+      cnh: driver.cnh,
+      phone: driver.phone
+    });
 
     if (driverResponse) {
       console.log('Motorista cadastrado com sucesso:', driverResponse);
-      return driverResponse; 
+      return driverResponse;
     } else {
       throw new Error('Erro ao registrar motorista no services.');
     }
@@ -68,17 +66,21 @@ export const handleDriverRegistration = async (formData) => {
 // Atualizar motorista
 export const handleDriverUpdate = async (formData) => {
   try {
-    // Verifica os campos obrigatórios
-    if (!formData.id || !formData.name || !formData.cnh || !formData.phone) {
-      throw new Error("Campos obrigatórios do motorista estão ausentes.");
+    if (!formData.id) {
+      throw new Error("ID do motorista ausente.");
     }
 
-    // Chama o service para atualizar o motorista
-    const driverResponse = await updateDriver(formData.id, formData);
+    const driver = new Driver(formData.name, formData.cnh, formData.phone);
+
+    const driverResponse = await updateDriver(formData.id, {
+      name: driver.name,
+      cnh: driver.cnh,
+      phone: driver.phone
+    });
 
     if (driverResponse) {
       console.log("Motorista atualizado com sucesso:", driverResponse);
-      return driverResponse; // Retorna o motorista atualizado
+      return driverResponse;
     } else {
       throw new Error("Erro ao atualizar motorista no services.");
     }

@@ -4,8 +4,8 @@ import {
   updateClient,
   deleteClient,
   registerClient,
-} from '../services/ClientServices';
-import { validateClientData } from '../validators/clientValidator';
+} from '../services/ClientServices.js';
+import Client from '../model/Client.js';
 
 // Buscar todos os clientes
 export const handleFetchAllClients = async () => {
@@ -17,7 +17,6 @@ export const handleFetchAllClients = async () => {
       return [];
     }
 
-    // Processa os dados para evitar falhas no componente
     return clients.map((client) => ({
       id: client.id,
       businessName: client.businessName || 'Nome não informado',
@@ -72,14 +71,16 @@ export const handleFetchClientById = async (clientId) => {
 // Registrar cliente
 export const handleClientRegistration = async (formData) => {
   try {
-    validateClientData(formData);
+    const client = new Client(
+      formData.businessName,
+      formData.companyName,
+      formData.cnpj,
+      formData.phone,
+      formData.email
+    );
 
     const clientPayload = {
-      businessName: formData.businessName,
-      companyName: formData.companyName,
-      cnpj: formData.cnpj,
-      phone: formData.phone,
-      email: formData.email,
+      ...client,
       address: {
         cep: formData.cep,
         number: formData.number,
@@ -92,7 +93,6 @@ export const handleClientRegistration = async (formData) => {
 
     const response = await registerClient(clientPayload);
     console.log('Cliente registrado com sucesso:', response);
-
     alert('Cliente registrado com sucesso.');
     return response;
   } catch (error) {
@@ -103,12 +103,31 @@ export const handleClientRegistration = async (formData) => {
 };
 
 // Atualizar cliente
-export const handleClientUpdate = async (clientId, clientData) => {
+export const handleClientUpdate = async (clientId, formData) => {
   try {
     if (!clientId) throw new Error('O ID do cliente é obrigatório.');
-    validateClientData(clientData);
 
-    const response = await updateClient(clientId, clientData);
+    const client = new Client(
+      formData.businessName,
+      formData.companyName,
+      formData.cnpj,
+      formData.phone,
+      formData.email
+    );
+
+    const payload = {
+      ...client,
+      address: {
+        cep: formData.cep,
+        number: formData.number,
+        road: formData.road,
+        complement: formData.complement,
+        city: formData.city,
+        state: formData.state,
+      },
+    };
+
+    const response = await updateClient(clientId, payload);
 
     console.log('Cliente atualizado com sucesso:', response);
     alert('Cliente atualizado com sucesso.');

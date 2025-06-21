@@ -1,4 +1,4 @@
-import Cnpj from '../validators/cnpj';
+import Cnpj from '../validators/Cnpj';
 import Phone from '../validators/Phone';
 
 export default class ServiceProvider {
