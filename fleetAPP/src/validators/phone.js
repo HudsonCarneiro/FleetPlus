@@ -1,20 +1,19 @@
-export default class Phone {
-  constructor(number) {
-    const cleaned = this._sanitize(number);
+import { sanitizeNumber } from '../utils/sanitize.js';
 
-    if (!this._isValid(cleaned)) {
+export default class Phone {
+  constructor(value) {
+    const cleaned = sanitizeNumber(value);
+
+    if (!Phone.validate(cleaned)) {
       throw new Error('Número de telefone inválido');
     }
 
     this.value = cleaned;
   }
 
-  _sanitize(number) {
-    return number.replace(/\D/g, '');
-  }
-
-  _isValid(cleanedNumber) {
-    return /^\d{10,11}$/.test(cleanedNumber);
+  static validate(value) {
+    const cleaned = sanitizeNumber(value);
+    return /^\d{10,11}$/.test(cleaned);
   }
 
   toString() {
