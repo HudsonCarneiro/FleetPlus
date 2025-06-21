@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Maintenance = sequelize.define('Fueling', {
+const Maintenance = sequelize.define('Maintenance', {
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -10,16 +10,31 @@ const Maintenance = sequelize.define('Fueling', {
       key: 'id',
     },
   },
-  driverId: {
-    type: DataTypes.INTEGER,
+  date: {
+    type: DataTypes.DATE,
     allowNull: false,
+  },
+  nfe: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  type: {
+    type: DataTypes.ENUM('conserto', 'lavagem', 'troca de oleo', 'outro'),
+    allowNull: false,
+  },
+  description: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  serviceProviderId: {
+    type: DataTypes.INTEGER,
+    allowNull: false, 
     references: {
-      model: 'Drivers',
-      key: 'id',
+        model: 'ServiceProvider',
+        key: 'id',
     },
     validate: {
-      isInt: true,
-      min: 1,
+        min: 1,
     },
   },
   vehicleId: {
@@ -34,13 +49,6 @@ const Maintenance = sequelize.define('Fueling', {
       min: 1,
     },
   },
-  liters: {
-    type: DataTypes.DECIMAL(10, 2),
-    allowNull: false,
-    validate: {
-      min: 0.01,
-    },
-  },
   price: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
@@ -48,23 +56,18 @@ const Maintenance = sequelize.define('Fueling', {
       min: 0.01,
     },
   },
-  mileage: {
-    type: DataTypes.DECIMAL(10, 2),
+  status: {
+    type: DataTypes.ENUM('aberto', 'parcelado', 'pago'), 
     allowNull: false,
-    validate: {
-      min: 0,
-    },
-  },
-  dateFueling: {
-    type: DataTypes.DATE,
-    allowNull: false,
+    defaultValue: 'aberto'
   },
 });
 
-Fueling.associate = (models) => {
-  Fueling.belongsTo(models.User, { foreignKey: 'userId' });
-  Fueling.belongsTo(models.Driver, { foreignKey: 'driverId' });
-  Fueling.belongsTo(models.Vehicle, { foreignKey: 'vehicleId' });
+Maintenance.associate = (models) => {
+  Maintenance.belongsTo(models.User, { foreignKey: 'userId' });
+  Maintenance.belongsTo(models.ServiceProvider, { foreignKey: 'serviceProviderId' });
+  Maintenance.belongsTo(models.Vehicle, { foreignKey: 'vehicleId' });
 };
 
-module.exports = Fueling;
+
+module.exports = Maintenance;
