@@ -1,4 +1,4 @@
-import apiRequest from '../utils/apiRequest';
+import apiRequest from '../utils/ApiRequest';
 
 export const fetchServiceProviders = async () => {
   try {

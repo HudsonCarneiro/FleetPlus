@@ -1,4 +1,4 @@
-import apiRequest from '../utils/apiRequest';
+import apiRequest from '../utils/ApiRequest';
 import { getUserIdFromSession, getTokenFromSession } from '../utils/session'; 
 
 export const fetchVehicles = async () => {

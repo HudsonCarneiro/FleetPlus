@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchDashboardData } from "../controller/DashboardController";
-import { SECTIONS } from "../constants/dashboardSections.js";
+import { SECTIONS } from "../constants/DashboardSections.js";
 
 const useDashboard = () => {
   const [activeSection, setActiveSection] = useState("");

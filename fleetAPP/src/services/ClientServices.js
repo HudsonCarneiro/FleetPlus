@@ -1,4 +1,4 @@
-import apiRequest from '../utils/apiRequest';
+import apiRequest from '../utils/ApiRequest';
 
 // Busca todos os clientes
 export const fetchClients = async () => {

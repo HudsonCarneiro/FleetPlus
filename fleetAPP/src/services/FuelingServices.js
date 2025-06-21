@@ -1,4 +1,4 @@
-import apiRequest from '../utils/apiRequest';
+import apiRequest from '../utils/ApiRequest';
 import { getUserIdFromSession } from '../utils/session'; 
 
 export const fetchFuelings = async () => {

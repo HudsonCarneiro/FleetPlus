@@ -1,5 +1,5 @@
 // src/services/addressService.js
-import API_BASE_URL from '../constants/api';
+import API_BASE_URL from '../constants/Api';
 
 export async function fetchAddressById(id) {
   try {

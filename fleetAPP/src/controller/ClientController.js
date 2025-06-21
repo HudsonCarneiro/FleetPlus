@@ -144,6 +144,9 @@ export const handleClientDeletion = async (id) => {
   try {
     if (!id) throw new Error('ID do cliente é obrigatório.');
 
+
+
+    
     const success = await deleteClient(id);
 
     if (success) {
