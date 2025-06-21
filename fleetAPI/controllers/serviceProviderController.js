@@ -1,4 +1,4 @@
-const ServiceProviderService = require('../services/serviceProviderService.js');
+const ServiceProviderService = require('../services/ServiceProviderService.js');
 const addressController = require('./addressController.js');
 const sequelize = require('../config/database.js');
 

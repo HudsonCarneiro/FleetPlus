@@ -1,4 +1,4 @@
-const ServiceProvider = require ('../models/ServiceProfider.js');
+const ServiceProvider = require ('../models/ServiceProvider.js');
 const sequelize = require('../config/database');
 
 const Phone = require('../validators/Phone.js');
