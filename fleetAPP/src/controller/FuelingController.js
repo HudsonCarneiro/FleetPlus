@@ -1,14 +1,20 @@
-  import {
-    fetchFuelings,
-    fetchFuelingById,
-    registerFueling,
-    updateFueling,
-    deleteFueling,
-    exportFuelingsToPDF,
-  } from "../services/FuelingServices";
-  import { fetchDrivers } from "../services/DriverServices"
-  import { fetchVehicles } from "../services/VehicleServices"
-  import { toast } from "react-toastify";
+import {
+  fetchFuelings,
+  fetchFuelingById,
+  registerFueling,
+  updateFueling,
+  deleteFueling,
+  exportFuelingsToPDF,
+} from "../services/FuelingServices";
+
+import Fueling from '../model/Fueling.js';
+import Driver from '../model/Driver.js';
+import Vehicle from '../model/Vehicle.js';
+import Price from '../validators/Price.js';
+
+import { fetchDrivers, fetchDriverById } from "../services/DriverServices"
+import { fetchVehicles, fetchVehicleById } from "../services/VehicleServices"
+import { toast } from "react-toastify";
   
   // Valida os dados de abastecimento antes do registro ou atualização
   const validateFuelingData = (data) => {
@@ -65,34 +71,84 @@
     }
   };
   
-  // Registrar novo abastecimento
-  export const handleRegisterFueling = async (data) => {
-    try {
-      validateFuelingData(data);
-      const response = await registerFueling(data);
-      toast.success("Abastecimento registrado com sucesso!");
-      return response;
-    } catch (error) {
-      console.error("Erro ao registrar abastecimento:", error.message);
-      toast.error(`Erro ao registrar abastecimento: ${error.message}`);
-      throw error;
+export const handleRegisterFueling = async (formData) => {
+  try {
+    const driver = await fetchDriverById(formData.driverId);
+    const vehicle = await fetchVehicleById(formData.vehicleId);
+
+    if (!driver || !vehicle) {
+      throw new Error('Motorista ou veículo não encontrados.');
     }
-  };
-  
+
+    const fueling = new Fueling(
+      Number(formData.liters),
+      new Price(formData.price),
+      Number(formData.mileage),
+      new Date(formData.dateFueling),
+      new Vehicle(vehicle.licensePlate, vehicle.model), 
+      new Driver(driver.name, driver.cnh, driver.phone)
+    );
+
+    const response = await registerFueling({
+      liters: fueling.liters,
+      price: fueling.price.toNumber(),
+      mileage: fueling.mileage,
+      dateFueling: fueling.date,
+      vehicleId: formData.vehicleId,
+      driverId: formData.driverId,
+    });
+
+    toast.success("Abastecimento registrado com sucesso!");
+    return response;
+  } catch (error) {
+    console.error("Erro ao registrar abastecimento:", error.message);
+    toast.error(`Erro ao registrar abastecimento: ${error.message}`);
+    throw error;
+  }
+};
   // Atualizar um abastecimento existente
-  export const handleUpdateFueling = async (id, data) => {
-    try {
-      if (!id) throw new Error("ID do abastecimento é obrigatório.");
-      validateFuelingData(data);
-      const response = await updateFueling(id, data);
-      toast.success("Abastecimento atualizado com sucesso!");
-      return response;
-    } catch (error) {
-      console.error("Erro ao atualizar abastecimento:", error.message);
-      throw error;
+ export const handleUpdateFueling = async (id, data) => {
+  try {
+    if (!id) throw new Error("ID do abastecimento é obrigatório.");
+
+    // Busca o motorista e veículo completos
+    const driver = await fetchDriverById(data.driverId);
+    const vehicle = await fetchVehicleById(data.vehicleId);
+
+    if (!driver || !vehicle) {
+      throw new Error("Motorista ou veículo não encontrados.");
     }
-  };
-  
+
+    // Instancia e valida com as classes do domínio
+    const fueling = new Fueling(
+      Number(data.liters),
+      new Price(data.price),
+      Number(data.mileage),
+      new Date(data.dateFueling),
+      new Vehicle(vehicle.licensePlate, vehicle.model), // adapte ao seu construtor real
+      new Driver(driver.name, driver.cnh, driver.phone)
+    );
+
+    // Constrói o payload limpo para atualizar
+    const payload = {
+      liters: fueling.liters,
+      price: fueling.price.toNumber(), // se você implementou .toNumber() no Price.js
+      mileage: fueling.mileage,
+      dateFueling: fueling.date,
+      vehicleId: data.vehicleId,
+      driverId: data.driverId,
+    };
+
+    const response = await updateFueling(id, payload);
+    toast.success("Abastecimento atualizado com sucesso!");
+    return response;
+
+  } catch (error) {
+    console.error("Erro ao atualizar abastecimento:", error.message);
+    toast.error(`Erro ao atualizar abastecimento: ${error.message}`);
+    throw error;
+  }
+};
   // Excluir um abastecimento
   export const handleDeleteFueling = async (id) => {
     try {
