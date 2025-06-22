@@ -90,10 +90,15 @@ User.associate = (models) => {
     as: 'vehicles',
   });
 
+  User.hasOne(models.Company, {
+    foreignKey: 'userId',
+    as: 'company'
+  });
+
   // Relacionamento com Address (pertence a um endereço)
   User.belongsTo(models.Address, {
     foreignKey: 'addressId',
-    as: 'address', // Ajustado para singular, já que é um único endereço
+    as: 'address', // singular, já que é um único endereço
   });
 };
 

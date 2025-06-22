@@ -27,13 +27,25 @@ const Company = sequelize.define('Company', {
       key: 'id',
     },
   },
+  userId: {
+  type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'Users',
+      key: 'id',
+    },
+  }
 });
 
 Company.associate = (models) => {
-  Company.hasMany(models.User, {
-    foreignKey: 'companyId',
-    as: 'users',
-    onDelete: 'RESTRICT' 
+  Company.belongsTo(models.User, {
+  foreignKey: 'userId',
+  as: 'user',
+});
+
+Company.belongsTo(models.Address, {
+    foreignKey: 'addressId',
+    as: 'address', 
   });
 };
 

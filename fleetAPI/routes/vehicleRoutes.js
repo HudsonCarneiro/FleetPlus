@@ -7,7 +7,7 @@ router.get('/vehicles', vehicleController.getVehicleAll);
 
 router.get('/vehicle/:id', vehicleController.getVehicleById);
 
-router.get('/vehicles/report', vehicleController.exportVehiclesReport);
+//router.get('/vehicles/report', vehicleController.exportVehiclesReport);
 
 router.post('/vehicle', vehicleController.createVehicle);
 

@@ -1,9 +1,10 @@
-/*const DeliveryOrder = require('../models/DeliveryOrder');
+const DeliveryOrder = require('../models/DeliveryOrder');
 const { getDriverAll } = require('./driverController');
 const { getVehicleAll } = require('./vehicleController');
 const { getClientAll } = require('./clientController');
-const htmlPdf = require('html-pdf');
 const path = require('path');
+const fs = require('fs');
+const puppeteer = require('puppeteer');
 
 exports.exportDeliveriesReport = async (req, res) => {
   try {
@@ -12,14 +13,12 @@ exports.exportDeliveriesReport = async (req, res) => {
       return res.status(400).json({ error: 'ID do usuário não fornecido.' });
     }
 
-    // Busca todas as ordens de entrega
     const deliveries = await DeliveryOrder.findAll({ where: { userId } });
 
     if (!deliveries.length) {
       return res.status(404).json({ error: 'Nenhuma ordem de entrega encontrada.' });
     }
 
-    // Busca os motoristas
     const driversResponse = await new Promise((resolve, reject) => {
       getDriverAll(
         { query: { userId } },
@@ -28,7 +27,6 @@ exports.exportDeliveriesReport = async (req, res) => {
     });
     const drivers = Array.isArray(driversResponse) ? driversResponse : [];
 
-    // Busca os veículos
     const vehiclesResponse = await new Promise((resolve, reject) => {
       getVehicleAll(
         { query: { userId } },
@@ -37,22 +35,18 @@ exports.exportDeliveriesReport = async (req, res) => {
     });
     const vehicles = Array.isArray(vehiclesResponse) ? vehiclesResponse : [];
 
-    // Busca os clientes
     const clientsResponse = await new Promise((resolve, reject) => {
       getClientAll(
         { query: { userId } },
         { status: (statusCode) => ({ json: resolve, send: reject }) }
       );
     });
-    
     const clients = Array.isArray(clientsResponse) ? clientsResponse : [];
 
-    // Associa os dados aos pedidos
     const deliveriesWithDetails = deliveries.map((delivery) => {
       const driver = drivers.find((d) => d.id === delivery.driverId) || null;
       const vehicle = vehicles.find((v) => v.id === delivery.vehicleId) || null;
-      const client =
-      clients.find((c) => Number(c.id) === Number(delivery.clientId)) || {
+      const client = clients.find((c) => Number(c.id) === Number(delivery.clientId)) || {
         businessName: 'Cliente não encontrado',
       };
 
@@ -66,7 +60,6 @@ exports.exportDeliveriesReport = async (req, res) => {
               licensePlate: vehicle.plate,
             }
           : null,
-  
         Client: client
           ? {
               id: client.id,
@@ -79,7 +72,6 @@ exports.exportDeliveriesReport = async (req, res) => {
       };
     });
 
-    // Gera o HTML para o relatório
     const html = `
       <!DOCTYPE html>
       <html>
@@ -131,8 +123,8 @@ exports.exportDeliveriesReport = async (req, res) => {
                   <td>${delivery.urgency}</td>
                   <td>${delivery.Driver?.name || 'Desconhecido'}</td>
                   <td>${delivery.Vehicle ? `${delivery.Vehicle.model} (${delivery.Vehicle.licensePlate})` : 'Desconhecido'}</td>
-                  <td>${delivery.Client ?.businessName || 'Desconhecido'}</td>
-                  <td>${delivery.Client ?.address || 'Endereço não disponível'}</td>
+                  <td>${delivery.Client?.businessName || 'Desconhecido'}</td>
+                  <td>${delivery.Client?.address || 'Endereço não disponível'}</td>
                 </tr>
               `)
               .join('')}
@@ -142,27 +134,16 @@ exports.exportDeliveriesReport = async (req, res) => {
       </html>
     `;
 
-    // Caminho para salvar o PDF
     const filePath = path.join(__dirname, `../../downloads/delivery-report-${userId}.pdf`);
 
-    // Opções de configuração do PDF
-    const options = {
-      format: 'A4',
-      orientation: 'landscape', // Paisagem
-      border: '10mm',
-    };
+    const browser = await puppeteer.launch({ headless: 'new' });
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    await page.pdf({ path: filePath, format: 'A4', landscape: true, printBackground: true });
+    await browser.close();
 
-    // Gera o PDF
-    htmlPdf.create(html, options).toFile(filePath, (err, result) => {
-      if (err) {
-        console.error('Erro ao gerar o PDF:', err.message);
-        return res.status(500).json({ error: 'Erro ao gerar o PDF.' });
-      }
-
-      // Envia o PDF como download
-      res.download(result.filename, `relatorio-ordensDeEntrega-${userId}.pdf`, () => {
-        console.log('Relatório gerado e enviado:', result.filename);
-      });
+    res.download(filePath, `relatorio-ordensDeEntrega-${userId}.pdf`, () => {
+      fs.unlinkSync(filePath);
     });
   } catch (error) {
     console.error('Erro ao gerar relatório de entregas:', error.message);
@@ -172,4 +153,3 @@ exports.exportDeliveriesReport = async (req, res) => {
     });
   }
 };
-*/
