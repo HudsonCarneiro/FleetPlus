@@ -23,6 +23,13 @@ export const Sidebar = ({ activeSection, setActiveSection }) => {
       ],
     },
     {
+      title: "Manutenções",
+      links: [
+        { label: "Ver Manutenções", section: "verManutencoes" },
+        { label: "Registrar Manutenção", section: "registrarManutencao" },
+      ],
+    },
+    {
       title: "Motoristas",
       links: [
         { label: "Ver Motoristas", section: "verMotoristas" },

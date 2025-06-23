@@ -6,6 +6,7 @@ import DriverModal from "./DriverModal";
 import VehicleModal from "./VehicleModal";
 import DeliveryModal from "./DeliveryModal";
 import FuelingModal from "./FuelingModal";
+import MaintenanceModal from './MaintenanceModal';
 import ServiceProviderModal from "./ServiceProviderModal";
 import useDashboard from "../hooks/useDashboard";
 import { SECTIONS } from "../constants/dashboardSections";
@@ -21,12 +22,16 @@ const Dashboard = () => {
     isDeliveryModalOpen,
     isFuelingModalOpen,
     isServiceProviderModalOpen,
+    isMaintenanceModalOpen,
+
     selectedClient,
     selectedDriver,
     selectedVehicle,
     selectedDelivery,
     selectedFueling,
     selectedServiceProvider,
+    selectedMaintenance,
+
     userData,
     loading,
     error,
@@ -36,6 +41,7 @@ const Dashboard = () => {
     closeDeliveryModal,
     closeFuelingModal,
     closeServiceProviderModal,
+    closeMaintenanceModal,
   } = useDashboard();
 
   if (loading) return <p>Carregando...</p>;
@@ -59,7 +65,8 @@ const Dashboard = () => {
         onRequestAddVehicle={() => setActiveSection(SECTIONS.ADD_VEHICLE)}
         onRequestAddDelivery={() => setActiveSection(SECTIONS.CREATE_ORDER)}
         onRequestAddFueling={() => setActiveSection(SECTIONS.REGISTER_FUELING)}
-        onRequestAddServiceProvider={() => setActiveSection(SECTIONS.REGISTER_SERVICE_PROVIDER)}
+        onRequestAddServiceProvider={() => setActiveSection(SECTIONS.ADD_SERVICE_PROVIDER)}
+        onRequestAddMaintenance={() => setActiveSection(SECTIONS.REGISTER_MAINTENANCE)}
       />
       {isClientModalOpen && (
         <ClientModal
@@ -104,8 +111,17 @@ const Dashboard = () => {
         <ServiceProviderModal
           show={isServiceProviderModalOpen}
           onClose={closeServiceProviderModal}
-          fuelingData={selectedServiceProvider}
-          refreshFuelings={() => setActiveSection(SECTIONS.VIEW_SERVICE_PROVIDERS)}
+          ServiceProviderData={selectedServiceProvider}
+          refreshServiceProviders={() => setActiveSection(SECTIONS.VIEW_SERVICE_PROVIDERS)}
+          isEditMode={false}
+        />
+      )}
+      {isMaintenanceModalOpen && (
+        <MaintenanceModal
+          show={isMaintenanceModalOpen}
+          onClose={closeMaintenanceModal}
+          MaintenanceData={selectedMaintenance}
+          refreshMaintenances={() => setActiveSection(SECTIONS.VIEW_MAINTENANCE)}
           isEditMode={false}
         />
       )}

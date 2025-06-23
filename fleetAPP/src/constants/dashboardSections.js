@@ -12,4 +12,6 @@ export const SECTIONS = {
   ADD_CLIENT: "cadastrarCliente",
   VIEW_SERVICE_PROVIDERS: "verPrestadores",
   ADD_SERVICE_PROVIDER: "cadastrarPrestador",
+  VIEW_MAINTENANCE: "verManutencoes",
+  REGISTER_MAINTENANCE: "cadastrarManutencao",
 };

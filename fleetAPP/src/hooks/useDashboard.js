@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchDashboardData } from "../controller/DashboardController";
-import { SECTIONS } from "../constants/DashboardSections.js";
+import { SECTIONS } from "../constants/dashboardSections";
 
 const useDashboard = () => {
   const [activeSection, setActiveSection] = useState("");
@@ -11,6 +11,7 @@ const useDashboard = () => {
   const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
   const [isFuelingModalOpen, setIsFuelingModalOpen] = useState(false);
   const [isServiceProviderModalOpen, setIsServiceProviderModalOpen] = useState(false);
+  const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
 
   const [selectedClient, setSelectedClient] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
@@ -18,6 +19,7 @@ const useDashboard = () => {
   const [selectedDelivery, setSelectedDelivery] = useState(null);
   const [selectedFueling, setSelectedFueling] = useState(null);
   const [selectedServiceProvider, setSelectedServiceProvider] = useState(null);
+  const [selectedMaintenance, setSelectedMaintenance] = useState(null);
 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -58,8 +60,11 @@ const useDashboard = () => {
       case SECTIONS.REGISTER_FUELING:
         setIsFuelingModalOpen(true);
         break;
-      case SECTIONS.REGISTER_SERVICE_PROVIDER:
+      case SECTIONS.ADD_SERVICE_PROVIDER:
         setIsServiceProviderModalOpen(true);
+        break;
+      case SECTIONS.REGISTER_MAINTENANCE:
+        setIsMaintenanceModalOpen(true);
         break;
       default:
         break;
@@ -74,12 +79,17 @@ const useDashboard = () => {
     isVehicleModalOpen,
     isDeliveryModalOpen,
     isFuelingModalOpen,
+    isServiceProviderModalOpen,
+    isMaintenanceModalOpen,
+
     selectedClient,
     selectedDriver,
     selectedVehicle,
     selectedDelivery,
     selectedFueling,
     selectedServiceProvider,
+    selectedMaintenance,
+
     userData,
     loading,
     error,
@@ -89,6 +99,7 @@ const useDashboard = () => {
     closeDeliveryModal: () => setIsDeliveryModalOpen(false) || setActiveSection(SECTIONS.VIEW_DELIVERIES),
     closeFuelingModal: () => setIsFuelingModalOpen(false) || setActiveSection(SECTIONS.VIEW_FUELING),
     closeServiceProviderModal: () => setIsServiceProviderModalOpen(false) || setActiveSection(SECTIONS.VIEW_SERVICE_PROVIDERS),
+    closeMaintenanceModal: () => setIsMaintenanceModalOpen(false) || setActiveSection(SECTIONS.VIEW_MAINTENANCE),
   };
 };
 
