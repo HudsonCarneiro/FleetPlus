@@ -17,6 +17,7 @@ const initialFormState = {
   complement: "",
   city: "",
   state: "",
+  district: "",
 };
 
 const requiredFields = [
@@ -32,26 +33,31 @@ const requiredFields = [
 const CompanyModal = ({ show, onClose, isEditMode, refreshCompanyData }) => {
   const [formData, setFormData] = useState(initialFormState);
   const [loading, setLoading] = useState(false);
-  const [companyId, setCompanyId] = useState(null);
 
   useEffect(() => {
     const initializeForm = async () => {
       if (isEditMode) {
         try {
           setLoading(true);
-          const company = await handleFetchCompanyByUser();
-          setCompanyId(company.id || null);
-          setFormData({
-            businessName: company.businessName || "",
-            companyName: company.companyName || "",
-            cnpj: company.cnpj || "",
-            cep: company.address?.cep || "",
-            number: company.address?.number || "",
-            road: company.address?.road || "",
-            complement: company.address?.complement || "",
-            city: company.address?.city || "",
-            state: company.address?.state || "",
-          });
+          const result = await handleFetchCompanyByUser();
+          if (result.success && result.data) {
+            const company = result.data;
+            setFormData({
+              businessName: company.businessName || "",
+              companyName: company.companyName || "",
+              cnpj: company.cnpj || "",
+              cep: company.address?.cep || "",
+              number: company.address?.number || "",
+              road: company.address?.road || "",
+              complement: company.address?.complement || "",
+              city: company.address?.city || "",
+              state: company.address?.state || "",
+              district: company.address?.district || "",
+            });
+          } else {
+            toast.error("Nenhuma empresa encontrada.");
+            onClose();
+          }
         } catch (error) {
           toast.error("Erro ao carregar dados da empresa.");
         } finally {
@@ -59,12 +65,11 @@ const CompanyModal = ({ show, onClose, isEditMode, refreshCompanyData }) => {
         }
       } else {
         setFormData(initialFormState);
-        setCompanyId(null);
       }
     };
 
     if (show) initializeForm();
-  }, [show, isEditMode]);
+  }, [show, isEditMode, onClose]);
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -87,12 +92,11 @@ const CompanyModal = ({ show, onClose, isEditMode, refreshCompanyData }) => {
 
     try {
       setLoading(true);
-      if (isEditMode && companyId) {
-        await handleCompanyUpdate(companyId, formData);
+      if (isEditMode) {
+        await handleCompanyUpdate(formData);
         toast.success("Empresa atualizada com sucesso!");
       } else {
         await handleCompanyRegistration(formData);
-
         toast.success("Empresa cadastrada com sucesso!");
       }
 
@@ -131,6 +135,7 @@ const CompanyModal = ({ show, onClose, isEditMode, refreshCompanyData }) => {
                         complement: "Complemento",
                         city: "Cidade",
                         state: "Estado",
+                        district: "Bairro",
                       }[key] || key}
                     </label>
                     <input

@@ -61,46 +61,10 @@ export const deleteVehicle = async (id) => {
   }
 };
 
-export const exportVehiclesReport = async () => {
-  try {
-    const userId = getUserIdFromSession();
-    const token = getTokenFromSession();
-
-    if (!userId) throw new Error('Usuário não autenticado.');
-    if (!token) throw new Error('Token de autenticação não encontrado.');
-
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/vehicles/report?userId=${userId}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      const errorDetails = await response.json().catch(() => ({}));
-      throw new Error(
-        `Erro ao exportar veículos: ${errorDetails.message || response.statusText}`
-      );
-    }
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `vehicles-${userId}.txt`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error('Erro ao exportar veículos:', error.message);
-    throw error;
-  }
-};
-
 export default {
   fetchVehicles,
   fetchVehicleById,
   registerVehicle,
   updateVehicle,
   deleteVehicle,
-  exportVehiclesReport,
 };

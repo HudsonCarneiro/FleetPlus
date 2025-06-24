@@ -3,11 +3,11 @@ import "../styles/DeliveryTable.css";
 import {
   handleFetchAllDeliveryOrders,
   handleDeliveryOrderDeletion,
-  handleDeliveryOrderStatusUpdate,
-  handleExportDeliveryOrdersToPDF, 
+  handleDeliveryOrderStatusUpdate, 
 } from "../controller/DeliveryOrderController";
 import DeliveryModal from "./DeliveryModal.jsx";
 import { toast } from "react-toastify";
+import { handleExportDeliveries } from "../controller/ReportController.js"
 
 const DeliveryTable = () => {
   const [deliveries, setDeliveries] = useState([]);
@@ -52,7 +52,7 @@ const DeliveryTable = () => {
   const handleExportReport = async () => {
     try {
       setIsExporting(true);
-      await handleExportDeliveryOrdersToPDF(); // Chamando o controlador correto
+      await handleExportDeliveries(); // Chamando o controlador correto
     } catch (error) {
       console.error("Erro ao gerar relatório de entregas:", error.message);
     } finally {

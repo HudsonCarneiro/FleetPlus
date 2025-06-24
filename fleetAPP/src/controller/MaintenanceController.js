@@ -5,7 +5,6 @@ import {
   updateMaintenance,
   updateMaintenanceStatus,
   deleteMaintenance,
-  exportMaintenancesToPDF
 } from "../services/MaintenanceServices";
 import { toast } from "react-toastify";
 
@@ -130,18 +129,6 @@ export const handleMaintenanceDeletion = async (id) => {
   } catch (error) {
     console.error("Erro ao excluir manutenção:", error.message);
     toast.error("Erro ao excluir manutenção. Tente novamente.");
-    throw error;
-  }
-};
-
-// Exportar manutenções para PDF
-export const handleExportMaintenancesToPDF = async () => {
-  try {
-    await exportMaintenancesToPDF();
-    toast.success("Relatório gerado com sucesso. O download foi iniciado.");
-  } catch (error) {
-    console.error("Erro ao exportar relatório:", error.message);
-    toast.error("Erro ao exportar manutenções.");
     throw error;
   }
 };

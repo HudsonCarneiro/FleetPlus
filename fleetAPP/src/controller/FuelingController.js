@@ -4,7 +4,6 @@ import {
   registerFueling,
   updateFueling,
   deleteFueling,
-  exportFuelingsToPDF,
 } from "../services/FuelingServices";
 
 import Fueling from '../model/Fueling.js';
@@ -165,18 +164,6 @@ export const handleRegisterFueling = async (formData) => {
     } catch (error) {
       console.error("Erro ao excluir abastecimento:", error.message);
       toast.error("Erro ao excluir abastecimento.");
-      throw error;
-    }
-  };
-  
-  // Gerar relatório de abastecimentos em .txt
-  export const handleExportFuelingReport = async () => {
-    try {
-      await exportFuelingsToPDF();
-      toast.success("Relatório de abastecimentos gerado com sucesso!");
-    } catch (error) {
-      console.error("Erro ao gerar relatório de abastecimentos:", error.message);
-      toast.error("Erro ao gerar relatório de abastecimentos.");
       throw error;
     }
   };

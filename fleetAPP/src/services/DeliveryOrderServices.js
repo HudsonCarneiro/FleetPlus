@@ -104,26 +104,6 @@ export const fetchDrivers = async () => {
   }
 };
 
-export const exportDeliveryOrdersToPDF = async () => {
-  try {
-    const userId = getUserIdFromSession();
-    if (!userId) throw new Error('Usuário não autenticado.');
-
-    const response = await apiRequest(`/deliveries/report`, 'GET', null, { userId }, true); // true = isBinary
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `relatorio-entregas-${userId}.pdf`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error('Erro ao exportar ordens de entrega:', error.message);
-    throw error;
-  }
-};
-
 export default {
   fetchDeliveryOrders,
   fetchDeliveryOrderById,
@@ -131,7 +111,6 @@ export default {
   updateDeliveryOrder,
   updateDeliveryOrderStatus,
   deleteDeliveryOrder,
-  exportDeliveryOrdersToPDF,
   fetchClients,
   fetchVehicles,
   fetchDrivers,

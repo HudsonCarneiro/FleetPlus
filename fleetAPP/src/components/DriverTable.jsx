@@ -5,6 +5,7 @@ import {
   handleDriverDeletion,
 } from "../controller/DriverController.js"; 
 import DriverModal from "./DriverModal"; 
+import { handleExportDrivers } from "../controller/ReportController.js"
 
 const DriverTable = () => {
   const [drivers, setDrivers] = useState([]); // Inicialize o estado como um array vazio

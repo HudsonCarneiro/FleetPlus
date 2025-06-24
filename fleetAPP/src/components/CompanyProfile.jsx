@@ -11,28 +11,22 @@ const CompanyProfile = () => {
   const [companyData, setCompanyData] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchCompany = async () => {
-      try {
-        const company = await handleFetchCompanyByUser();
-        if (company) {
-          setCompanyData(company);
-        } else {
-          setCompanyData(null);
-        }
-      } catch (error) {
-        console.error("Erro ao buscar empresa:", error);
-
-        if (error?.response?.status === 500) {
-          toast.error("Erro interno no servidor. Tente novamente mais tarde.");
-        } else if (error?.message?.includes("Network")) {
-          toast.error("Erro de conexão. Verifique sua internet.");
-        } else {
-          toast.error("Erro inesperado ao buscar os dados da empresa.");
-        }
+  const fetchCompany = async () => {
+    try {
+      const result = await handleFetchCompanyByUser();
+      if (result.success && result.data) {
+        setCompanyData(result.data);
+      } else {
+        setCompanyData(null);
+        if (result.error) toast.error(result.error);
       }
-    };
+    } catch (error) {
+      console.error("Erro ao buscar empresa:", error);
+      toast.error("Erro ao buscar dados da empresa.");
+    }
+  };
 
+  useEffect(() => {
     fetchCompany();
   }, []);
 
@@ -41,24 +35,24 @@ const CompanyProfile = () => {
   };
 
   const handleDeleteClick = async () => {
-    if (!companyData?.id) return;
     const confirmDelete = window.confirm(
       "Tem certeza que deseja excluir esta empresa? Essa ação não pode ser desfeita."
     );
-    if (!confirmDelete) return;
+    if (!confirmDelete || !companyData?.id) return;
 
     try {
-      await handleCompanyDeletion(companyData.id);
-      toast.success("Empresa excluída com sucesso.");
-      setCompanyData(null);
+      const addressId = companyData?.address?.id || null;
+      const result = await handleCompanyDeletion(companyData.id, addressId);
+
+      if (result.success) {
+        toast.success(result.message);
+        setCompanyData(null);
+      } else {
+        toast.error(result.error || "Erro ao excluir empresa.");
+      }
     } catch (error) {
       console.error("Erro ao excluir empresa:", error);
-
-      if (error?.response?.status === 500) {
-        toast.error("Erro interno ao excluir a empresa.");
-      } else {
-        toast.error("Erro inesperado ao excluir a empresa.");
-      }
+      toast.error("Erro inesperado ao excluir empresa.");
     }
   };
 
@@ -74,87 +68,31 @@ const CompanyProfile = () => {
             <h3 className="text-center">Perfil da Empresa</h3>
             <form className="mt-4">
               <div className="row">
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">Nome Fantasia</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={companyData.businessName}
-                    readOnly
-                  />
-                </div>
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">Razão Social</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={companyData.companyName}
-                    readOnly
-                  />
-                </div>
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">CNPJ</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={companyData.cnpj}
-                    readOnly
-                  />
-                </div>
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">CEP</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={companyData.address?.cep || ""}
-                    readOnly
-                  />
-                </div>
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">Rua</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={companyData.address?.road || ""}
-                    readOnly
-                  />
-                </div>
-                <div className="col-md-3 mb-3">
-                  <label className="form-label">Número</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={companyData.address?.number || ""}
-                    readOnly
-                  />
-                </div>
-                <div className="col-md-3 mb-3">
-                  <label className="form-label">Complemento</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={companyData.address?.complement || ""}
-                    readOnly
-                  />
-                </div>
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">Cidade</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={companyData.address?.city || ""}
-                    readOnly
-                  />
-                </div>
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">Estado</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={companyData.address?.state || ""}
-                    readOnly
-                  />
-                </div>
+                {[
+                  { label: "Nome Fantasia", value: companyData.businessName },
+                  { label: "Razão Social", value: companyData.companyName },
+                  { label: "CNPJ", value: companyData.cnpj },
+                  { label: "CEP", value: companyData.address?.cep },
+                  { label: "Rua", value: companyData.address?.road },
+                  { label: "Número", value: companyData.address?.number },
+                  { label: "Complemento", value: companyData.address?.complement },
+                  { label: "Cidade", value: companyData.address?.city },
+                  { label: "Estado", value: companyData.address?.state },
+                  { label: "Bairro", value: companyData.address?.district },
+                ].map((field, idx) => (
+                  <div
+                    className={`col-md-${field.label === "Complemento" || field.label === "Número" ? "3" : "6"} mb-3`}
+                    key={idx}
+                  >
+                    <label className="form-label">{field.label}</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={field.value || ""}
+                      readOnly
+                    />
+                  </div>
+                ))}
               </div>
             </form>
 
@@ -175,14 +113,7 @@ const CompanyProfile = () => {
           show={isModalOpen}
           onClose={() => setModalOpen(false)}
           isEditMode={true}
-          refreshCompanyData={async () => {
-            try {
-              const updatedCompany = await handleFetchCompanyByUser();
-              setCompanyData(updatedCompany);
-            } catch {
-              toast.error("Erro ao atualizar os dados da empresa.");
-            }
-          }}
+          refreshCompanyData={fetchCompany}
         />
       )}
     </div>

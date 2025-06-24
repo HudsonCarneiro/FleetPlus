@@ -3,10 +3,9 @@ import "../styles/Table.css";
 import { 
   handleFetchAllVehicles, 
   handleVehicleDeletion,
-  handleExportVehiclesReport,
 } from "../controller/VehicleController.js"; 
 import VehicleModal from "./VehicleModal"; 
-import { exportVehiclesReport } from "../services/VehicleServices";
+import { handleExportVehicles } from "../controller/ReportController.js"
 
 const VehicleTable = () => {
   const [vehicles, setVehicles] = useState([]); 
@@ -56,7 +55,7 @@ const VehicleTable = () => {
         <button className="btn-add" onClick={handleAddVehicle}>
           Adicionar Novo Veículo
         </button>
-        <button className="btn-export" onClick={handleExportVehiclesReport}>
+        <button className="btn-export" onClick={handleExportVehicles}>
             Exportar Relatório
         </button>
       </div>

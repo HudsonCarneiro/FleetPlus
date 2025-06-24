@@ -3,9 +3,9 @@ import {
   handleFetchAllFuelings,
   handleFetchFuelingById,
 } from "../controller/FuelingController";
-import { exportFuelingsToPDF } from "../services/FuelingServices";
 import FuelingModal from "./FuelingModal";
 import "../styles/Table.css";
+import { handleExportFuelings} from "../controller/ReportController.js"
 
 const FuelingTable = () => {
   const [fuelings, setFuelings] = useState([]);
@@ -48,7 +48,7 @@ const FuelingTable = () => {
   const handleExportReport = async () => {
     try {
       setIsExporting(true);
-      await exportFuelingsToPDF();
+      await handleExportFuelings();
     } catch (error) {
       console.error("Erro ao exportar relatório:", error.message);
     } finally {

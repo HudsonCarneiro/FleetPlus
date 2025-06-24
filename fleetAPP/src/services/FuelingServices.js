@@ -58,41 +58,10 @@ export const deleteFueling = async (id) => {
   }
 };
 
-// Exportar abastecimentos em PDF
-export const exportFuelingsToPDF = async () => {
-  try {
-    const userId = getUserIdFromSession();
-    if (!userId) throw new Error("Usuário não autenticado.");
-
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/fuelings/report?userId=${userId}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erro ao exportar relatório: ${response.statusText}`);
-    }
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `fueling-report-${userId}.pdf`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Erro ao exportar relatório de abastecimentos:", error.message);
-    throw error;
-  }
-};
-
 export default {
   fetchFuelings,
   fetchFuelingById,
   registerFueling,
   updateFueling,
   deleteFueling,
-  exportFuelingsToPDF,
 };

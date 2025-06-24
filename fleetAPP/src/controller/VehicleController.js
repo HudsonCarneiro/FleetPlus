@@ -4,7 +4,6 @@ import {
     registerVehicle,
     updateVehicle,
     deleteVehicle,
-    exportVehiclesReport,
   } from "../services/VehicleServices.js";
   
   // Função para validar campos obrigatórios
@@ -111,14 +110,4 @@ import {
       return false;
     }
   };
-  export const handleExportVehiclesReport = async () => {
-    try {
-      await exportVehiclesReport();
-      toast.success("Relatório de veículos gerado com sucesso!");
-    } catch (error) {
-      console.error("Erro ao gerar relatório de veiculos:", error.message);
-      toast.error("Erro ao gerar relatório de veículos.");
-      throw error;
-    }
-  };
-  
+ 

@@ -87,33 +87,6 @@ export const deleteMaintenance = async (id) => {
   }
 };
 
-// Exportar manutenções para PDF
-export const exportMaintenancesToPDF = async () => {
-  try {
-    const userId = getUserIdFromSession();
-    if (!userId) throw new Error("Usuário não autenticado.");
-
-    const response = await apiRequest(
-      `/maintenances/report`,
-      "GET",
-      null,
-      { userId },
-      true // isBinary = true
-    );
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `relatorio-manutencao-${userId}.pdf`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Erro ao exportar relatório de manutenções:", error.message);
-    throw error;
-  }
-};
-
 // Reexporta os métodos externos para manter compatibilidade
 export { fetchVehicles, fetchServiceProviders };
 
@@ -125,7 +98,6 @@ export default {
   updateMaintenance,
   updateMaintenanceStatus,
   deleteMaintenance,
-  exportMaintenancesToPDF,
   fetchVehicles,
   fetchServiceProviders,
 };

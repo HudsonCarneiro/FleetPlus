@@ -4,10 +4,10 @@ import {
   handleFetchAllMaintenances,
   handleMaintenanceDeletion,
   handleMaintenanceStatusUpdate,
-  handleExportMaintenancesToPDF,
 } from "../controller/MaintenanceController";
 import MaintenanceModal from "./MaintenanceModal";
 import { toast } from "react-toastify";
+import { handleExportMaintenances } from "../controller/ReportController.js"
 
 const MaintenanceTable = () => {
   const [maintenances, setMaintenances] = useState([]);
@@ -76,7 +76,7 @@ const MaintenanceTable = () => {
   const handleExportReport = async () => {
     try {
       setIsExporting(true);
-      await handleExportMaintenancesToPDF();
+      await handleExportMaintenances();
     } catch (error) {
       console.error("Erro ao exportar relatório:", error.message);
     } finally {
