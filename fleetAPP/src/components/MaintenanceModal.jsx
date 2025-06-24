@@ -5,7 +5,7 @@ import {
   handleMaintenanceUpdate,
   handleFetchMaintenanceById,
 } from "../controller/MaintenanceController";
-import { fetchVehicles, fetchProviders } from "../services/MaintenanceServices";
+import { fetchVehicles, fetchServiceProviders } from "../services/MaintenanceServices";
 import { toast } from "react-toastify";
 
 const initialFormState = {
@@ -31,7 +31,7 @@ const MaintenanceModal = ({ show, onClose, maintenanceData, refreshMaintenances,
         setLoading(true);
         const [fetchedVehicles, fetchedProviders] = await Promise.all([
           fetchVehicles(),
-          fetchProviders(),
+          fetchServiceProviders(),
         ]);
 
         setVehicles(Array.isArray(fetchedVehicles) ? fetchedVehicles : []);

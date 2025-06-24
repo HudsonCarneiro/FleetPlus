@@ -30,7 +30,7 @@ const Maintenance = sequelize.define('Maintenance', {
     type: DataTypes.INTEGER,
     allowNull: false, 
     references: {
-        model: 'ServiceProvider',
+        model: 'ServiceProviders',
         key: 'id',
     },
     validate: {

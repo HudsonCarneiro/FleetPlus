@@ -54,6 +54,9 @@ Vehicle.associate = (models) => {
     Vehicle.hasMany(models.Fueling, {
         foreignKey: 'vehicleId'
     });
+    Vehicle.hasMany(models.Maintenance, {
+        foreignKey: 'vehicleId'
+    });
     Vehicle.belongsTo(models.User, { 
         foreignKey: 'userId' 
     });

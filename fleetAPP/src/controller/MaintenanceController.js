@@ -6,7 +6,7 @@ import {
   updateMaintenanceStatus,
   deleteMaintenance,
   exportMaintenancesToPDF
-} from "../services/maintenanceService";
+} from "../services/MaintenanceServices";
 import { toast } from "react-toastify";
 
 // Validação para campos obrigatórios de uma manutenção
