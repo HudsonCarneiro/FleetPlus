@@ -5,12 +5,12 @@ const Phone = require('../validators/Phone.js');
 const Cnpj = require('../validators/CNPJ.js');
 
 // Buscar todos os prestadores de serviço por usuário
-async function getAllByCompany(userId) {
+async function getAllServiceProviders(userId) {
   return await ServiceProvider.findAll({ where: { userId } });
 }
 
 // Buscar prestador por ID e usuário
-async function getById(id, userId) {
+async function getServiceProviderById(id, userId) {
   const provider = await ServiceProvider.findOne({ where: { id, userId } });
   if (!provider) {
     throw new Error('Fornecedor não encontrado.');
@@ -91,8 +91,8 @@ async function deleteServiceProvider(id, userId) {
 }
 
 module.exports = {
-  getAllByCompany,
-  getById,
+  getAllServiceProviders,
+  getServiceProviderById,
   createServiceProvider,
   updateServiceProvider,
   deleteServiceProvider,

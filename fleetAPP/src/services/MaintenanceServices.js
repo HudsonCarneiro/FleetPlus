@@ -1,6 +1,4 @@
 import apiRequest from "../utils/ApiRequest";
-import { getUserIdFromSession } from "../utils/session";
-
 import { fetchVehicles } from "./VehicleServices";
 import { fetchServiceProviders } from "./ServiceProviderServices";
 

@@ -1,19 +1,15 @@
 const ServiceProviderService = require('../services/ServiceProviderService.js');
-const addressController = require('./addressController.js');
 const sequelize = require('../config/database.js');
+
 
 // Criar prestador de serviço
 exports.createServiceProvider = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { userId } = req.body;
-
-    if (!userId) {
-      return res.status(400).json({ error: 'ID do usuário não fornecido.'});
-    }
-    const newServiceProfider = await ServiceProviderService.createServiceProvider(req.body, userId, t);
+    const userId = req.user.id;
+    const newServiceProvider = await ServiceProviderService.createServiceProvider(req.body, userId, t);
     await t.commit();
-    res.status(201).json(newServiceProfider);
+    res.status(201).json(newServiceProvider);
   } catch (error) {
     await t.rollback();
     console.error(error.message);
@@ -21,15 +17,10 @@ exports.createServiceProvider = async (req, res) => {
   }
 };
 
-// Buscar todos os prestadores de uma empresa
+// Buscar todos os prestadores de serviço
 exports.getAllServiceProviders = async (req, res) => {
   try {
-    const { userId } = req;
-
-    if (!user) {
-      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
-    }
-
+    const userId = req.user.id;
     const providers = await ServiceProviderService.getAllServiceProviders(userId);
     res.status(200).json(providers);
   } catch (error) {
@@ -42,14 +33,8 @@ exports.getAllServiceProviders = async (req, res) => {
 exports.getServiceProviderById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId } = req;
-
-    if (!userId) {
-      return res.status(403).json({ error: 'ID do usuário não fornecido.' });
-    }
-
+    const userId = req.user.id;
     const provider = await ServiceProviderService.getServiceProviderById(id, userId);
-
     res.status(200).json(provider);
   } catch (error) {
     console.error(error.message);
@@ -61,15 +46,9 @@ exports.getServiceProviderById = async (req, res) => {
 exports.updateServiceProvider = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { userId } = req;
-    const body = req.body;
-
-
-    if (!userId) {
-      return res.status(403).json({ error: 'ID do usuário não fornecido.' });
-    }
-
-    const updated = await ServiceProviderService.updateServiceProvider(id, userId, body, t);
+    const { id } = req.params;
+    const userId = req.user.id;
+    const updated = await ServiceProviderService.updateServiceProvider(id, userId, req.body, t);
     await t.commit();
     res.status(200).json(updated);
   } catch (error) {
@@ -84,12 +63,7 @@ exports.deleteServiceProvider = async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const { id } = req.params;
-    const { userId } = req;
-
-    if (!userId) {
-      return res.status(403).json({ error: 'ID do usuário não fornecido.' });
-    }
-
+    const userId = req.user.id;
     await ServiceProviderService.deleteServiceProvider(id, userId, t);
     await t.commit();
     res.status(200).json({ message: 'Prestador de serviço excluído com sucesso.' });

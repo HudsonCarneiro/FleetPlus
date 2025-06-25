@@ -48,14 +48,37 @@ const DriverTable = () => {
     fetchDrivers(); // Atualiza a lista de motoristas após uma alteração
   };
 
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportReport = async () => {
+    try {
+      setIsExporting(true);
+      await handleExportDrivers();
+    } catch (error) {
+      console.error("Erro ao exportar relatório de motoristas:", error.message);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="driver-table">
       <div className="table-header">
         <h2>Motoristas</h2>
-        <button className="btn-add" onClick={handleAddDriver}>
-          Adicionar Novo Motorista
-        </button>
+        <div className="table-actions">
+          <button className="btn-add" onClick={handleAddDriver}>
+            Adicionar Novo Motorista
+            </button>
+          <button
+            className="btn-export"
+            onClick={handleExportReport}
+            disabled={isExporting}
+          >
+            {isExporting ? "Exportando..." : "Exportar Relatório"}
+          </button>
       </div>
+    </div>
+     
       <table>
         <thead>
           <tr>

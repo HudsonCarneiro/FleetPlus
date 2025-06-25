@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../styles/MaintenanceTable.css";
+import "../styles/Table.css";
 import {
   handleFetchAllMaintenances,
   handleMaintenanceDeletion,
@@ -7,7 +7,7 @@ import {
 } from "../controller/MaintenanceController";
 import MaintenanceModal from "./MaintenanceModal";
 import { toast } from "react-toastify";
-import { handleExportMaintenances } from "../controller/ReportController.js"
+import { handleExportMaintenances } from "../controller/ReportController.js";
 
 const MaintenanceTable = () => {
   const [maintenances, setMaintenances] = useState([]);
@@ -54,8 +54,10 @@ const MaintenanceTable = () => {
         setMaintenances((prev) =>
           prev.filter((maintenance) => maintenance.id !== id)
         );
+        toast.success("Manutenção excluída com sucesso!");
       } catch (error) {
         console.error("Erro ao excluir manutenção:", error.message);
+        toast.error("Erro ao excluir manutenção.");
       }
     }
   };
@@ -64,12 +66,12 @@ const MaintenanceTable = () => {
     try {
       await handleMaintenanceStatusUpdate(id, status);
       setMaintenances((prev) =>
-        prev.map((m) =>
-          m.id === id ? { ...m, status } : m
-        )
+        prev.map((m) => (m.id === id ? { ...m, status } : m))
       );
+      toast.success("Status atualizado com sucesso!");
     } catch (error) {
       console.error("Erro ao atualizar status:", error.message);
+      toast.error("Erro ao atualizar status.");
     }
   };
 
@@ -79,6 +81,7 @@ const MaintenanceTable = () => {
       await handleExportMaintenances();
     } catch (error) {
       console.error("Erro ao exportar relatório:", error.message);
+      toast.error("Erro ao exportar relatório.");
     } finally {
       setIsExporting(false);
     }
@@ -127,7 +130,7 @@ const MaintenanceTable = () => {
                   <td>{m.provider}</td>
                   <td>{m.date}</td>
                   <td>{m.nfe}</td>
-                  <td>{m.price}</td>
+                  <td>R$ {Number(m.price).toFixed(2)}</td>
                   <td>
                     <select
                       className={`status-select ${
@@ -138,9 +141,7 @@ const MaintenanceTable = () => {
                           : "status-completed"
                       }`}
                       value={m.status}
-                      onChange={(e) =>
-                        handleStatusUpdate(m.id, e.target.value)
-                      }
+                      onChange={(e) => handleStatusUpdate(m.id, e.target.value)}
                     >
                       <option value="pendente">Pendente</option>
                       <option value="em andamento">Em andamento</option>

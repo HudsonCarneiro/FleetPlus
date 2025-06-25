@@ -38,7 +38,7 @@ const MaintenanceModal = ({ show, onClose, maintenanceData, refreshMaintenances,
         setProviders(Array.isArray(fetchedProviders) ? fetchedProviders : []);
       } catch (error) {
         console.error("Erro ao carregar dados:", error.message);
-        toast.error("Erro ao carregar veículos ou fornecedores.");
+        //toast.error("Erro ao carregar veículos ou fornecedores.");
       } finally {
         setLoading(false);
       }
@@ -170,14 +170,18 @@ const MaintenanceModal = ({ show, onClose, maintenanceData, refreshMaintenances,
 
                 <div className="col-md-6 mb-3">
                   <label htmlFor="type">Tipo</label>
-                  <input
-                    type="text"
+                  <select
                     id="type"
                     className="form-control"
                     value={formData.type}
                     onChange={handleInputChange}
-                    placeholder="Ex: Troca de óleo"
-                  />
+                  >
+                    <option value="">Selecione</option>
+                    <option value="conserto">Conserto</option>
+                    <option value="lavagem">Lavagem</option>
+                    <option value="troca de oleo">Troca de óleo</option>
+                    <option value="outro">Outro</option>
+                  </select>
                 </div>
 
                 <div className="col-md-12 mb-3">

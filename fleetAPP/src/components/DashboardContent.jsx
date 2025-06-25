@@ -5,6 +5,7 @@ import DriverTable from "./DriverTable";
 import ClientTable from "./ClientTable";
 import FuelingTable from "./FuelingTable";
 import DeliveryTable from "./DeliveryTable";
+import MaintenanceTable from "./MaintenanceTable";
 import ServiceProviderTable from "./ServiceProviderTable";
 import { SECTIONS } from "../constants/dashboardSections.js";
 
@@ -16,6 +17,7 @@ const Content = ({
   onRequestAddVehicle,
   onRequestAddDelivery,
   onRequestAddFueling,
+  onRequestAddMaintenance,
   onRequestAddServiceProvider,
 }) => {
   const renderContent = () => {
@@ -31,6 +33,11 @@ const Content = ({
         return <FuelingTable />;
       case SECTIONS.REGISTER_FUELING:
         onRequestAddFueling();
+        return null;
+      case SECTIONS.VIEW_MAINTENANCE:
+        return <MaintenanceTable />
+      case SECTIONS.REGISTER_MAINTENANCE: 
+        onRequestAddMaintenance();
         return null;
       case SECTIONS.VIEW_DRIVERS:
         return <DriverTable />;

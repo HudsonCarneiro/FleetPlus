@@ -12,7 +12,7 @@ function hashPassword(password) {
 }
 
 // Buscar usuário por ID
-async function getById(id) {
+async function getUserById(id) {
   const user = await User.findByPk(id, {
     attributes: ['name', 'cpf', 'phone', 'email', 'addressId'],
   });
@@ -99,7 +99,7 @@ async function deleteUser(id) {
 }
 
 module.exports = {
-  getById,
+  getUserById,
   createUser,
   updateUser,
   deleteUser,

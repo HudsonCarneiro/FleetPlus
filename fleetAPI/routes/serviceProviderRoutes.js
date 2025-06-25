@@ -1,16 +1,17 @@
 const express = require('express');
-const serviceProviderController = require('../controllers/serviceProviderController')
+const serviceProviderController = require('../controllers/serviceProviderController');
+const { authenticateToken } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-router.get('/serviceProviders', serviceProviderController.getAllServiceProviders);
+router.get('/serviceProviders', authenticateToken, serviceProviderController.getAllServiceProviders);
 
-router.get('/serviceProvider/:id', serviceProviderController.getServiceProviderById);
+router.get('/serviceProvider/:id', authenticateToken, serviceProviderController.getServiceProviderById);
 
-router.post('/serviceProvider', serviceProviderController.createServiceProvider);
+router.post('/serviceProvider', authenticateToken, serviceProviderController.createServiceProvider);
 
-router.put('/serviceProvider/:id', serviceProviderController.updateServiceProvider);
+router.put('/serviceProvider/:id', authenticateToken, serviceProviderController.updateServiceProvider);
 
-router.delete('/serviceProvider/:id', serviceProviderController.deleteServiceProvider);
+router.delete('/serviceProvider/:id', authenticateToken, serviceProviderController.deleteServiceProvider);
 
 module.exports = router;

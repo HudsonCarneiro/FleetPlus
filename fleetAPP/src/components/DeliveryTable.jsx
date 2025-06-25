@@ -116,6 +116,7 @@ const DeliveryTable = () => {
             disabled={isExporting}
           >
             {isExporting ? "Exportando..." : "Exportar Relatório"}
+            
           </button>
         </div>
       </div>

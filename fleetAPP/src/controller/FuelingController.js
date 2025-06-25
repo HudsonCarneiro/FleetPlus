@@ -173,7 +173,7 @@ export const handleRegisterFueling = async (formData) => {
     try {
       const drivers = await fetchDrivers();
       if (!drivers.length) {
-        toast.info("Nenhum motorista encontrado.");
+        //toast.info("Nenhum motorista encontrado.");
         return [];
       }
       return drivers.map((driver) => ({
@@ -192,7 +192,7 @@ export const handleRegisterFueling = async (formData) => {
     try {
       const vehicles = await fetchVehicles();
       if (!vehicles.length) {
-        toast.info("Nenhum veículo encontrado.");
+        //toast.info("Nenhum veículo encontrado.");
         return [];
       }
       return vehicles.map((vehicle) => ({
