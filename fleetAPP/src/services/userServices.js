@@ -1,10 +1,24 @@
 import apiRequest from "../utils/ApiRequest";
+import API_BASE_URL from "../constants/api";
 
-// Criar usuário
 export async function registerUser(user, addressId) {
   try {
-    user.addressId = addressId;
-    return await apiRequest("/user", "POST", user);
+    const userData = { ...user, addressId };
+
+    const response = await fetch(`${API_BASE_URL}/user`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Erro ao criar usuário');
+    }
+
+    return await response.json();
   } catch (error) {
     console.error("Erro ao registrar o usuário:", error.message || error);
     throw error;
@@ -34,7 +48,7 @@ export async function fetchUsers() {
 // Atualizar usuário
 export async function updateUser(id, updatedUser) {
   try {
-    return await apiRequest("/user", "PUT", updatedUser);
+    return await apiRequest(`/user/${id}`, "PUT", updatedUser);
   } catch (error) {
     console.error("Erro ao atualizar usuário:", error.message || error);
     throw error;

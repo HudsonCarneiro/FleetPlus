@@ -6,6 +6,7 @@ import {
   handleCompanyUpdate,
   handleFetchCompanyByUser,
 } from "../controller/CompanyController";
+import { fetchAddressByCep } from "../utils/CepUtils";
 
 const initialFormState = {
   businessName: "",
@@ -73,15 +74,38 @@ const CompanyModal = ({ show, onClose, isEditMode, refreshCompanyData }) => {
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [id]: value }));
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleCepBlur = async () => {
+    const { cep } = formData;
+
+    if (cep && cep.length === 8) {
+      try {
+        const address = await fetchAddressByCep(cep);
+
+        if (!address || address.erro) {
+          toast.error("CEP inválido ou não encontrado.");
+          return;
+        }
+
+        setFormData((prev) => ({
+          ...prev,
+          road: address.logradouro || "",
+          city: address.localidade || "",
+          state: address.uf || "",
+          district: address.bairro || "",
+        }));
+      } catch (error) {
+        toast.error("Erro ao buscar o CEP.");
+      }
+    }
   };
 
   const validateFields = () => {
-    const invalidFields = requiredFields.filter((field) => !formData[field]);
-    if (invalidFields.length > 0) {
-      toast.error(
-        `Os seguintes campos são obrigatórios: ${invalidFields.join(", ")}`
-      );
+    const invalid = requiredFields.filter((field) => !formData[field]);
+    if (invalid.length > 0) {
+      toast.error(`Preencha os campos obrigatórios: ${invalid.join(", ")}`);
       return false;
     }
     return true;
@@ -144,6 +168,7 @@ const CompanyModal = ({ show, onClose, isEditMode, refreshCompanyData }) => {
                       id={key}
                       value={formData[key]}
                       onChange={handleInputChange}
+                      onBlur={key === "cep" ? handleCepBlur : undefined}
                     />
                   </div>
                 ))}

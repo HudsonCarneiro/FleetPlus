@@ -5,6 +5,7 @@ import {
   handleFetchClientById,
   handleClientRegistration,
 } from "../controller/ClientController";
+import { fetchAddressByCep } from "../utils/CepUtils";
 import { toast } from "react-toastify";
 
 const initialFormState = {
@@ -73,12 +74,33 @@ const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) 
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
+  const handleCepBlur = async () => {
+    const { cep } = formData;
+    if (!cep || cep.length !== 8) return;
+
+    try {
+      const address = await fetchAddressByCep(cep);
+      if (!address || address.erro) {
+        toast.error("CEP não encontrado.");
+        return;
+      }
+
+      setFormData((prevData) => ({
+        ...prevData,
+        road: address.logradouro || "",
+        city: address.localidade || "",
+        state: address.uf || "",
+      }));
+    } catch (err) {
+      console.error("Erro ao buscar endereço:", err);
+      toast.error("Erro ao buscar o endereço pelo CEP.");
+    }
+  };
+
   const validateFields = () => {
     const invalidFields = requiredFields.filter((field) => !formData[field]);
     if (invalidFields.length > 0) {
-      toast.error(
-        `Os seguintes campos são obrigatórios: ${invalidFields.join(", ")}`
-      );
+      toast.error(`Preencha os campos obrigatórios: ${invalidFields.join(", ")}`);
       return false;
     }
     return true;
@@ -90,7 +112,7 @@ const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) 
     try {
       setLoading(true);
       if (isEditMode) {
-        await handleClientUpdate(clientData.id, formData); // Usa o ID do clientData
+        await handleClientUpdate(clientData.id, formData);
         toast.success("Cliente atualizado com sucesso!");
       } else {
         await handleClientRegistration(formData);
@@ -111,8 +133,7 @@ const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) 
     show && (
       <div className="modal-overlay">
         <div className="modal-content">
-          <button className="btn-close" onClick={onClose}>
-          </button>
+          <button className="btn-close" onClick={onClose} />
           <h3 className="text-center">
             {isEditMode ? "Editar Cliente" : "Cadastrar Cliente"}
           </h3>
@@ -159,6 +180,7 @@ const ClientModal = ({ show, onClose, clientData, refreshClients, isEditMode }) 
                       id={key}
                       value={formData[key]}
                       onChange={handleInputChange}
+                      onBlur={key === "cep" ? handleCepBlur : undefined}
                     />
                   </div>
                 ))}

@@ -6,6 +6,7 @@ import {
   updateServiceProvider,
   deleteServiceProvider
 } from '../services/ServiceProviderServices.js';
+import { toast } from "react-toastify";
 
 export const handleFetchAllServiceProviders = async () => {
   try {
@@ -55,6 +56,7 @@ export const handleServiceProviderRegistration = async (formData) => {
     });
 
     console.log('Prestador de serviço cadastrado com sucesso:', created);
+    toast.success("Prestador de serviço cadastrado com sucesso!");
     return created;
 
   } catch (error) {

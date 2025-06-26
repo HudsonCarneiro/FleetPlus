@@ -6,6 +6,7 @@ import {
   registerClient,
 } from '../services/ClientServices.js';
 import Client from '../model/Client.js';
+import { fetchAddressByCep } from '../utils/CepUtils.js';
 
 // Buscar todos os clientes
 export const handleFetchAllClients = async () => {
@@ -68,9 +69,12 @@ export const handleFetchClientById = async (clientId) => {
   }
 };
 
-// Registrar cliente
+// Registrar cliente com consulta de CEP
 export const handleClientRegistration = async (formData) => {
   try {
+    const address = await fetchAddressByCep(formData.cep);
+    if (!address) throw new Error('Endereço não encontrado via CEP.');
+
     const client = new Client(
       formData.businessName,
       formData.companyName,
@@ -84,10 +88,10 @@ export const handleClientRegistration = async (formData) => {
       address: {
         cep: formData.cep,
         number: formData.number,
-        road: formData.road,
+        road: address.logradouro || formData.road,
         complement: formData.complement,
-        city: formData.city,
-        state: formData.state,
+        city: address.localidade || formData.city,
+        state: address.uf || formData.state,
       },
     };
 
@@ -102,10 +106,13 @@ export const handleClientRegistration = async (formData) => {
   }
 };
 
-// Atualizar cliente
+// Atualizar cliente com revalidação do CEP
 export const handleClientUpdate = async (clientId, formData) => {
   try {
     if (!clientId) throw new Error('O ID do cliente é obrigatório.');
+
+    const address = await fetchAddressByCep(formData.cep);
+    if (!address) throw new Error('Endereço não encontrado via CEP.');
 
     const client = new Client(
       formData.businessName,
@@ -120,17 +127,15 @@ export const handleClientUpdate = async (clientId, formData) => {
       address: {
         cep: formData.cep,
         number: formData.number,
-        road: formData.road,
+        road: address.logradouro || formData.road,
         complement: formData.complement,
-        city: formData.city,
-        state: formData.state,
+        city: address.localidade || formData.city,
+        state: address.uf || formData.state,
       },
     };
 
     const response = await updateClient(clientId, payload);
-
     console.log('Cliente atualizado com sucesso:', response);
-    alert('Cliente atualizado com sucesso.');
     return response;
   } catch (error) {
     console.error('Erro ao atualizar cliente:', error.message);
@@ -144,9 +149,6 @@ export const handleClientDeletion = async (id) => {
   try {
     if (!id) throw new Error('ID do cliente é obrigatório.');
 
-
-
-    
     const success = await deleteClient(id);
 
     if (success) {

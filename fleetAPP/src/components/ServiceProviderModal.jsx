@@ -47,7 +47,6 @@ const ServiceProviderModal = ({ show, onClose, providerData, refreshProviders })
     if (formData.id) {
       const updated = await handleServiceProviderUpdate(formData);
       if (updated) {
-        alert("Prestador de serviço atualizado com sucesso!");
         refreshProviders();
         onClose();
       } else {
@@ -56,7 +55,6 @@ const ServiceProviderModal = ({ show, onClose, providerData, refreshProviders })
     } else {
       const created = await handleServiceProviderRegistration(formData);
       if (created) {
-        alert("Prestador de serviço cadastrado com sucesso!");
         refreshProviders();
         onClose();
       } else {

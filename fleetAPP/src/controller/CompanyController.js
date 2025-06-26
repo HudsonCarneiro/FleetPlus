@@ -1,5 +1,7 @@
 import CompanyServices from '../services/companyServices';
 import AddressServices from '../services/addressService';
+import Cnpj from '../validators/Cnpj';
+import { fetchAddressByCep } from '../utils/CepUtils';
 
 // Buscar empresa vinculada ao usuário autenticado
 export const handleFetchCompanyByUser = async () => {
@@ -12,13 +14,27 @@ export const handleFetchCompanyByUser = async () => {
   }
 };
 
-// Criar nova empresa (com endereço embutido)
+// Criar nova empresa (com validação e endereço embutido)
 export const handleCompanyRegistration = async (formData) => {
   try {
+    const cnpj = new Cnpj(formData.cnpj);
+
+    // Preencher endereço via CEP (caso queira garantir consistência)
+    if (!formData.road || !formData.city || !formData.state) {
+      const address = await fetchAddressByCep(formData.cep);
+      if (!address || address.erro) {
+        throw new Error('CEP inválido ou não encontrado.');
+      }
+
+      formData.road = address.logradouro || '';
+      formData.city = address.localidade || '';
+      formData.state = address.uf || '';
+    }
+
     const payload = {
       companyName: formData.companyName,
       businessName: formData.businessName,
-      cnpj: formData.cnpj,
+      cnpj: cnpj.toString(),
       address: {
         cep: formData.cep,
         number: formData.number,
@@ -38,13 +54,27 @@ export const handleCompanyRegistration = async (formData) => {
   }
 };
 
-// Atualizar empresa do usuário logado (inclui atualização de endereço)
+// Atualizar empresa do usuário logado (com validação e preenchimento por CEP)
 export const handleCompanyUpdate = async (formData) => {
   try {
+    const cnpj = new Cnpj(formData.cnpj);
+
+    // Preencher endereço via CEP se não estiver completo
+    if (!formData.road || !formData.city || !formData.state) {
+      const address = await fetchAddressByCep(formData.cep);
+      if (!address || address.erro) {
+        throw new Error('CEP inválido ou não encontrado.');
+      }
+
+      formData.road = address.logradouro || '';
+      formData.city = address.localidade || '';
+      formData.state = address.uf || '';
+    }
+
     const updatedCompany = {
       companyName: formData.companyName,
       businessName: formData.businessName,
-      cnpj: formData.cnpj,
+      cnpj: cnpj.toString(),
       address: {
         cep: formData.cep,
         number: formData.number,
@@ -64,7 +94,7 @@ export const handleCompanyUpdate = async (formData) => {
   }
 };
 
-// Excluir empresa do usuário logado e opcionalmente o endereço
+// Excluir empresa do usuário logado (e endereço, se necessário)
 export const handleCompanyDeletion = async (addressId = null) => {
   try {
     await CompanyServices.deleteCompany();

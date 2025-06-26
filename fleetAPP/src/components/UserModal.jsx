@@ -1,163 +1,120 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Importa o useNavigate
-import "../styles/Modal.css";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  handleUserRegistration,
   handleUserUpdate,
   handleUserDeletion,
   handleFetchUserById,
-} from "../controller/UserController";
+} from '../controller/UserController';
 
 const UserModal = ({ onClose, onUpdate }) => {
-  const navigate = useNavigate(); // Inicializa o navigate
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    id: "", // IDs ainda estão no estado, mas não serão exibidos
-    name: "",
-    cpf: "",
-    phone: "",
-    cep: "",
-    number: "",
-    road: "",
-    complement: "",
-    city: "",
-    state: "",
-    email: "",
-    password: "",
-    addressId: "",
+    id: '', name: '', cpf: '', phone: '', cep: '', number: '',
+    road: '', complement: '', city: '', state: '',
+    email: '', password: '', addressId: ''
   });
 
-  useEffect(() => {
-    // Busca dados do usuário e endereço do localStorage
-    const storedUserData = localStorage.getItem("userData");
+  const [errors, setErrors] = useState({});
 
+  useEffect(() => {
+    const storedUserData = localStorage.getItem("userData");
     if (storedUserData) {
       const { id, addressId } = JSON.parse(storedUserData);
+      setFormData((prev) => ({ ...prev, id, addressId }));
 
-      // Define os IDs iniciais no formulário
-      setFormData((prevData) => ({
-        ...prevData,
-        id,
-        addressId,
-      }));
-
-      // Busca os dados completos do usuário pelo ID
       const fetchUserData = async () => {
         const user = await handleFetchUserById(id);
         if (user) {
-          setFormData((prevData) => ({
-            ...prevData,
-            ...user, // Atualiza o formulário com os dados do usuário
-          }));
-        } else {
-          console.error("Erro ao buscar os dados do usuário.");
+          setFormData((prev) => ({ ...prev, ...user }));
         }
       };
 
       fetchUserData();
-    } else {
-      console.error("Nenhum dado de usuário encontrado no localStorage.");
     }
   }, []);
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [id]: value }));
+    setFormData((prev) => ({ ...prev, [id]: value }));
+    setErrors((prev) => ({ ...prev, [id]: '' })); // limpa erro ao digitar
+  };
+
+  const detectFieldFromError = (message) => {
+    if (message.toLowerCase().includes("cpf")) return "cpf";
+    if (message.toLowerCase().includes("telefone")) return "phone";
+    if (message.toLowerCase().includes("email")) return "email";
+    if (message.toLowerCase().includes("senha")) return "password";
+    return null;
   };
 
   const handleUpdate = async () => {
-    if (!formData.name || !formData.cpf || !formData.email) {
-      console.error("Preencha todos os campos obrigatórios.");
-      return;
-    }
-    const updatedUser = await handleUserUpdate(formData);
-
-    if (updatedUser) {
-      console.log("Usuário atualizado com sucesso");
-      onClose();
-      if (onUpdate) {
-        onUpdate(formData); // Passa os dados atualizados
+    try {
+      setErrors({});
+      const success = await handleUserUpdate(formData);
+      if (success) {
+        onClose();
+        onUpdate?.(formData);
       }
-    } else {
-      console.error("Erro ao atualizar o usuário");
+    } catch (error) {
+      const field = detectFieldFromError(error.message);
+      if (field) {
+        setErrors((prev) => ({ ...prev, [field]: error.message }));
+      } else {
+        alert("Erro ao atualizar usuário.");
+      }
     }
   };
 
   const handleDelete = async () => {
-    const confirmDeletion = window.confirm(
-      "Tem certeza que deseja excluir este usuário?"
-    );
-    if (confirmDeletion) {
-      const deleted = await handleUserDeletion(formData.id, formData.addressId, navigate); // Adiciona o navigate
-      if (deleted) {
-        console.log("Usuário excluído com sucesso");
-      } else {
-        console.error("Erro ao excluir o usuário");
-      }
+    const confirm = window.confirm("Deseja excluir este usuário?");
+    if (confirm) {
+      const deleted = await handleUserDeletion(formData.id, formData.addressId, navigate);
+      if (deleted) onClose();
     }
   };
-  
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <button className="btn-close" onClick={onClose}>
-        </button>
+        <button className="btn-close" onClick={onClose}></button>
         <h3 className="text-center">Editar Usuário</h3>
-        <form className="mt-4">
+        <form onSubmit={(e) => e.preventDefault()}>
           <div className="row">
-            {Object.keys(formData)
-              .filter((key) => key !== "id" && key !== "addressId") // Filtra os campos não exibíveis
-              .map((key) => (
+            {Object.entries(formData)
+              .filter(([key]) => key !== "id" && key !== "addressId")
+              .map(([key, value]) => (
                 <div className="col-md-6 mb-3" key={key}>
-                  <label className="form-label" htmlFor={key}>
-                    {(() => {
-                      switch (key) {
-                        case "name":
-                          return "Nome";
-                        case "cpf":
-                          return "CPF";
-                        case "phone":
-                          return "Telefone";
-                        case "cep":
-                          return "CEP";
-                        case "number":
-                          return "Número";
-                        case "road":
-                          return "Rua";
-                        case "complement":
-                          return "Complemento";
-                        case "city":
-                          return "Cidade";
-                        case "state":
-                          return "Estado";
-                        case "email":
-                          return "E-mail";
-                        case "password":
-                          return "Senha";
-                        default:
-                          return key;
-                      }
-                    })()}
+                  <label htmlFor={key} className="form-label">
+                    {key === "name" ? "Nome" :
+                     key === "cpf" ? "CPF" :
+                     key === "phone" ? "Telefone" :
+                     key === "cep" ? "CEP" :
+                     key === "number" ? "Número" :
+                     key === "road" ? "Rua" :
+                     key === "complement" ? "Complemento" :
+                     key === "city" ? "Cidade" :
+                     key === "state" ? "Estado" :
+                     key === "email" ? "E-mail" :
+                     key === "password" ? "Senha" : key}
                   </label>
                   <input
                     type={key === "password" ? "password" : "text"}
                     id={key}
-                    value={formData[key]}
+                    value={value}
                     onChange={handleInputChange}
-                    className="form-control"
-                    readOnly={["cpf", "email"].includes(key)} // Campos não editáveis
+                    className={`form-control ${errors[key] ? 'is-invalid' : ''}`}
+                    readOnly={["cpf", "email"].includes(key)}
                   />
+                  {errors[key] && (
+                    <div className="invalid-feedback">{errors[key]}</div>
+                  )}
                 </div>
               ))}
           </div>
         </form>
         <div className="d-flex justify-content-between mt-3">
-          <button className="btn btn-danger" onClick={handleDelete}>
-            Excluir
-          </button>
-          <button className="btn btn-primary" onClick={handleUpdate}>
-            Salvar
-          </button>
+          <button className="btn btn-danger" onClick={handleDelete}>Excluir</button>
+          <button className="btn btn-primary" onClick={handleUpdate}>Salvar</button>
         </div>
       </div>
     </div>
