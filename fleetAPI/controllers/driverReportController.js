@@ -1,7 +1,7 @@
 const Driver = require('../models/Driver');
 const path = require('path');
 const fs = require('fs');
-const puppeteer = require('puppeteer');
+const { chromium } = require('playwright');
 
 exports.exportDriverReport = async (req, res) => {
   try {
@@ -10,14 +10,13 @@ exports.exportDriverReport = async (req, res) => {
       return res.status(400).json({ error: 'ID do usuário não fornecido.' });
     }
 
-    // Busca todos os motoristas do usuário
     const drivers = await Driver.findAll({ where: { userId } });
-
     if (!drivers.length) {
       return res.status(404).json({ error: 'Nenhum motorista encontrado.' });
     }
 
-    // Gera o HTML para o relatório
+    const emissionDate = new Date().toLocaleDateString('pt-BR'); // exemplo: 26/06/2025
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -25,10 +24,11 @@ exports.exportDriverReport = async (req, res) => {
         <style>
           body { font-family: Arial, sans-serif; margin: 20px; }
           h1 { text-align: center; color: #333; }
+          .date { text-align: center; font-size: 12px; color: #555; margin-bottom: 20px; }
           table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
           }
           th, td {
             border: 1px solid #ddd;
@@ -46,6 +46,8 @@ exports.exportDriverReport = async (req, res) => {
       </head>
       <body>
         <h1>Relatório de Motoristas</h1>
+        <div class="date">Emitido em: ${emissionDate}</div>
+
         <table>
           <thead>
             <tr>
@@ -56,18 +58,14 @@ exports.exportDriverReport = async (req, res) => {
             </tr>
           </thead>
           <tbody>
-            ${drivers
-              .map(
-                (driver) => `
-                <tr>
-                  <td>${driver.id}</td>
-                  <td>${driver.name}</td>
-                  <td>${driver.cnh}</td>
-                  <td>${driver.phone || 'Não informado'}</td>
-                </tr>
-              `
-              )
-              .join('')}
+            ${drivers.map((driver) => `
+              <tr>
+                <td>${driver.id}</td>
+                <td>${driver.name}</td>
+                <td>${driver.cnh}</td>
+                <td>${driver.phone || 'Não informado'}</td>
+              </tr>
+            `).join('')}
           </tbody>
         </table>
       </body>
@@ -76,14 +74,14 @@ exports.exportDriverReport = async (req, res) => {
 
     const filePath = path.join(__dirname, `../../downloads/driver-report-${userId}.pdf`);
 
-    const browser = await puppeteer.launch();
+    const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
     await page.pdf({ path: filePath, format: 'A4', landscape: true });
     await browser.close();
 
     res.download(filePath, `relatorio-motoristas-${userId}.pdf`, () => {
-      fs.unlinkSync(filePath); // remove o arquivo após envio
+      fs.unlinkSync(filePath);
     });
   } catch (error) {
     console.error('Erro ao gerar relatório de motoristas:', error.message);

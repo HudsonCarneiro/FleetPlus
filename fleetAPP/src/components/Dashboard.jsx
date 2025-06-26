@@ -87,6 +87,8 @@ const Dashboard = () => {
           show={isVehicleModalOpen}
           onClose={closeVehicleModal}
           vehicleData={selectedVehicle}
+          refreshVehicles={() => setActiveSection(SECTIONS.VIEW_VEHICLE)}
+          isEditMode={false}
         />
       )}
       {isDeliveryModalOpen && (

@@ -1,7 +1,7 @@
 const Fueling = require('../models/Fueling');
 const { getDriverAll } = require('./driverController');
 const { getVehicleAll } = require('./vehicleController');
-const puppeteer = require('puppeteer');
+const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 
@@ -22,7 +22,7 @@ exports.exportFuelingReport = async (req, res) => {
       const driversResponse = await new Promise((resolve, reject) => {
         getDriverAll(
           { query: { userId } },
-          { status: (statusCode) => ({ json: resolve, send: reject }) }
+          { status: () => ({ json: resolve, send: reject }) }
         );
       });
       drivers = Array.isArray(driversResponse) ? driversResponse : [];
@@ -35,7 +35,7 @@ exports.exportFuelingReport = async (req, res) => {
       const vehiclesResponse = await new Promise((resolve, reject) => {
         getVehicleAll(
           { query: { userId } },
-          { status: (statusCode) => ({ json: resolve, send: reject }) }
+          { status: () => ({ json: resolve, send: reject }) }
         );
       });
       vehicles = Array.isArray(vehiclesResponse) ? vehiclesResponse : [];
@@ -49,68 +49,72 @@ exports.exportFuelingReport = async (req, res) => {
 
       return {
         ...fueling.toJSON(),
-        Driver: driver ? { id: driver.id, name: driver.name } : null,
-        Vehicle: vehicle ? {
-          id: vehicle.id,
-          model: vehicle.model,
-          licensePlate: vehicle.plate,
-        } : null,
+        Driver: driver ? driver.name : 'Desconhecido',
+        Vehicle: vehicle ? `${vehicle.model} (${vehicle.plate})` : 'Desconhecido',
       };
     });
+
+    const reportDate = new Date().toLocaleDateString();
 
     const html = `
       <!DOCTYPE html>
       <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 20px; }
-          h1 { text-align: center; color: #333; }
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-          }
-          th { background-color: #f4f4f4; font-weight: bold; }
-          tr:nth-child(even) { background-color: #f9f9f9; }
-          td { word-wrap: break-word; }
-        </style>
-      </head>
-      <body>
-        <h1>Relatório de Abastecimentos</h1>
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Motorista</th>
-              <th>Veículo</th>
-              <th>Litros</th>
-              <th>Preço Total</th>
-              <th>Quilometragem</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${fuelingsWithDetails.map(fueling => `
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { text-align: center; color: #333; }
+            p.date { text-align: right; font-size: 12px; color: #666; }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 20px;
+            }
+            th, td {
+              border: 1px solid #ddd;
+              padding: 8px;
+              text-align: left;
+              font-size: 12px;
+            }
+            th { background-color: #f4f4f4; }
+            tr:nth-child(even) { background-color: #f9f9f9; }
+            td { word-wrap: break-word; }
+          </style>
+        </head>
+        <body>
+          <h1>Relatório de Abastecimentos</h1>
+          <p class="date">Emitido em: ${reportDate}</p>
+          <table>
+            <thead>
               <tr>
-                <td>${new Date(fueling.dateFueling).toLocaleDateString() || 'Não definida'}</td>
-                <td>${fueling.Driver?.name || 'Desconhecido'}</td>
-                <td>${fueling.Vehicle ? `${fueling.Vehicle.model} (${fueling.Vehicle.licensePlate})` : 'Desconhecido'}</td>
-                <td>${fueling.liters ? `${fueling.liters} L` : 'Não informado'}</td>
-                <td>R$ ${(Number(fueling.price) || 0).toFixed(2)}</td>
-                <td>${fueling.mileage ? `${fueling.mileage} km` : 'Não informado'}</td>
+                <th>Data</th>
+                <th>Motorista</th>
+                <th>Veículo</th>
+                <th>Litros</th>
+                <th>Preço Total</th>
+                <th>Quilometragem</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </body>
+            </thead>
+            <tbody>
+              ${fuelingsWithDetails.map(fueling => `
+                <tr>
+                  <td>${new Date(fueling.dateFueling).toLocaleDateString() || 'Não definida'}</td>
+                  <td>${fueling.Driver}</td>
+                  <td>${fueling.Vehicle}</td>
+                  <td>${fueling.liters ? `${fueling.liters} L` : 'Não informado'}</td>
+                  <td>R$ ${(Number(fueling.price) || 0).toFixed(2)}</td>
+                  <td>${fueling.mileage ? `${fueling.mileage} km` : 'Não informado'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </body>
       </html>
     `;
 
     const filePath = path.join(__dirname, `../../downloads/fueling-report-${userId}.pdf`);
-
-    const browser = await puppeteer.launch({ headless: 'new' });
+    const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
     await page.pdf({ path: filePath, format: 'A4', landscape: true });
     await browser.close();
 

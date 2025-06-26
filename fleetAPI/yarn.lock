@@ -3603,6 +3603,20 @@ pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
+playwright-core@1.53.1:
+  version "1.53.1"
+  resolved "https://registry.npmjs.org/playwright-core/-/playwright-core-1.53.1.tgz"
+  integrity sha512-Z46Oq7tLAyT0lGoFx4DOuB1IA9D1TPj0QkYxpPVUnGDqHHvDpCftu1J2hM2PiWsNMoZh8+LQaarAWcDfPBc6zg==
+
+playwright@^1.53.1:
+  version "1.53.1"
+  resolved "https://registry.npmjs.org/playwright/-/playwright-1.53.1.tgz"
+  integrity sha512-LJ13YLr/ocweuwxyGf1XNFWIU4M2zUSo149Qbp+A4cpwDjsxRPj7k6H25LBrEHiEwxvRbD8HdwvQmRMSvquhYw==
+  dependencies:
+    playwright-core "1.53.1"
+  optionalDependencies:
+    fsevents "2.3.2"
+
 png-js@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/png-js/-/png-js-1.0.0.tgz"

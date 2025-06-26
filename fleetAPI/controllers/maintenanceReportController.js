@@ -1,7 +1,7 @@
 const Maintenance = require('../models/Maintenance');
 const { getVehicleAll } = require('./vehicleController');
 const { getServiceProviderAll } = require('./serviceProviderController');
-const puppeteer = require('puppeteer');
+const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 
@@ -13,10 +13,11 @@ exports.exportMaintenanceReport = async (req, res) => {
     }
 
     const maintenances = await Maintenance.findAll({ where: { userId } });
-
     if (!maintenances.length) {
       return res.status(404).json({ error: 'Nenhuma manutenção encontrada.' });
     }
+
+    const emissionDate = new Date().toLocaleDateString('pt-BR');
 
     const vehiclesResponse = await new Promise((resolve, reject) => {
       getVehicleAll(
@@ -46,11 +47,14 @@ exports.exportMaintenanceReport = async (req, res) => {
     });
 
     const html = `
+      <!DOCTYPE html>
       <html>
       <head>
+        <meta charset="utf-8" />
         <style>
           body { font-family: Arial; padding: 20px; }
           h1 { text-align: center; }
+          .date { text-align: center; font-size: 12px; color: #555; margin-bottom: 20px; }
           table { width: 100%; border-collapse: collapse; margin-top: 20px; }
           th, td { border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 12px; }
           th { background-color: #eee; }
@@ -59,6 +63,7 @@ exports.exportMaintenanceReport = async (req, res) => {
       </head>
       <body>
         <h1>Relatório de Manutenções</h1>
+        <div class="date">Emitido em: ${emissionDate}</div>
         <table>
           <thead>
             <tr>
@@ -74,22 +79,18 @@ exports.exportMaintenanceReport = async (req, res) => {
             </tr>
           </thead>
           <tbody>
-            ${maintenancesWithDetails
-              .map(
-                (m) => `
-                <tr>
-                  <td>${m.id}</td>
-                  <td>${new Date(m.date).toLocaleDateString()}</td>
-                  <td>${m.type}</td>
-                  <td>${m.description || '-'}</td>
-                  <td>${m.Vehicle}</td>
-                  <td>${m.Provider}</td>
-                  <td>${m.nfe || '-'}</td>
-                  <td>R$ ${Number(m.price).toFixed(2)}</td>
-                  <td>${m.status}</td>
-                </tr>`
-              )
-              .join('')}
+            ${maintenancesWithDetails.map((m) => `
+              <tr>
+                <td>${m.id}</td>
+                <td>${new Date(m.date).toLocaleDateString()}</td>
+                <td>${m.type}</td>
+                <td>${m.description || '-'}</td>
+                <td>${m.Vehicle}</td>
+                <td>${m.Provider}</td>
+                <td>${m.nfe || '-'}</td>
+                <td>R$ ${Number(m.price).toFixed(2)}</td>
+                <td>${m.status}</td>
+              </tr>`).join('')}
           </tbody>
         </table>
       </body>
@@ -98,14 +99,14 @@ exports.exportMaintenanceReport = async (req, res) => {
 
     const filePath = path.join(__dirname, `../../downloads/maintenance-report-${userId}.pdf`);
 
-    const browser = await puppeteer.launch();
+    const browser = await chromium.launch();
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
     await page.pdf({ path: filePath, format: 'A4', landscape: true });
     await browser.close();
 
     res.download(filePath, `relatorio-manutencao-${userId}.pdf`, () => {
-      fs.unlinkSync(filePath); // remove o arquivo após download
+      fs.unlinkSync(filePath);
     });
   } catch (error) {
     console.error('Erro ao gerar relatório de manutenção:', error.message);

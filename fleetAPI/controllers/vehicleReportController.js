@@ -1,7 +1,7 @@
 const Vehicle = require('../models/Vehicle');
 const path = require('path');
 const fs = require('fs');
-const puppeteer = require('puppeteer');
+const { chromium } = require('playwright');
 
 exports.exportVehiclesReport = async (req, res) => {
   try {
@@ -10,16 +10,13 @@ exports.exportVehiclesReport = async (req, res) => {
       return res.status(400).json({ error: 'ID do usuário não fornecido.' });
     }
 
-    // Busca os veículos
     const vehicles = await Vehicle.findAll({ where: { userId } });
-
     if (!vehicles.length) {
       return res.status(404).json({ error: 'Nenhum veículo encontrado.' });
     }
 
-    const vehiclesWithDetails = vehicles.map((vehicle) => vehicle.toJSON());
+    const emissionDate = new Date().toLocaleDateString('pt-BR');
 
-    // Cria o conteúdo HTML do relatório
     const html = `
       <!DOCTYPE html>
       <html>
@@ -27,11 +24,12 @@ exports.exportVehiclesReport = async (req, res) => {
           <meta charset="utf-8" />
           <style>
             body { font-family: Arial, sans-serif; padding: 20px; }
-            h1 { text-align: center; }
+            h1 { text-align: center; color: #333; }
+            .date { text-align: center; font-size: 12px; color: #555; margin-bottom: 20px; }
             table {
               width: 100%;
               border-collapse: collapse;
-              margin-top: 20px;
+              margin-top: 10px;
             }
             th, td {
               border: 1px solid #ccc;
@@ -49,6 +47,8 @@ exports.exportVehiclesReport = async (req, res) => {
         </head>
         <body>
           <h1>Relatório de Veículos</h1>
+          <div class="date">Emitido em: ${emissionDate}</div>
+
           <table>
             <thead>
               <tr>
@@ -62,19 +62,17 @@ exports.exportVehiclesReport = async (req, res) => {
               </tr>
             </thead>
             <tbody>
-              ${vehiclesWithDetails
-                .map((v) => `
-                  <tr>
-                    <td>${v.id}</td>
-                    <td>${v.plate || '---'}</td>
-                    <td>${v.model || '---'}</td>
-                    <td>${v.automaker || '---'}</td>
-                    <td>${v.year || '---'}</td>
-                    <td>${v.fuelType || '---'}</td>
-                    <td>${v.mileage || '---'} km</td>
-                  </tr>
-                `)
-                .join('')}
+              ${vehicles.map((v) => `
+                <tr>
+                  <td>${v.id}</td>
+                  <td>${v.plate || '---'}</td>
+                  <td>${v.model || '---'}</td>
+                  <td>${v.automaker || '---'}</td>
+                  <td>${v.year || '---'}</td>
+                  <td>${v.fuelType || '---'}</td>
+                  <td>${v.mileage || '---'} km</td>
+                </tr>
+              `).join('')}
             </tbody>
           </table>
         </body>
@@ -83,23 +81,14 @@ exports.exportVehiclesReport = async (req, res) => {
 
     const filePath = path.join(__dirname, `../../downloads/vehicle-report-${userId}.pdf`);
 
-    // Gera o PDF com Puppeteer
-    const browser = await puppeteer.launch();
+    const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'load' });
-
-    await page.pdf({
-      path: filePath,
-      format: 'A4',
-      landscape: true,
-      printBackground: true,
-    });
-
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    await page.pdf({ path: filePath, format: 'A4', landscape: true });
     await browser.close();
 
-    // Envia o arquivo como download
     res.download(filePath, `relatorio-veiculos-${userId}.pdf`, () => {
-      fs.unlinkSync(filePath); // Remove o arquivo após envio
+      fs.unlinkSync(filePath);
     });
   } catch (error) {
     console.error('Erro ao gerar relatório de veículos:', error.message);

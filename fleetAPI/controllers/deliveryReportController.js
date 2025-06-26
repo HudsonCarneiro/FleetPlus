@@ -4,7 +4,7 @@ const { getVehicleAll } = require('./vehicleController');
 const { getClientAll } = require('./clientController');
 const path = require('path');
 const fs = require('fs');
-const puppeteer = require('puppeteer');
+const { chromium } = require('playwright');
 
 exports.exportDeliveriesReport = async (req, res) => {
   try {
@@ -14,63 +14,44 @@ exports.exportDeliveriesReport = async (req, res) => {
     }
 
     const deliveries = await DeliveryOrder.findAll({ where: { userId } });
-
     if (!deliveries.length) {
       return res.status(404).json({ error: 'Nenhuma ordem de entrega encontrada.' });
     }
 
     const driversResponse = await new Promise((resolve, reject) => {
-      getDriverAll(
-        { query: { userId } },
-        { status: (statusCode) => ({ json: resolve, send: reject }) }
-      );
+      getDriverAll({ query: { userId } }, { status: () => ({ json: resolve, send: reject }) });
     });
     const drivers = Array.isArray(driversResponse) ? driversResponse : [];
 
     const vehiclesResponse = await new Promise((resolve, reject) => {
-      getVehicleAll(
-        { query: { userId } },
-        { status: (statusCode) => ({ json: resolve, send: reject }) }
-      );
+      getVehicleAll({ query: { userId } }, { status: () => ({ json: resolve, send: reject }) });
     });
     const vehicles = Array.isArray(vehiclesResponse) ? vehiclesResponse : [];
 
     const clientsResponse = await new Promise((resolve, reject) => {
-      getClientAll(
-        { query: { userId } },
-        { status: (statusCode) => ({ json: resolve, send: reject }) }
-      );
+      getClientAll({ query: { userId } }, { status: () => ({ json: resolve, send: reject }) });
     });
     const clients = Array.isArray(clientsResponse) ? clientsResponse : [];
 
     const deliveriesWithDetails = deliveries.map((delivery) => {
-      const driver = drivers.find((d) => d.id === delivery.driverId) || null;
-      const vehicle = vehicles.find((v) => v.id === delivery.vehicleId) || null;
-      const client = clients.find((c) => Number(c.id) === Number(delivery.clientId)) || {
-        businessName: 'Cliente não encontrado',
-      };
+      const driver = drivers.find((d) => d.id === delivery.driverId);
+      const vehicle = vehicles.find((v) => v.id === delivery.vehicleId);
+      const client = clients.find((c) => Number(c.id) === Number(delivery.clientId));
+
+      const formattedAddress = client?.address
+        ? `${client.address.road || ''}, ${client.address.number || ''}, ${client.address.city || ''} - ${client.address.state || ''}, ${client.address.cep || ''}`
+        : 'Endereço não disponível';
 
       return {
         ...delivery.toJSON(),
-        Driver: driver ? { id: driver.id, name: driver.name } : null,
-        Vehicle: vehicle
-          ? {
-              id: vehicle.id,
-              model: vehicle.model,
-              licensePlate: vehicle.plate,
-            }
-          : null,
-        Client: client
-          ? {
-              id: client.id,
-              businessName: client.businessName || 'Desconhecido',
-              address: client.address
-                ? `${client.address.road || ''}, ${client.address.number || ''}, ${client.address.city || ''} - ${client.address.state || ''}, ${client.address.cep || ''}`
-                : 'Endereço não disponível',
-            }
-          : null,
+        Driver: driver?.name || 'Desconhecido',
+        Vehicle: vehicle ? `${vehicle.model} (${vehicle.plate})` : 'Desconhecido',
+        Client: client?.businessName || 'Desconhecido',
+        Address: formattedAddress,
       };
     });
+
+    const reportDate = new Date().toLocaleDateString();
 
     const html = `
       <!DOCTYPE html>
@@ -79,6 +60,7 @@ exports.exportDeliveriesReport = async (req, res) => {
         <style>
           body { font-family: Arial, sans-serif; margin: 20px; }
           h1 { text-align: center; color: #333; }
+          p.date { text-align: right; font-size: 12px; color: #666; }
           table {
             width: 100%;
             border-collapse: collapse;
@@ -100,6 +82,7 @@ exports.exportDeliveriesReport = async (req, res) => {
       </head>
       <body>
         <h1>Relatório de Ordens de Entrega</h1>
+        <p class="date">Emitido em: ${reportDate}</p>
         <table>
           <thead>
             <tr>
@@ -121,13 +104,12 @@ exports.exportDeliveriesReport = async (req, res) => {
                   <td>${delivery.deliveryDate ? new Date(delivery.deliveryDate).toLocaleDateString() : 'Não definida'}</td>
                   <td>${delivery.status}</td>
                   <td>${delivery.urgency}</td>
-                  <td>${delivery.Driver?.name || 'Desconhecido'}</td>
-                  <td>${delivery.Vehicle ? `${delivery.Vehicle.model} (${delivery.Vehicle.licensePlate})` : 'Desconhecido'}</td>
-                  <td>${delivery.Client?.businessName || 'Desconhecido'}</td>
-                  <td>${delivery.Client?.address || 'Endereço não disponível'}</td>
+                  <td>${delivery.Driver}</td>
+                  <td>${delivery.Vehicle}</td>
+                  <td>${delivery.Client}</td>
+                  <td>${delivery.Address}</td>
                 </tr>
-              `)
-              .join('')}
+              `).join('')}
           </tbody>
         </table>
       </body>
@@ -135,11 +117,10 @@ exports.exportDeliveriesReport = async (req, res) => {
     `;
 
     const filePath = path.join(__dirname, `../../downloads/delivery-report-${userId}.pdf`);
-
-    const browser = await puppeteer.launch({ headless: 'new' });
+    const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'domcontentloaded' });
-    await page.pdf({ path: filePath, format: 'A4', landscape: true, printBackground: true });
+    await page.pdf({ path: filePath, format: 'A4', landscape: true });
     await browser.close();
 
     res.download(filePath, `relatorio-ordensDeEntrega-${userId}.pdf`, () => {
