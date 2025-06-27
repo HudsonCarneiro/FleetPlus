@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  handleDeleteFueling,
   handleFetchAllFuelings,
   handleFetchFuelingById,
 } from "../controller/FuelingController";
@@ -114,6 +115,12 @@ const FuelingTable = () => {
                       onClick={() => handleEditFueling(fueling)}
                     >
                       Editar
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDeleteFueling(fueling.id)}
+                      >
+                        Excluir
                     </button>
                   </td>
                 </tr>
