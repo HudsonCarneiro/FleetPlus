@@ -6,7 +6,7 @@ import {
     updateDeliveryOrderStatus,
     deleteDeliveryOrder,
   } from "../services/DeliveryOrderServices";
-  import { toast } from "react-toastify"; // Notificação amigável para o usuário
+
   
   // Validação para campos obrigatórios de uma ordem de entrega
   const validateDeliveryOrder = (data) => {
@@ -101,7 +101,7 @@ import {
       
     } catch (error) {
       console.error("Erro ao buscar ordem de entrega por ID:", error.message);
-      toast.error("Erro ao buscar a ordem de entrega. Tente novamente.");
+   
       throw error;
     }
   };
@@ -114,13 +114,11 @@ import {
   
       const response = await registerDeliveryOrder(formData);
       console.log("Ordem de entrega registrada com sucesso:", response);
-      toast.success("Ordem de entrega registrada com sucesso!");
+    
       return response;
     } catch (error) {
       console.error("Erro ao registrar ordem de entrega:", error.message);
-      toast.error(
-        `Erro ao registrar ordem de entrega: ${error.message}. Verifique os dados fornecidos.`
-      );
+ 
       throw error;
     }
   };
@@ -133,13 +131,11 @@ import {
   
       const response = await updateDeliveryOrder(id, formData);
       console.log("Ordem de entrega atualizada com sucesso:", response);
-      toast.success("Ordem de entrega atualizada com sucesso!");
+     
       return response;
     } catch (error) {
       console.error("Erro ao atualizar ordem de entrega:", error.message);
-      toast.error(
-        `Erro ao atualizar ordem de entrega: ${error.message}. Verifique os dados fornecidos.`
-      );
+  
       throw error;
     }
   };
@@ -152,11 +148,11 @@ import {
   
       const response = await updateDeliveryOrderStatus(id, status);
       console.log("Status da ordem de entrega atualizado com sucesso:", response);
-      toast.success("Status atualizado com sucesso!");
+     
       return response;
     } catch (error) {
       console.error("Erro ao atualizar status da ordem de entrega:", error.message);
-      toast.error("Erro ao atualizar o status. Tente novamente.");
+      
       throw error;
     }
   };
@@ -169,14 +165,14 @@ import {
       const success = await deleteDeliveryOrder(id);
       if (success) {
         console.log("Ordem de entrega excluída com sucesso.");
-        toast.success("Ordem de entrega excluída com sucesso!");
+      
       } else {
         throw new Error("Erro inesperado ao excluir a ordem de entrega.");
       }
       return success;
     } catch (error) {
       console.error("Erro ao excluir ordem de entrega:", error.message);
-      toast.error("Erro ao excluir a ordem de entrega. Tente novamente.");
+  
       throw error;
     }
   };

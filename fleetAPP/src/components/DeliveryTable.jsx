@@ -7,7 +7,7 @@ import {
 } from "../controller/DeliveryOrderController";
 import DeliveryModal from "./DeliveryModal.jsx";
 import { toast } from "react-toastify";
-import { handleExportDeliveries } from "../controller/ReportController.js"
+import { handleExportDeliveries } from "../controller/ReportController.js";
 
 const DeliveryTable = () => {
   const [deliveries, setDeliveries] = useState([]);
