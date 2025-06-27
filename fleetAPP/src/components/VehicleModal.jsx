@@ -4,6 +4,7 @@ import {
   handleVehicleRegistration,
   handleVehicleUpdate,
 } from "../controller/VehicleController.js";
+import { toast } from "react-toastify";
 
 const VehicleModal = ({ show, onClose, vehicleData, refreshVehicles }) => {
   const [formData, setFormData] = useState({
@@ -62,7 +63,7 @@ const VehicleModal = ({ show, onClose, vehicleData, refreshVehicles }) => {
     if (formData.id) {
       const updated = await handleVehicleUpdate(formData);
       if (updated) {
-        alert("Veículo atualizado com sucesso!");
+        toast.success("Veículo atualizado com sucesso!");
         refreshVehicles();
         onClose();
       } else {
@@ -71,7 +72,7 @@ const VehicleModal = ({ show, onClose, vehicleData, refreshVehicles }) => {
     } else {
       const created = await handleVehicleRegistration(formData);
       if (created) {
-        alert("Veículo cadastrado com sucesso!");
+        toast.success("Veículo cadastrado com sucesso!");
         refreshVehicles();
         onClose();
       } else {

@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 import "../styles/Table.css";
-import { 
-  handleFetchAllVehicles, 
-  handleVehicleDeletion,
-} from "../controller/VehicleController.js"; 
+import { handleFetchAllVehicles, handleVehicleDeletion,} from "../controller/VehicleController.js"; 
 import VehicleModal from "./VehicleModal"; 
 import { handleExportVehicles } from "../controller/ReportController.js"
+import { toast } from "react-toastify";
 
 const VehicleTable = () => {
   const [vehicles, setVehicles] = useState([]); 
   const [showModal, setShowModal] = useState(false); 
   const [vehicleToEdit, setVehicleToEdit] = useState(null); 
+   const [isExporting, setIsExporting] = useState(false);
 
   // Função para carregar os veículos
   const fetchVehicles = async () => {
@@ -39,10 +38,23 @@ const VehicleTable = () => {
     if (confirmDelete) {
       const success = await handleVehicleDeletion(id);
       if (success) {
-        setVehicles((prevVehicles) => prevVehicles.filter((vehicle) => vehicle.id !== id)); // Atualiza o estado após a exclusão
+        setVehicles((prevVehicles) => prevVehicles.filter((vehicle) => vehicle.id !== id));
+        toast.info("Veículo exluido com sucesso!");
       }
     }
   };
+
+  const handleExportReport = async () => {
+    try {
+      setIsExporting(true);
+      await handleExportVehicles();
+    } catch (error) {
+      console.log("Erro ao exportar relatorio: ", error.message);
+      toast.error ("Erro ao exportar relatóriio.");
+    }finally {
+      setIsExporting(false);
+    }
+  }
 
   const refreshVehicles = () => {
     fetchVehicles(); // Atualiza a lista de veículos após uma alteração
@@ -52,12 +64,17 @@ const VehicleTable = () => {
     <div>
       <div className="table-header">
         <h2>Veículos</h2>
-        <button className="btn-add" onClick={handleAddVehicle}>
-          Adicionar Novo Veículo
-        </button>
-        <button className="btn-export" onClick={handleExportVehicles}>
-            Exportar Relatório
-        </button>
+        <div className="table-actions">
+          <button className="btn-add" onClick={handleAddVehicle}>
+            Adicionar Novo Veículo
+          </button>
+          <button className="btn-export" 
+            onClick={handleExportReport}
+            disabled={isExporting}
+            >
+              {isExporting ? "Exportando..." : "Exportar Relatório"}
+          </button>
+        </div>
       </div>
       <table>
         <thead>
@@ -107,7 +124,6 @@ const VehicleTable = () => {
         </tbody>
       </table>
 
-      {/* Modal de Cadastro/Atualização de Veículo */}
       <VehicleModal
         show={showModal}
         onClose={() => setShowModal(false)} // Função para fechar o modal

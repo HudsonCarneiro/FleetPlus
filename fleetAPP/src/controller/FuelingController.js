@@ -6,97 +6,70 @@ import {
   deleteFueling,
 } from "../services/FuelingServices";
 
-import Fueling from '../model/Fueling.js';
-import Driver from '../model/Driver.js';
-import Vehicle from '../model/Vehicle.js';
-import Price from '../validators/Price.js';
-
 import { fetchDrivers, fetchDriverById } from "../services/DriverServices"
 import { fetchVehicles, fetchVehicleById } from "../services/VehicleServices"
 import { toast } from "react-toastify";
-  
-  // Valida os dados de abastecimento antes do registro ou atualização
-  const validateFuelingData = (data) => {
-    const errors = [];
-  
-    if (!data.driverId) errors.push("Motorista é obrigatório.");
-    if (!data.vehicleId) errors.push("Veículo é obrigatório.");
-    if (!data.liters || data.liters <= 0) errors.push("Quantidade de litros deve ser positiva.");
-    if (!data.price || data.price <= 0) errors.push("Preço deve ser positivo.");
-    if (!data.mileage || data.mileage <= 0) errors.push("Quilometragem deve ser positiva.");
-    if (!data.dateFueling) errors.push("Data do abastecimento é obrigatória.");
-  
-    if (errors.length > 0) {
-      throw new Error(errors.join(" "));
-    }
-  };
-  
-  // Buscar todos os abastecimentos
-  export const handleFetchAllFuelings = async () => {
-    try {
-      const fuelings = await fetchFuelings();
 
-      if (!Array.isArray(fuelings)) {
-        throw new Error('Formato inesperado na resposta.');
-      }
-      console.log(fuelings);
+// Valida os dados de abastecimento antes do registro ou atualização
+const validateFuelingData = (data) => {
+  const errors = [];
 
-      return fuelings.map((fueling) => ({
-        id: fueling.id,
-        driver: fueling.Driver?.name || 'Motorista não informado',
-        vehicle:
-          fueling.Vehicle?.licensePlate && fueling.Vehicle?.model
-            ? `${fueling.Vehicle.model} (${fueling.Vehicle.licensePlate})`
-            : "Desconhecido",
-        liters: fueling.liters,
-        price: fueling.price,
-        mileage: fueling.mileage,
-        dateFueling: fueling.dateFueling,
-      }));
-    } catch (error) {
-      console.error("Erro ao buscar abastecimentos:", error.message);
-      throw error;
-    }
-  };
-  
-  // Buscar um abastecimento por ID
-  export const handleFetchFuelingById = async (id) => {
-    try {
-      if (!id) throw new Error("ID do abastecimento não fornecido.");
-      return await fetchFuelingById(id);
-    } catch (error) {
-      console.error("Erro ao buscar abastecimento:", error.message);
-      throw error;
-    }
-  };
-  
-export const handleRegisterFueling = async (formData) => {
+  if (!data.driverId) errors.push("Motorista é obrigatório.");
+  if (!data.vehicleId) errors.push("Veículo é obrigatório.");
+  if (!data.liters || data.liters <= 0) errors.push("Quantidade de litros deve ser positiva.");
+  if (!data.price || data.price <= 0) errors.push("Preço deve ser positivo.");
+  if (!data.mileage || data.mileage <= 0) errors.push("Quilometragem deve ser positiva.");
+  if (!data.dateFueling) errors.push("Data do abastecimento é obrigatória.");
+
+  if (errors.length > 0) {
+    throw new Error(errors.join(" "));
+  }
+};
+
+// Buscar todos os abastecimentos
+export const handleFetchAllFuelings = async () => {
   try {
-    const driver = await fetchDriverById(formData.driverId);
-    const vehicle = await fetchVehicleById(formData.vehicleId);
+    const fuelings = await fetchFuelings();
 
-    if (!driver || !vehicle) {
-      throw new Error('Motorista ou veículo não encontrados.');
+    if (!Array.isArray(fuelings)) {
+      throw new Error('Formato inesperado na resposta.');
     }
+    console.log(fuelings);
 
-    const fueling = new Fueling(
-      Number(formData.liters),
-      new Price(formData.price),
-      Number(formData.mileage),
-      new Date(formData.dateFueling),
-      new Vehicle(vehicle.licensePlate, vehicle.model), 
-      new Driver(driver.name, driver.cnh, driver.phone)
-    );
-
-    const response = await registerFueling({
+    return fuelings.map((fueling) => ({
+      id: fueling.id,
+      driver: fueling.Driver?.name || 'Motorista não informado',
+      vehicle:
+        fueling.Vehicle?.licensePlate && fueling.Vehicle?.model
+          ? `${fueling.Vehicle.model} (${fueling.Vehicle.licensePlate})`
+          : "Desconhecido",
       liters: fueling.liters,
-      price: fueling.price.toNumber(),
+      price: fueling.price,
       mileage: fueling.mileage,
-      dateFueling: fueling.date,
-      vehicleId: formData.vehicleId,
-      driverId: formData.driverId,
-    });
+      dateFueling: fueling.dateFueling,
+    }));
+  } catch (error) {
+    console.error("Erro ao buscar abastecimentos:", error.message);
+    throw error;
+  }
+};
 
+// Buscar um abastecimento por ID
+export const handleFetchFuelingById = async (id) => {
+  try {
+    if (!id) throw new Error("ID do abastecimento não fornecido.");
+    return await fetchFuelingById(id);
+  } catch (error) {
+    console.error("Erro ao buscar abastecimento:", error.message);
+    throw error;
+  }
+};
+
+// Registrar novo abastecimento
+export const handleRegisterFueling = async (data) => {
+  try {
+    validateFuelingData(data);
+    const response = await registerFueling(data);
     toast.success("Abastecimento registrado com sucesso!");
     return response;
   } catch (error) {
@@ -105,105 +78,76 @@ export const handleRegisterFueling = async (formData) => {
     throw error;
   }
 };
-  // Atualizar um abastecimento existente
- export const handleUpdateFueling = async (id, data) => {
+
+// Atualizar um abastecimento existente
+export const handleUpdateFueling = async (id, data) => {
   try {
     if (!id) throw new Error("ID do abastecimento é obrigatório.");
-
-    // Busca o motorista e veículo completos
-    const driver = await fetchDriverById(data.driverId);
-    const vehicle = await fetchVehicleById(data.vehicleId);
-
-    if (!driver || !vehicle) {
-      throw new Error("Motorista ou veículo não encontrados.");
-    }
-
-    // Instancia e valida com as classes do domínio
-    const fueling = new Fueling(
-      Number(data.liters),
-      new Price(data.price),
-      Number(data.mileage),
-      new Date(data.dateFueling),
-      new Vehicle(vehicle.licensePlate, vehicle.model), // adapte ao seu construtor real
-      new Driver(driver.name, driver.cnh, driver.phone)
-    );
-
-    // Constrói o payload limpo para atualizar
-    const payload = {
-      liters: fueling.liters,
-      price: fueling.price.toNumber(), // se você implementou .toNumber() no Price.js
-      mileage: fueling.mileage,
-      dateFueling: fueling.date,
-      vehicleId: data.vehicleId,
-      driverId: data.driverId,
-    };
-
-    const response = await updateFueling(id, payload);
+    validateFuelingData(data);
+    const response = await updateFueling(id, data);
     toast.success("Abastecimento atualizado com sucesso!");
     return response;
-
   } catch (error) {
     console.error("Erro ao atualizar abastecimento:", error.message);
-    toast.error(`Erro ao atualizar abastecimento: ${error.message}`);
     throw error;
   }
 };
-  // Excluir um abastecimento
-  export const handleDeleteFueling = async (id) => {
-    try {
-      if (!id) throw new Error("ID do abastecimento é obrigatório.");
-      const confirmDelete = window.confirm(
-        "Tem certeza que deseja excluir este abastecimento?"
-      );
-      if (confirmDelete) {
-        await deleteFueling(id);
-        toast.success("Abastecimento excluído com sucesso!");
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Erro ao excluir abastecimento:", error.message);
-      toast.error("Erro ao excluir abastecimento.");
-      throw error;
+
+// Excluir um abastecimento
+export const handleDeleteFueling = async (id) => {
+  try {
+    if (!id) throw new Error("ID do abastecimento é obrigatório.");
+    const confirmDelete = window.confirm(
+      "Tem certeza que deseja excluir este abastecimento?"
+    );
+    if (confirmDelete) {
+      await deleteFueling(id);
+      toast.success("Abastecimento excluído com sucesso!");
+      return true;
     }
-  };
-  
-  // Buscar lista de motoristas
-  export const handleFetchDrivers = async () => {
-    try {
-      const drivers = await fetchDrivers();
-      if (!drivers.length) {
-        //toast.info("Nenhum motorista encontrado.");
-        return [];
-      }
-      return drivers.map((driver) => ({
-        id: driver.id,
-        name: driver.name,
-      }));
-    } catch (error) {
-      console.error("Erro ao buscar motoristas:", error.message);
-      toast.error("Erro ao carregar lista de motoristas.");
-      throw error;
+    return false;
+  } catch (error) {
+    console.error("Erro ao excluir abastecimento:", error.message);
+    toast.error("Erro ao excluir abastecimento.");
+    throw error;
+  }
+};
+
+// Buscar lista de motoristas
+export const handleFetchDrivers = async () => {
+  try {
+    const drivers = await fetchDrivers();
+    if (!drivers.length) {
+      toast.info("Nenhum motorista encontrado.");
+      return [];
     }
-  };
-  
-  // Buscar lista de veículos
-  export const handleFetchVehicles = async () => {
-    try {
-      const vehicles = await fetchVehicles();
-      if (!vehicles.length) {
-        //toast.info("Nenhum veículo encontrado.");
-        return [];
-      }
-      return vehicles.map((vehicle) => ({
-        id: vehicle.id,
-        licensePlate: vehicle.licensePlate,
-        model: vehicle.model,
-      }));
-    } catch (error) {
-      console.error("Erro ao buscar veículos:", error.message);
-      toast.error("Erro ao carregar lista de veículos.");
-      throw error;
+    return drivers.map((driver) => ({
+      id: driver.id,
+      name: driver.name,
+    }));
+  } catch (error) {
+    console.error("Erro ao buscar motoristas:", error.message);
+    toast.error("Erro ao carregar lista de motoristas.");
+    throw error;
+  }
+};
+
+// Buscar lista de veículos
+export const handleFetchVehicles = async () => {
+  try {
+    const vehicles = await fetchVehicles();
+    if (!vehicles.length) {
+      toast.info("Nenhum veículo encontrado.");
+      return [];
     }
-  };
-  
+    return vehicles.map((vehicle) => ({
+      id: vehicle.id,
+      licensePlate: vehicle.licensePlate,
+      model: vehicle.model,
+    }));
+  } catch (error) {
+    console.error("Erro ao buscar veículos:", error.message);
+    toast.error("Erro ao carregar lista de veículos.");
+    throw error;
+  }
+};
