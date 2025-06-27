@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
+  handleDeleteFueling,
   handleFetchAllFuelings,
-  handleFetchFuelingById,
 } from "../controller/FuelingController";
 import FuelingModal from "./FuelingModal";
 import "../styles/Table.css";
-import { handleExportFuelings} from "../controller/ReportController.js"
+import { handleExportFuelings } from "../controller/ReportController.js";
+import { toast } from "react-toastify";
 
 const FuelingTable = () => {
   const [fuelings, setFuelings] = useState([]);
@@ -115,6 +116,12 @@ const FuelingTable = () => {
                     >
                       Editar
                     </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDeleteFueling(fueling.id)}
+                    >
+                      Excluir
+                    </button>
                   </td>
                 </tr>
               ))
@@ -133,6 +140,8 @@ const FuelingTable = () => {
           show={isModalOpen}
           onClose={closeModal}
           fuelingData={selectedFueling}
+          isEditMode={Boolean(selectedFueling)}
+          refreshFuelings={fetchFuelings}
         />
       )}
     </div>
