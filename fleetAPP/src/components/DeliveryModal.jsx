@@ -45,7 +45,7 @@ const DeliveryModal = ({ show, onClose, deliveryData, refreshDeliveries, isEditM
         setDrivers(Array.isArray(fetchedDrivers) ? fetchedDrivers : []);
       } catch (error) {
         console.error("Erro ao carregar dados para o formulário:", error.message);
-        toast.error("Erro ao carregar dados para o formulário.");
+        //toast.error("Erro ao carregar dados para o formulário.");
       } finally {
         setLoading(false);
       }
@@ -72,7 +72,7 @@ const DeliveryModal = ({ show, onClose, deliveryData, refreshDeliveries, isEditM
           });
         } catch (error) {
           console.error("Erro ao buscar ordem de entrega:", error.message);
-          toast.error("Erro ao carregar ordem de entrega para edição.");
+          //toast.error("Erro ao carregar ordem de entrega para edição.");
         } finally {
           setLoading(false);
         }

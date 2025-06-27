@@ -136,16 +136,16 @@ const MaintenanceTable = () => {
                       className={`status-select ${
                         m.status === "pendente"
                           ? "status-pending"
-                          : m.status === "em andamento"
+                          : m.status === "aberto"
                           ? "status-progress"
                           : "status-completed"
                       }`}
                       value={m.status}
                       onChange={(e) => handleStatusUpdate(m.id, e.target.value)}
                     >
-                      <option value="pendente">Pendente</option>
-                      <option value="em andamento">Em andamento</option>
-                      <option value="finalizado">Finalizado</option>
+                      <option value="aberto">Aberto</option>
+                      <option value="parcelado">Parcelado</option>
+                      <option value="pago">Pago</option>
                     </select>
                   </td>
                   <td>

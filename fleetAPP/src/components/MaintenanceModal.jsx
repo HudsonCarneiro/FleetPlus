@@ -6,7 +6,6 @@ import {
   handleFetchMaintenanceById,
 } from "../controller/MaintenanceController";
 import { fetchVehicles, fetchServiceProviders } from "../services/MaintenanceServices";
-import { toast } from "react-toastify";
 
 const initialFormState = {
   vehicleId: "",
@@ -16,7 +15,7 @@ const initialFormState = {
   description: "",
   nfe: "",
   price: "",
-  status: "pendente",
+  status: "aberto",
 };
 
 const MaintenanceModal = ({ show, onClose, maintenanceData, refreshMaintenances, isEditMode }) => {
@@ -37,8 +36,7 @@ const MaintenanceModal = ({ show, onClose, maintenanceData, refreshMaintenances,
         setVehicles(Array.isArray(fetchedVehicles) ? fetchedVehicles : []);
         setProviders(Array.isArray(fetchedProviders) ? fetchedProviders : []);
       } catch (error) {
-        console.error("Erro ao carregar dados:", error.message);
-        //toast.error("Erro ao carregar veículos ou fornecedores.");
+        console.error("Erro ao carregar veículos ou fornecedores:", error.message);
       } finally {
         setLoading(false);
       }
@@ -52,22 +50,19 @@ const MaintenanceModal = ({ show, onClose, maintenanceData, refreshMaintenances,
       if (isEditMode && maintenanceData?.id) {
         try {
           setLoading(true);
-          const fetchedMaintenance = await handleFetchMaintenanceById(maintenanceData.id);
+          const fetched = await handleFetchMaintenanceById(maintenanceData.id);
           setFormData({
-            vehicleId: fetchedMaintenance.vehicleId || "",
-            serviceProviderId: fetchedMaintenance.serviceProviderId || "",
-            date: fetchedMaintenance.date
-              ? new Date(fetchedMaintenance.date).toISOString().split("T")[0]
-              : "",
-            type: fetchedMaintenance.type || "",
-            description: fetchedMaintenance.description || "",
-            nfe: fetchedMaintenance.nfe || "",
-            price: fetchedMaintenance.price || "",
-            status: fetchedMaintenance.status || "pendente",
+            vehicleId: fetched.vehicleId || "",
+            serviceProviderId: fetched.serviceProviderId || "",
+            date: fetched.date || "",
+            type: fetched.type || "",
+            description: fetched.description || "",
+            nfe: fetched.nfe || "",
+            price: fetched.price || "",
+            status: fetched.status || "aberto",
           });
         } catch (error) {
-          console.error("Erro ao buscar manutenção:", error.message);
-          toast.error("Erro ao carregar manutenção para edição.");
+          console.error("Erro ao carregar manutenção para edição:", error.message);
         } finally {
           setLoading(false);
         }
@@ -89,7 +84,7 @@ const MaintenanceModal = ({ show, onClose, maintenanceData, refreshMaintenances,
     const missing = requiredFields.filter((field) => !formData[field]);
 
     if (missing.length > 0) {
-      toast.error(`Preencha os campos obrigatórios: ${missing.join(", ")}`);
+      console.error(`Preencha os campos obrigatórios: ${missing.join(", ")}`);
       return false;
     }
 
@@ -103,17 +98,16 @@ const MaintenanceModal = ({ show, onClose, maintenanceData, refreshMaintenances,
       setLoading(true);
       if (isEditMode) {
         await handleMaintenanceUpdate(maintenanceData.id, formData);
-        toast.success("Manutenção atualizada com sucesso!");
+        console.log("Manutenção atualizada com sucesso!");
       } else {
         await handleMaintenanceRegistration(formData);
-        toast.success("Manutenção registrada com sucesso!");
+        console.log("Manutenção registrada com sucesso!");
       }
 
       onClose();
       refreshMaintenances?.();
     } catch (error) {
       console.error("Erro ao salvar manutenção:", error.message);
-      toast.error("Erro ao salvar manutenção. Verifique os dados.");
     } finally {
       setLoading(false);
     }
@@ -138,9 +132,7 @@ const MaintenanceModal = ({ show, onClose, maintenanceData, refreshMaintenances,
                   <select id="vehicleId" className="form-control" value={formData.vehicleId} onChange={handleInputChange}>
                     <option value="">Selecione</option>
                     {vehicles.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.model}
-                      </option>
+                      <option key={v.id} value={v.id}>{v.model}</option>
                     ))}
                   </select>
                 </div>
@@ -150,9 +142,7 @@ const MaintenanceModal = ({ show, onClose, maintenanceData, refreshMaintenances,
                   <select id="serviceProviderId" className="form-control" value={formData.serviceProviderId} onChange={handleInputChange}>
                     <option value="">Selecione</option>
                     {providers.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.businessName}
-                      </option>
+                      <option key={p.id} value={p.id}>{p.businessName}</option>
                     ))}
                   </select>
                 </div>
@@ -170,12 +160,7 @@ const MaintenanceModal = ({ show, onClose, maintenanceData, refreshMaintenances,
 
                 <div className="col-md-6 mb-3">
                   <label htmlFor="type">Tipo</label>
-                  <select
-                    id="type"
-                    className="form-control"
-                    value={formData.type}
-                    onChange={handleInputChange}
-                  >
+                  <select id="type" className="form-control" value={formData.type} onChange={handleInputChange}>
                     <option value="">Selecione</option>
                     <option value="conserto">Conserto</option>
                     <option value="lavagem">Lavagem</option>
@@ -221,9 +206,9 @@ const MaintenanceModal = ({ show, onClose, maintenanceData, refreshMaintenances,
                 <div className="col-md-3 mb-3">
                   <label htmlFor="status">Status</label>
                   <select id="status" className="form-control" value={formData.status} onChange={handleInputChange}>
-                    <option value="pendente">Pendente</option>
-                    <option value="em andamento">Em andamento</option>
-                    <option value="concluída">Concluída</option>
+                    <option value="aberto">Aberto</option>
+                    <option value="parcelado">Parcelado</option>
+                    <option value="pago">Pago</option>
                   </select>
                 </div>
               </div>

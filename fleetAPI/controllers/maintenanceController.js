@@ -56,13 +56,26 @@ exports.getMaintenanceById = async (req, res) => {
 };
 
 // Criar manutenção
+// Criar manutenção
 exports.createMaintenance = async (req, res) => {
   try {
-    const { userId, date, nfe, type, description, serviceProviderId, vehicleId, price, status } = req.body;
-    if (!userId || !vehicleId || !serviceProviderId) return res.status(400).json({ error: 'Dados obrigatórios ausentes.' });
+    const { userId } = req.query; 
+    const { date, nfe, type, description, serviceProviderId, vehicleId, price, status } = req.body;
+
+    if (!userId || !vehicleId || !serviceProviderId || !date || !type || !price) {
+      return res.status(400).json({ error: 'Dados obrigatórios ausentes.' });
+    }
 
     const maintenance = await Maintenance.create({
-      userId, date, nfe, type, description, serviceProviderId, vehicleId, price, status
+      userId,
+      date,
+      nfe,
+      type,
+      description,
+      serviceProviderId,
+      vehicleId,
+      price,
+      status
     });
 
     res.status(201).json(maintenance);
@@ -71,17 +84,44 @@ exports.createMaintenance = async (req, res) => {
   }
 };
 
-// Atualizar manutenção
+
 exports.updateMaintenance = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { userId } = req.query;       // agora pega da query
     const { id } = req.params;
-    if (!userId) return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+
+    if (!userId) {
+      return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+    }
 
     const maintenance = await Maintenance.findOne({ where: { id, userId } });
-    if (!maintenance) return res.status(404).json({ error: 'Manutenção não encontrada.' });
+    if (!maintenance) {
+      return res.status(404).json({ error: 'Manutenção não encontrada.' });
+    }
 
-    await maintenance.update(req.body);
+    // Atualiza apenas os campos permitidos
+    const {
+      date,
+      nfe,
+      type,
+      description,
+      serviceProviderId,
+      vehicleId,
+      price,
+      status
+    } = req.body;
+
+    await maintenance.update({
+      date,
+      nfe,
+      type,
+      description,
+      serviceProviderId,
+      vehicleId,
+      price,
+      status
+    });
+
     res.status(200).json(maintenance);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao atualizar manutenção.', details: error.message });

@@ -6,7 +6,6 @@ import {
   updateMaintenanceStatus,
   deleteMaintenance,
 } from "../services/MaintenanceServices";
-import { toast } from "react-toastify";
 
 // Validação para campos obrigatórios de uma manutenção
 const validateMaintenance = (data) => {
@@ -17,8 +16,8 @@ const validateMaintenance = (data) => {
     throw new Error(`Os seguintes campos são obrigatórios: ${missingFields.join(", ")}`);
   }
 
-  if (data.status && !["pendente", "em andamento", "finalizado"].includes(data.status)) {
-    throw new Error("Status inválido. Valores permitidos: pendente, em andamento, finalizado");
+  if (data.status && !["aberto", "parcelado", "pago"].includes(data.status)) {
+    throw new Error("Status inválido. Valores permitidos: aberto, parcelado, pago");
   }
 };
 
@@ -67,7 +66,6 @@ export const handleFetchMaintenanceById = async (id) => {
     };
   } catch (error) {
     console.error("Erro ao buscar manutenção:", error.message);
-    toast.error("Erro ao carregar manutenção.");
     throw error;
   }
 };
@@ -76,13 +74,9 @@ export const handleFetchMaintenanceById = async (id) => {
 export const handleMaintenanceRegistration = async (formData) => {
   try {
     validateMaintenance(formData);
-
-    const result = await registerMaintenance(formData);
-    toast.success("Manutenção registrada com sucesso!");
-    return result;
+    return await registerMaintenance(formData);
   } catch (error) {
     console.error("Erro ao registrar manutenção:", error.message);
-    toast.error(`Erro ao registrar manutenção: ${error.message}`);
     throw error;
   }
 };
@@ -92,13 +86,9 @@ export const handleMaintenanceUpdate = async (id, formData) => {
   try {
     if (!id) throw new Error("ID da manutenção não fornecido.");
     validateMaintenance(formData);
-
-    const result = await updateMaintenance(id, formData);
-    toast.success("Manutenção atualizada com sucesso!");
-    return result;
+    return await updateMaintenance(id, formData);
   } catch (error) {
     console.error("Erro ao atualizar manutenção:", error.message);
-    toast.error(`Erro ao atualizar manutenção: ${error.message}`);
     throw error;
   }
 };
@@ -107,13 +97,9 @@ export const handleMaintenanceUpdate = async (id, formData) => {
 export const handleMaintenanceStatusUpdate = async (id, status) => {
   try {
     if (!id || !status) throw new Error("ID ou status não fornecido.");
-
-    const result = await updateMaintenanceStatus(id, status);
-    toast.success("Status atualizado com sucesso!");
-    return result;
+    return await updateMaintenanceStatus(id, status);
   } catch (error) {
     console.error("Erro ao atualizar status:", error.message);
-    toast.error("Erro ao atualizar status. Tente novamente.");
     throw error;
   }
 };
@@ -122,13 +108,9 @@ export const handleMaintenanceStatusUpdate = async (id, status) => {
 export const handleMaintenanceDeletion = async (id) => {
   try {
     if (!id) throw new Error("ID da manutenção não fornecido.");
-
-    const result = await deleteMaintenance(id);
-    toast.success("Manutenção excluída com sucesso!");
-    return result;
+    return await deleteMaintenance(id);
   } catch (error) {
     console.error("Erro ao excluir manutenção:", error.message);
-    toast.error("Erro ao excluir manutenção. Tente novamente.");
     throw error;
   }
 };
