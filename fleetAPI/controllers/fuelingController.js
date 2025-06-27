@@ -79,16 +79,21 @@ exports.getFuelingAll = async (req, res) => {
   }
 };
 
-// Busca um abastecimento por ID
 exports.getFuelingById = async (req, res) => {
   try {
     const { userId } = req.query;
+    const { id } = req.params;
+
     if (!userId) {
       return res.status(400).json({ error: 'ID do usuário não fornecido.' });
     }
 
+    if (!id) {
+      return res.status(400).json({ error: 'ID do abastecimento não fornecido.' });
+    }
+
     const fueling = await Fueling.findOne({
-      where: { id: req.params.id, userId },
+      where: { id, userId },
       include: [
         { model: Driver, attributes: ['id', 'name'] },
         { model: Vehicle, attributes: ['id', 'model', 'licensePlate', 'mileage'] },
@@ -99,15 +104,16 @@ exports.getFuelingById = async (req, res) => {
       return res.status(404).json({ error: 'Abastecimento não encontrado.' });
     }
 
-    res.status(200).json(fueling);
+    return res.status(200).json(fueling);
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({
+    console.error('Erro ao buscar abastecimento por ID:', error);
+    return res.status(500).json({
       error: 'Erro ao buscar abastecimento.',
       details: error.message,
     });
   }
 };
+
 
 // Cria um novo abastecimento e atualiza a quilometragem do veículo, se necessário
 exports.createFueling = async (req, res) => {
