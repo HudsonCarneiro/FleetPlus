@@ -5,7 +5,6 @@ import {
   handleUpdateFueling,
   handleFetchDrivers,
   handleFetchVehicles,
-  handleFetchFuelingById
 } from "../controller/FuelingController";
 import { toast } from "react-toastify";
 
@@ -32,66 +31,34 @@ const FuelingModal = ({ show, onClose, fuelingData, refreshFuelings, isEditMode 
   const [drivers, setDrivers] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [loadingData, setLoadingData] = useState(false);
 
-  // Carregar motoristas e veículos ao abrir o modal
+  // Carrega motoristas e veículos ao abrir o modal
   useEffect(() => {
     const loadOptions = async () => {
       try {
-        const [fetchedDrivers, fetchedVehicles] = await Promise.all([
-          handleFetchDrivers(),
-          handleFetchVehicles(),
-        ]);
+        const fetchedDrivers = await handleFetchDrivers();
+        const fetchedVehicles = await handleFetchVehicles();
         setDrivers(fetchedDrivers);
         setVehicles(fetchedVehicles);
       } catch (error) {
-        console.error("Erro ao carregar motoristas ou veículos:", error.message);
-        toast.error("Erro ao carregar opções de motoristas e veículos.");
-      }
-    };
-
-    const loadFuelingData = async () => {
-      if (isEditMode && fuelingData?.id) {
-        setLoadingData(true);
-        try {
-          const fetchedFueling = await handleFetchFuelingById(fuelingData.id);
-          if (fetchedFueling) {
-            // Ajusta datas para input type="date"
-            setFormData({
-              ...fetchedFueling,
-              dateFueling: fetchedFueling.dateFueling
-                ? new Date(fetchedFueling.dateFueling).toISOString().split("T")[0]
-                : "",
-            });
-          } else {
-            toast.error("Não foi possível carregar os dados do abastecimento.");
-          }
-        } catch (error) {
-          console.error("Erro ao buscar abastecimento:", error.message);
-          toast.error("Erro ao carregar dados do abastecimento.");
-        } finally {
-          setLoadingData(false);
-        }
-      } else {
-        setFormData(initialFormState);
+        console.log("Erro ao carregar motoristas e veículos.");
       }
     };
 
     if (show) {
+      setFormData(isEditMode ? fuelingData : initialFormState);
       loadOptions();
-      loadFuelingData();
     }
   }, [show, isEditMode, fuelingData]);
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
+    setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
   const validateFields = () => {
-    const missing = requiredFields.filter((field) => !formData[field]);
-    if (missing.length) {
-      toast.warn("Preencha todos os campos obrigatórios.");
+    const invalidFields = requiredFields.filter((field) => !formData[field]);
+    if (invalidFields.length > 0) {
       return false;
     }
     return true;
@@ -99,20 +66,19 @@ const FuelingModal = ({ show, onClose, fuelingData, refreshFuelings, isEditMode 
 
   const handleSave = async () => {
     if (!validateFields()) return;
-    setLoading(true);
+
     try {
+      setLoading(true);
       if (isEditMode) {
         await handleUpdateFueling(fuelingData.id, formData);
-        toast.success("Abastecimento atualizado com sucesso!");
       } else {
         await handleRegisterFueling(formData);
-        toast.success("Abastecimento cadastrado com sucesso!");
       }
       onClose();
       refreshFuelings?.();
     } catch (error) {
       console.error("Erro ao salvar abastecimento:", error.message);
-      toast.error("Erro ao salvar abastecimento. Verifique os dados.");
+      toast.error("Erro ao salvar abastecimento. Verifique os dados informados.");
     } finally {
       setLoading(false);
     }
@@ -122,18 +88,20 @@ const FuelingModal = ({ show, onClose, fuelingData, refreshFuelings, isEditMode 
     show && (
       <div className="modal-overlay">
         <div className="modal-content">
-          <button className="btn-close" onClick={onClose} aria-label="Fechar"></button>
+          <button className="btn-close" onClick={onClose}>
+          </button>
           <h3 className="text-center">
             {isEditMode ? "Editar Abastecimento" : "Cadastrar Abastecimento"}
           </h3>
-
-          {(loadingData || loading) ? (
-            <p className="text-center my-3">Carregando dados...</p>
+          {loading ? (
+            <p className="text-center">Carregando...</p>
           ) : (
             <form className="mt-4">
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <label htmlFor="driverId" className="form-label">Motorista</label>
+                  <label className="form-label" htmlFor="driverId">
+                    Motorista
+                  </label>
                   <select
                     className="form-control"
                     id="driverId"
@@ -142,13 +110,17 @@ const FuelingModal = ({ show, onClose, fuelingData, refreshFuelings, isEditMode 
                   >
                     <option value="">Selecione um motorista</option>
                     {drivers.map((driver) => (
-                      <option key={driver.id} value={driver.id}>{driver.name}</option>
+                      <option key={driver.id} value={driver.id}>
+                        {driver.name}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div className="col-md-6 mb-3">
-                  <label htmlFor="vehicleId" className="form-label">Veículo</label>
+                  <label className="form-label" htmlFor="vehicleId">
+                    Veículo
+                  </label>
                   <select
                     className="form-control"
                     id="vehicleId"
@@ -165,10 +137,12 @@ const FuelingModal = ({ show, onClose, fuelingData, refreshFuelings, isEditMode 
                 </div>
 
                 <div className="col-md-6 mb-3">
-                  <label htmlFor="liters" className="form-label">Litros</label>
+                  <label className="form-label" htmlFor="liters">
+                    Litros
+                  </label>
                   <input
-                    type="number"
                     className="form-control"
+                    type="number"
                     id="liters"
                     value={formData.liters}
                     onChange={handleInputChange}
@@ -176,10 +150,12 @@ const FuelingModal = ({ show, onClose, fuelingData, refreshFuelings, isEditMode 
                 </div>
 
                 <div className="col-md-6 mb-3">
-                  <label htmlFor="price" className="form-label">Preço</label>
+                  <label className="form-label" htmlFor="price">
+                    Preço
+                  </label>
                   <input
-                    type="number"
                     className="form-control"
+                    type="number"
                     id="price"
                     value={formData.price}
                     onChange={handleInputChange}
@@ -187,10 +163,12 @@ const FuelingModal = ({ show, onClose, fuelingData, refreshFuelings, isEditMode 
                 </div>
 
                 <div className="col-md-6 mb-3">
-                  <label htmlFor="mileage" className="form-label">Quilometragem</label>
+                  <label className="form-label" htmlFor="mileage">
+                    Quilometragem
+                  </label>
                   <input
-                    type="number"
                     className="form-control"
+                    type="number"
                     id="mileage"
                     value={formData.mileage}
                     onChange={handleInputChange}
@@ -198,10 +176,12 @@ const FuelingModal = ({ show, onClose, fuelingData, refreshFuelings, isEditMode 
                 </div>
 
                 <div className="col-md-6 mb-3">
-                  <label htmlFor="dateFueling" className="form-label">Data do Abastecimento</label>
+                  <label className="form-label" htmlFor="dateFueling">
+                    Data do Abastecimento
+                  </label>
                   <input
-                    type="date"
                     className="form-control"
+                    type="date"
                     id="dateFueling"
                     value={formData.dateFueling}
                     onChange={handleInputChange}
@@ -210,12 +190,11 @@ const FuelingModal = ({ show, onClose, fuelingData, refreshFuelings, isEditMode 
               </div>
             </form>
           )}
-
           <div className="d-flex justify-content-between mt-3">
             <button
               className="btn btn-primary w-100"
               onClick={handleSave}
-              disabled={loading || loadingData}
+              disabled={loading}
             >
               {loading ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Cadastrar"}
             </button>
