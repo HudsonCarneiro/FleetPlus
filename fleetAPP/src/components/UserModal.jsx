@@ -5,6 +5,7 @@ import {
   handleUserDeletion,
   handleFetchUserById,
 } from '../controller/UserController';
+import { toast } from "react-toastify";
 
 const UserModal = ({ onClose, onUpdate }) => {
   const navigate = useNavigate();
@@ -39,11 +40,14 @@ const UserModal = ({ onClose, onUpdate }) => {
     setErrors((prev) => ({ ...prev, [id]: '' })); // limpa erro ao digitar
   };
 
+  // Melhorado para detectar "nome"
   const detectFieldFromError = (message) => {
-    if (message.toLowerCase().includes("cpf")) return "cpf";
-    if (message.toLowerCase().includes("telefone")) return "phone";
-    if (message.toLowerCase().includes("email")) return "email";
-    if (message.toLowerCase().includes("senha")) return "password";
+    const msg = message.toLowerCase();
+    if (msg.includes("nome")) return "name";
+    if (msg.includes("cpf")) return "cpf";
+    if (msg.includes("telefone") || msg.includes("phone")) return "phone";
+    if (msg.includes("email")) return "email";
+    if (msg.includes("senha") || msg.includes("password")) return "password";
     return null;
   };
 
@@ -52,15 +56,21 @@ const UserModal = ({ onClose, onUpdate }) => {
       setErrors({});
       const success = await handleUserUpdate(formData);
       if (success) {
+        toast.success("Usuário atualizado com sucesso!");
         onClose();
         onUpdate?.(formData);
+      } else {
+        toast.error("Erro ao atualizar usuário. Verifique os dados.");
       }
     } catch (error) {
+      console.error("Erro no modal:", error);
       const field = detectFieldFromError(error.message);
       if (field) {
         setErrors((prev) => ({ ...prev, [field]: error.message }));
+      } else if (error.message) {
+        toast.error(error.message);
       } else {
-        alert("Erro ao atualizar usuário.");
+        toast.error("Erro desconhecido ao atualizar usuário.");
       }
     }
   };
@@ -69,9 +79,12 @@ const UserModal = ({ onClose, onUpdate }) => {
     const confirm = window.confirm("Deseja excluir este usuário?");
     if (confirm) {
       const deleted = await handleUserDeletion(formData.id, formData.addressId, navigate);
+      toast.info("Usuário exluido com sucesso!")
       if (deleted) onClose();
     }
   };
+
+  if (!formData.id) return null;
 
   return (
     <div className="modal-overlay">
@@ -103,7 +116,7 @@ const UserModal = ({ onClose, onUpdate }) => {
                     value={value}
                     onChange={handleInputChange}
                     className={`form-control ${errors[key] ? 'is-invalid' : ''}`}
-                    readOnly={["cpf", "email"].includes(key)}
+                   // readOnly={["cpf", "email"].includes(key)}
                   />
                   {errors[key] && (
                     <div className="invalid-feedback">{errors[key]}</div>

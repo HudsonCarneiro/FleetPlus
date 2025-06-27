@@ -5,7 +5,8 @@ import {
   handleDriverDeletion,
 } from "../controller/DriverController.js"; 
 import DriverModal from "./DriverModal"; 
-import { handleExportDrivers } from "../controller/ReportController.js"
+import { handleExportDrivers } from "../controller/ReportController.js";
+import { toast } from "react-toastify";
 
 const DriverTable = () => {
   const [drivers, setDrivers] = useState([]); // Inicialize o estado como um array vazio
@@ -40,6 +41,7 @@ const DriverTable = () => {
       const success = handleDriverDeletion(id);
       if (success) {
         setDrivers((prevDrivers) => prevDrivers.filter((driver) => driver.id !== id)); // Atualiza o estado após a exclusão
+        toast.info("Motorista excluido com sucesso!");
       }
     }
   };

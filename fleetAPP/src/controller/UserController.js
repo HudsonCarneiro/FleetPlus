@@ -3,6 +3,7 @@ import User from '../model/User';
 import userServices from '../services/userServices';
 import AddressServices from '../services/AddressServices';
 import { handleLogout } from './AuthController';
+import Name from '../validators/name.js';
 import Email from '../validators/email';
 import Cpf from '../validators/cpf';
 import Phone from '../validators/phone';
@@ -36,14 +37,14 @@ export const handleFetchUserById = async (id) => {
     return null;
   }
 };
-
 export const handleUserRegistration = async (formData, navigate) => {
   try {
     // Validação dos dados
+    const name = new Name(formData.name);
     const email = new Email(formData.email);
     const cpf = new Cpf(formData.cpf);
     const phone = new Phone(formData.phone);
-    const password = new Password(formData.password); // validação de senha
+    const password = new Password(formData.password);
 
     const address = new Address(
       formData.cep,
@@ -58,7 +59,7 @@ export const handleUserRegistration = async (formData, navigate) => {
     if (!addressResponse) throw new Error('Erro ao registrar endereço.');
 
     const user = new User(
-      formData.name,
+      name.toString(),
       cpf.toString(),
       phone.toString(),
       email.toString(),
@@ -69,17 +70,15 @@ export const handleUserRegistration = async (formData, navigate) => {
     if (userResponse) {
       console.log('Usuário cadastrado com sucesso');
       navigate('/login');
+      return true;
     } else {
-      toast.info("Preencha corretamente os dados ");
       throw new Error('Erro ao registrar usuário.');
-      
     }
   } catch (error) {
     console.error('Erro no registro do usuário:', error.message);
-    return false;
+    throw new Error(error.message || 'Erro desconhecido no registro do usuário.');
   }
 };
-
 
 export const handleUserUpdate = async (formData) => {
   try {
@@ -87,10 +86,11 @@ export const handleUserUpdate = async (formData) => {
       throw new Error("ID do usuário ou do endereço não fornecido.");
 
     // Validação dos dados
+    const name = new Name(formData.name);
     const email = new Email(formData.email);
     const cpf = new Cpf(formData.cpf);
     const phone = new Phone(formData.phone);
-    const password = new Password(formData.password); // validação de senha
+    const password = new Password(formData.password);
 
     const address = new Address(
       formData.cep,
@@ -105,7 +105,7 @@ export const handleUserUpdate = async (formData) => {
     if (!addressResponse) throw new Error("Erro ao atualizar endereço.");
 
     const user = new User(
-      formData.name,
+      name.toString(),
       cpf.toString(),
       phone.toString(),
       email.toString(),
@@ -117,12 +117,11 @@ export const handleUserUpdate = async (formData) => {
       console.log("Usuário atualizado com sucesso:", userResponse);
       return true;
     } else {
-      toast.info("Preencha corretamente os dados ");
       throw new Error("Erro ao atualizar usuário.");
     }
   } catch (error) {
     console.error("Erro ao atualizar usuário:", error.message);
-    return false;
+    throw new Error(error.message || "Erro desconhecido ao atualizar usuário.");
   }
 };
 

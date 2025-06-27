@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { handleUserRegistration } from '../controller/UserController';
 import { fetchAddressByCep } from '../utils/CepUtils';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const UserForm = () => {
   const navigate = useNavigate();
@@ -22,25 +23,36 @@ const UserForm = () => {
   const handleCepBlur = async () => {
     const cep = formData.cep;
     if (cep.length === 8) {
-      const address = await fetchAddressByCep(cep);
-      if (address) {
-        setFormData((prev) => ({
-          ...prev,
-          road: address.logradouro || '',
-          city: address.localidade || '',
-          state: address.uf || '',
-        }));
+      try {
+        const address = await fetchAddressByCep(cep);
+        if (address) {
+          setFormData((prev) => ({
+            ...prev,
+            road: address.logradouro || '',
+            city: address.localidade || '',
+            state: address.uf || '',
+          }));
+        }
+      } catch {
+        toast.error('Erro ao buscar endereço para o CEP.');
       }
     } else {
       setErrors((prev) => ({ ...prev, cep: 'Digite um CEP válido com 8 números.' }));
     }
   };
 
+  // Melhor detecção de campo para erros de validação
   const detectFieldFromError = (message) => {
-    if (message.includes("CPF")) return "cpf";
-    if (message.includes("telefone")) return "phone";
-    if (message.includes("email")) return "email";
-    if (message.includes("senha")) return "password";
+    const msg = message.toLowerCase();
+    if (msg.includes("nome")) return "name";
+    if (msg.includes("cpf")) return "cpf";
+    if (msg.includes("telefone")) return "phone";
+    if (msg.includes("email")) return "email";
+    if (msg.includes("senha")) return "password";
+    if (msg.includes("cep")) return "cep";
+    if (msg.includes("rua")) return "road";
+    if (msg.includes("cidade")) return "city";
+    if (msg.includes("estado")) return "state";
     return null;
   };
 
@@ -50,11 +62,16 @@ const UserForm = () => {
       setErrors({});
       await handleUserRegistration(formData, navigate);
     } catch (error) {
-      const field = detectFieldFromError(error.message);
-      if (field) {
-        setErrors((prev) => ({ ...prev, [field]: error.message }));
+      console.error('Erro ao registrar usuário:', error);
+      if (error && error.message) {
+        const field = detectFieldFromError(error.message);
+        if (field) {
+          setErrors((prev) => ({ ...prev, [field]: error.message }));
+        } else {
+          toast.error(error.message || "Erro ao registrar usuário. Verifique os dados.");
+        }
       } else {
-        alert("Erro ao registrar usuário.");
+        toast.error("Erro inesperado ao registrar usuário.");
       }
     }
   };

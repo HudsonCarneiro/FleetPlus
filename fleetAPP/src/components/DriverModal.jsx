@@ -4,6 +4,7 @@ import {
   handleDriverRegistration,
   handleDriverUpdate,
 } from "../controller/DriverController";
+import { toast } from "react-toastify";
 
 const DriverModal = ({ show, onClose, driverData, refreshDrivers }) => {
   const [formData, setFormData] = useState({
@@ -13,11 +14,13 @@ const DriverModal = ({ show, onClose, driverData, refreshDrivers }) => {
     phone: "",
   });
 
+  const [errors, setErrors] = useState({});
+
   // Resetar ou carregar dados quando o modal é aberto
   useEffect(() => {
     if (show) {
+      setErrors({});
       if (driverData) {
-        // Carregar os dados do motorista para edição
         setFormData({
           id: driverData.id || null,
           name: driverData.name || "",
@@ -25,7 +28,6 @@ const DriverModal = ({ show, onClose, driverData, refreshDrivers }) => {
           phone: driverData.phone || "",
         });
       } else {
-        // Resetar o formulário para cadastro de novo motorista
         setFormData({
           id: null,
           name: "",
@@ -39,30 +41,46 @@ const DriverModal = ({ show, onClose, driverData, refreshDrivers }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    setErrors((prev) => ({ ...prev, [name]: "" })); // limpa erro ao digitar
+  };
+
+  const detectFieldFromError = (message) => {
+    if (message.toLowerCase().includes("nome")) return "name";
+    if (message.toLowerCase().includes("cnh")) return "cnh";
+    if (message.toLowerCase().includes("telefone")) return "phone";
+    return null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({});
 
-    if (formData.id) {
-      // Atualizar motorista
-      const updated = await handleDriverUpdate(formData);
-      if (updated) {
-        alert("Motorista atualizado com sucesso!");
-        refreshDrivers();
-        onClose();
+    try {
+      if (formData.id) {
+        // Atualizar motorista
+        const updated = await handleDriverUpdate(formData);
+        if (updated) {
+          toast.success("Motorista atualizado com sucesso!");
+          refreshDrivers();
+          onClose();
+        }
       } else {
-        alert("Erro ao atualizar motorista.");
+        // Criar novo motorista
+        const created = await handleDriverRegistration(formData);
+        if (created) {
+          toast.success("Motorista cadastrado com sucesso!");
+          refreshDrivers();
+          onClose();
+        }
       }
-    } else {
-      // Criar novo motorista
-      const created = await handleDriverRegistration(formData);
-      if (created) {
-        alert("Motorista cadastrado com sucesso!");
-        refreshDrivers();
-        onClose();
+    } catch (error) {
+      console.error("Erro no envio:", error.message);
+      const field = detectFieldFromError(error.message);
+      if (field) {
+        setErrors((prev) => ({ ...prev, [field]: error.message }));
+        toast.error(error.message);
       } else {
-        alert("Erro ao cadastrar motorista.");
+        toast.error("Erro ao salvar motorista. Verifique os dados.");
       }
     }
   };
@@ -85,9 +103,10 @@ const DriverModal = ({ show, onClose, driverData, refreshDrivers }) => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="form-control"
+              className={`form-control ${errors.name ? 'is-invalid' : ''}`}
               required
             />
+            {errors.name && <div className="invalid-feedback">{errors.name}</div>}
           </div>
           <div className="mb-3">
             <label htmlFor="cnh" className="form-label">
@@ -99,10 +118,11 @@ const DriverModal = ({ show, onClose, driverData, refreshDrivers }) => {
               name="cnh"
               value={formData.cnh}
               onChange={handleChange}
-              className="form-control"
+              className={`form-control ${errors.cnh ? 'is-invalid' : ''}`}
               required
               maxLength="11"
             />
+            {errors.cnh && <div className="invalid-feedback">{errors.cnh}</div>}
           </div>
           <div className="mb-3">
             <label htmlFor="phone" className="form-label">
@@ -114,9 +134,10 @@ const DriverModal = ({ show, onClose, driverData, refreshDrivers }) => {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="form-control"
+              className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
               required
             />
+            {errors.phone && <div className="invalid-feedback">{errors.phone}</div>}
           </div>
           <button type="submit" className="btn btn-primary w-100">
             {formData.id ? "Salvar Alterações" : "Cadastrar"}

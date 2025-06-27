@@ -1,4 +1,6 @@
 import Driver from '../model/Driver.js';
+import Name from '../validators/name';
+import Phone from '../validators/phone';
 import {
   fetchDrivers,
   fetchDriverById,
@@ -40,10 +42,13 @@ export const handleFetchDriverById = async (id) => {
   }
 };
 
-// Registrar um novo motorista
 export const handleDriverRegistration = async (formData) => {
   try {
-    const driver = new Driver(formData.name, formData.cnh, formData.phone);
+    // Validações
+    const name = new Name(formData.name);
+    const phone = new Phone(formData.phone);
+
+    const driver = new Driver(name.toString(), formData.cnh, phone.toString());
 
     const driverResponse = await registerDriver({
       name: driver.name,
@@ -59,7 +64,7 @@ export const handleDriverRegistration = async (formData) => {
     }
   } catch (error) {
     console.error('Erro no registro do motorista:', error.message);
-    return null;
+    throw new Error(error.message || 'Falha ao registrar motorista.');
   }
 };
 
@@ -70,7 +75,11 @@ export const handleDriverUpdate = async (formData) => {
       throw new Error("ID do motorista ausente.");
     }
 
-    const driver = new Driver(formData.name, formData.cnh, formData.phone);
+    // Validações
+    const name = new Name(formData.name);
+    const phone = new Phone(formData.phone);
+
+    const driver = new Driver(name.toString(), formData.cnh, phone.toString());
 
     const driverResponse = await updateDriver(formData.id, {
       name: driver.name,
@@ -86,7 +95,7 @@ export const handleDriverUpdate = async (formData) => {
     }
   } catch (error) {
     console.error("Erro ao atualizar motorista:", error.message);
-    return null;
+    throw new Error(error.message || 'Falha ao atualizar motorista.');
   }
 };
 
