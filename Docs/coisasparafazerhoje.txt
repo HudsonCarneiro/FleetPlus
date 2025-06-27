@@ -1,0 +1,10 @@
+atualizar aba sobre
+arrumar mensagem sucesso cadastro cliente frontend 
+arrumar cadastro motorista fechar modal automaticamente apos cadastro 
+arrumar cadastro abastecimento -> motorista
+remover o toast de ordem de entrega 
+clarear as cores do status ordem de entrega 
+corrigir a exibição dos dados na hora de atualizar entregas
+arrumar posição botao adicionar veiculo 
+incluir alertas de validação user
+middleware em todas rotas
