@@ -85,6 +85,7 @@ export const handleUpdateFueling = async (id, data) => {
     if (!id) throw new Error("ID do abastecimento é obrigatório.");
     validateFuelingData(data);
     const response = await updateFueling(id, data);
+    console.log(data);
     toast.success("Abastecimento atualizado com sucesso!");
     return response;
   } catch (error) {

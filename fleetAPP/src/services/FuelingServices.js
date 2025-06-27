@@ -40,6 +40,7 @@ export const registerFueling = async (fuelingData) => {
 export const updateFueling = async (id, updatedFueling) => {
   try {
     if (!id) throw new Error('ID do abastecimento não fornecido.');
+    console.log(updatedFueling);
     return await apiRequest(`/fueling/${id}`, 'PUT', updatedFueling);
   } catch (error) {
     console.error('Erro ao atualizar abastecimento:', error.message);

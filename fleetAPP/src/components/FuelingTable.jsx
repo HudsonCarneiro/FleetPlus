@@ -6,7 +6,7 @@ import {
 } from "../controller/FuelingController";
 import FuelingModal from "./FuelingModal";
 import "../styles/Table.css";
-import { handleExportFuelings} from "../controller/ReportController.js"
+import { handleExportFuelings } from "../controller/ReportController.js";
 
 const FuelingTable = () => {
   const [fuelings, setFuelings] = useState([]);
@@ -15,6 +15,7 @@ const FuelingTable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hasNoFuelingsToastShown, setHasNoFuelingsToastShown] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false); // Estado para controlar modo edição
 
   const fetchFuelings = async () => {
     try {
@@ -38,11 +39,13 @@ const FuelingTable = () => {
 
   const handleAddFueling = () => {
     setSelectedFueling(null);
+    setIsEditMode(false);  // Modo cadastro
     setIsModalOpen(true);
   };
 
   const handleEditFueling = (fueling) => {
     setSelectedFueling(fueling);
+    setIsEditMode(true); // Modo edição
     setIsModalOpen(true);
   };
 
@@ -57,9 +60,21 @@ const FuelingTable = () => {
     }
   };
 
+  const handleDeleteFuelingLocal = async (id) => {
+  try {
+    await handleDeleteFueling(id);
+    // Remove do state sem precisar recarregar tudo do back-end
+    setFuelings((prevFuelings) => prevFuelings.filter((f) => f.id !== id));
+  } catch (error) {
+    console.error("Erro ao excluir abastecimento:", error.message);
+  }
+};
+
+
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedFueling(null);
+    setIsEditMode(false);
     fetchFuelings();
   };
 
@@ -104,11 +119,13 @@ const FuelingTable = () => {
                   <td>{Number(fueling.liters || 0).toFixed(2)} L</td>
                   <td>R$ {Number(fueling.price || 0).toFixed(2)}</td>
                   <td>{Number(fueling.mileage || 0).toFixed(2)} km</td>
+                 
                   <td>
                     {fueling.dateFueling
-                      ? new Date(fueling.dateFueling).toLocaleDateString()
+                      ? fueling.dateFueling.substring(0, 10).split('-').reverse().join('/')
                       : "Não definida"}
                   </td>
+
                   <td>
                     <button
                       className="btn-edit"
@@ -118,9 +135,9 @@ const FuelingTable = () => {
                     </button>
                     <button
                       className="btn-delete"
-                      onClick={() => handleDeleteFueling(fueling.id)}
-                      >
-                        Excluir
+                      onClick={() => handleDeleteFuelingLocal(fueling.id)}
+                    >
+                      Excluir
                     </button>
                   </td>
                 </tr>
@@ -140,6 +157,7 @@ const FuelingTable = () => {
           show={isModalOpen}
           onClose={closeModal}
           fuelingData={selectedFueling}
+          isEditMode={isEditMode}
         />
       )}
     </div>
