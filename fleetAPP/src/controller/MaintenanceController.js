@@ -7,17 +7,26 @@ import {
   deleteMaintenance,
 } from "../services/MaintenanceServices";
 
+// Status válidos para manutenção
+const VALID_STATUS = ["aberto", "parcelado", "pago"];
+
 // Validação para campos obrigatórios de uma manutenção
 const validateMaintenance = (data) => {
   const requiredFields = ["vehicleId", "serviceProviderId", "type", "date", "price"];
-  const missingFields = requiredFields.filter((field) => !data[field]);
+  const missingFields = requiredFields.filter(
+  (field) =>
+    data[field] === undefined ||
+    data[field] === null ||
+    data[field] === ""
+);
+
 
   if (missingFields.length > 0) {
     throw new Error(`Os seguintes campos são obrigatórios: ${missingFields.join(", ")}`);
   }
 
-  if (data.status && !["aberto", "parcelado", "pago"].includes(data.status)) {
-    throw new Error("Status inválido. Valores permitidos: aberto, parcelado, pago");
+  if (data.status && !VALID_STATUS.includes(data.status)) {
+    throw new Error(`Status inválido. Valores permitidos: ${VALID_STATUS.join(", ")}`);
   }
 };
 
@@ -30,22 +39,28 @@ export const handleFetchAllMaintenances = async () => {
       throw new Error("Resposta inválida do servidor.");
     }
 
+    // Aqui sim formata tudo bonitinho
     return maintenances.map((m) => ({
       id: m.id,
       type: m.type || "Tipo não informado",
       description: m.description || "-",
       nfe: m.nfe || "-",
-      date: m.date ? new Date(m.date).toLocaleDateString("pt-BR") : "Data não definida",
-      price: `R$ ${Number(m.price || 0).toFixed(2)}`,
+      date: m.date
+  ? m.date.substring(0, 10).split("-").reverse().join("/")
+  : "Data não definida",
+
+      price: Number(m.price || 0), // Preço como número puro
       status: m.status || "Status não definido",
       vehicle: m.vehicle?.model || "Veículo não informado",
-      provider: m.provider?.businessName || "Fornecedor não informado",
+      provider: m.serviceProvider?.businessName || "Provedor",
     }));
   } catch (error) {
     console.error("Erro ao buscar manutenções:", error.message);
     throw error;
   }
 };
+
+
 
 // Buscar uma manutenção por ID
 export const handleFetchMaintenanceById = async (id) => {
@@ -60,7 +75,7 @@ export const handleFetchMaintenanceById = async (id) => {
       nfe: maintenance.nfe || "",
       date: maintenance.date ? new Date(maintenance.date).toISOString().substr(0, 10) : "",
       price: maintenance.price,
-      status: maintenance.status || "pendente",
+      status: maintenance.status || "aberto",
       vehicleId: maintenance.vehicleId,
       serviceProviderId: maintenance.serviceProviderId,
     };
@@ -93,10 +108,16 @@ export const handleMaintenanceUpdate = async (id, formData) => {
   }
 };
 
-// Atualizar status da manutenção
+// Atualizar status da manutenção com validação
 export const handleMaintenanceStatusUpdate = async (id, status) => {
   try {
-    if (!id || !status) throw new Error("ID ou status não fornecido.");
+    if (!id) throw new Error("ID da manutenção não fornecido.");
+    if (!status) throw new Error("Status não fornecido.");
+
+    if (!VALID_STATUS.includes(status)) {
+      throw new Error(`Status inválido. Valores permitidos: ${VALID_STATUS.join(", ")}`);
+    }
+
     return await updateMaintenanceStatus(id, status);
   } catch (error) {
     console.error("Erro ao atualizar status:", error.message);

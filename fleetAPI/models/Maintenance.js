@@ -63,6 +63,8 @@ const Maintenance = sequelize.define('Maintenance', {
   },
 });
 
+
+
 Maintenance.associate = (models) => {
   Maintenance.belongsTo(models.User, { foreignKey: 'userId' });
   Maintenance.belongsTo(models.ServiceProvider, { foreignKey: 'serviceProviderId' });

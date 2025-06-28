@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/Table.css";
 import {
   handleFetchAllMaintenances,
   handleMaintenanceDeletion,
   handleMaintenanceStatusUpdate,
 } from "../controller/MaintenanceController";
+import { handleExportMaintenances } from "../controller/ReportController";
 import MaintenanceModal from "./MaintenanceModal";
 import { toast } from "react-toastify";
-import { handleExportMaintenances } from "../controller/ReportController.js";
+
+const VALID_STATUS_OPTIONS = ["aberto", "parcelado", "pago"];
 
 const MaintenanceTable = () => {
   const [maintenances, setMaintenances] = useState([]);
@@ -16,13 +18,18 @@ const MaintenanceTable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [hasNoMaintenancesToastShown, setHasNoMaintenancesToastShown] = useState(false);
 
-  const fetchMaintenances = async () => {
+  const fetchMaintenancesAll = async () => {
     try {
       setLoading(true);
-      const data = await handleFetchAllMaintenances();
-      setMaintenances(data);
-      if (data.length === 0) toast.info("Nenhuma manutenção encontrada.");
+      const fetched = await handleFetchAllMaintenances();
+      setMaintenances(fetched);
+
+      if (fetched.length === 0 && !hasNoMaintenancesToastShown) {
+        setHasNoMaintenancesToastShown(true);
+        toast.info("Nenhuma manutenção encontrada.");
+      }
     } catch (error) {
       console.error("Erro ao buscar manutenções:", error.message);
     } finally {
@@ -31,7 +38,7 @@ const MaintenanceTable = () => {
   };
 
   useEffect(() => {
-    fetchMaintenances();
+    fetchMaintenancesAll();
   }, []);
 
   const handleAddMaintenance = () => {
@@ -46,27 +53,32 @@ const MaintenanceTable = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteMaintenance = async (id) => {
-    const confirm = window.confirm("Deseja realmente excluir esta manutenção?");
-    if (confirm) {
-      try {
-        await handleMaintenanceDeletion(id);
-        setMaintenances((prev) =>
-          prev.filter((maintenance) => maintenance.id !== id)
-        );
-        toast.success("Manutenção excluída com sucesso!");
-      } catch (error) {
-        console.error("Erro ao excluir manutenção:", error.message);
-        toast.error("Erro ao excluir manutenção.");
-      }
+  const handleDeleteMaintenanceLocal = async (id) => {
+    const confirmDelete = window.confirm("Deseja realmente excluir esta manutenção?");
+    if (!confirmDelete) return;
+
+    try {
+      await handleMaintenanceDeletion(id);
+      setMaintenances((prev) => prev.filter((m) => m.id !== id));
+      toast.success("Manutenção excluída com sucesso!");
+    } catch (error) {
+      console.error("Erro ao excluir manutenção:", error.message);
+      toast.error("Erro ao excluir manutenção.");
     }
   };
 
-  const handleStatusUpdate = async (id, status) => {
+  const handleStatusUpdate = async (id, newStatus) => {
+    if (!VALID_STATUS_OPTIONS.includes(newStatus)) {
+      toast.error("Status inválido. Escolha um valor permitido.");
+      return;
+    }
+
     try {
-      await handleMaintenanceStatusUpdate(id, status);
+      await handleMaintenanceStatusUpdate(id, newStatus);
       setMaintenances((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, status } : m))
+        prev.map((m) =>
+          m.id === id ? { ...m, status: newStatus } : m
+        )
       );
       toast.success("Status atualizado com sucesso!");
     } catch (error) {
@@ -84,6 +96,26 @@ const MaintenanceTable = () => {
       toast.error("Erro ao exportar relatório.");
     } finally {
       setIsExporting(false);
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedMaintenance(null);
+    setIsEditMode(false);
+    fetchMaintenancesAll();
+  };
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "aberto":
+        return "status-pending";
+      case "parcelado":
+        return "status-progress";
+      case "pago":
+        return "status-completed";
+      default:
+        return "";
     }
   };
 
@@ -130,22 +162,18 @@ const MaintenanceTable = () => {
                   <td>{m.provider}</td>
                   <td>{m.date}</td>
                   <td>{m.nfe}</td>
-                  <td>R$ {Number(m.price).toFixed(2)}</td>
+                  <td>R$ {m.price.toFixed(2)}</td>
                   <td>
                     <select
-                      className={`status-select ${
-                        m.status === "pendente"
-                          ? "status-pending"
-                          : m.status === "aberto"
-                          ? "status-progress"
-                          : "status-completed"
-                      }`}
-                      value={m.status}
+                      className={`status-select ${getStatusClass(m.status)}`}
+                      value={VALID_STATUS_OPTIONS.includes(m.status) ? m.status : "aberto"}
                       onChange={(e) => handleStatusUpdate(m.id, e.target.value)}
                     >
-                      <option value="aberto">Aberto</option>
-                      <option value="parcelado">Parcelado</option>
-                      <option value="pago">Pago</option>
+                      {VALID_STATUS_OPTIONS.map((status) => (
+                        <option key={status} value={status}>
+                          {status.charAt(0).toUpperCase() + status.slice(1)}
+                        </option>
+                      ))}
                     </select>
                   </td>
                   <td>
@@ -157,7 +185,7 @@ const MaintenanceTable = () => {
                     </button>
                     <button
                       className="btn-delete"
-                      onClick={() => handleDeleteMaintenance(m.id)}
+                      onClick={() => handleDeleteMaintenanceLocal(m.id)}
                     >
                       Excluir
                     </button>
@@ -178,9 +206,8 @@ const MaintenanceTable = () => {
       {isModalOpen && (
         <MaintenanceModal
           show={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={closeModal}
           maintenanceData={selectedMaintenance}
-          refreshMaintenances={fetchMaintenances}
           isEditMode={isEditMode}
         />
       )}

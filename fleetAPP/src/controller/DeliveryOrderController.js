@@ -55,9 +55,10 @@ import {
         vehicle: order.Vehicle
           ? `${order.Vehicle.model || 'Modelo não informado'} (${order.Vehicle.licensePlate || 'Placa não informada'})`
           : 'Veículo não informado',
+
         deliveryDate: order.deliveryDate
-          ? new Date(order.deliveryDate).toLocaleDateString()
-          : 'Data não definida',
+  ? order.deliveryDate.substring(0, 10).split("-").reverse().join("/")
+  : "Data não definida",
         status: order.status || 'Status não definido',
         urgency:  order.urgency || 'não identificado'
       }));

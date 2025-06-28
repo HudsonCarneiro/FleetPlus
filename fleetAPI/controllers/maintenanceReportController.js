@@ -1,6 +1,6 @@
 const Maintenance = require('../models/Maintenance');
-const { getVehicleAll } = require('./vehicleController');
-const { getServiceProviderAll } = require('./serviceProviderController');
+const Vehicle = require('../models/Vehicle');
+const ServiceProvider = require('../models/ServiceProvider');
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
@@ -19,30 +19,18 @@ exports.exportMaintenanceReport = async (req, res) => {
 
     const emissionDate = new Date().toLocaleDateString('pt-BR');
 
-    const vehiclesResponse = await new Promise((resolve, reject) => {
-      getVehicleAll(
-        { query: { userId } },
-        { status: (code) => ({ json: resolve, send: reject }) }
-      );
-    });
-    const vehicles = Array.isArray(vehiclesResponse) ? vehiclesResponse : [];
-
-    const providersResponse = await new Promise((resolve, reject) => {
-      getServiceProviderAll(
-        { query: { userId } },
-        { status: (code) => ({ json: resolve, send: reject }) }
-      );
-    });
-    const providers = Array.isArray(providersResponse) ? providersResponse : [];
+    // Busca direta sem Express response
+    const vehicles = await Vehicle.findAll({ where: { userId } });
+    const providers = await ServiceProvider.findAll({ where: { userId } });
 
     const maintenancesWithDetails = maintenances.map((m) => {
-      const vehicle = vehicles.find((v) => v.id === m.vehicleId) || null;
-      const provider = providers.find((p) => p.id === m.serviceProviderId) || null;
+      const vehicle = vehicles.find((v) => v.id === m.vehicleId);
+      const provider = providers.find((p) => p.id === m.serviceProviderId);
 
       return {
         ...m.toJSON(),
-        Vehicle: vehicle ? `${vehicle.model} (${vehicle.plate})` : 'Não informado',
-        Provider: provider ? provider.businessName : 'Não informado',
+        vehicleName: vehicle ? `${vehicle.model} (${vehicle.plate})` : 'Não informado',
+        providerName: provider ? provider.businessName : 'Não informado',
       };
     });
 
@@ -79,25 +67,32 @@ exports.exportMaintenanceReport = async (req, res) => {
             </tr>
           </thead>
           <tbody>
-            ${maintenancesWithDetails.map((m) => `
+            ${maintenancesWithDetails
+              .map(
+                (m) => `
               <tr>
                 <td>${m.id}</td>
-                <td>${new Date(m.date).toLocaleDateString()}</td>
+                <td>${m.date ? m.date.toISOString().substr(0,10).split("-").reverse().join("/") : "-"}</td>
                 <td>${m.type}</td>
                 <td>${m.description || '-'}</td>
-                <td>${m.Vehicle}</td>
-                <td>${m.Provider}</td>
+                <td>${m.vehicleName}</td>
+                <td>${m.providerName}</td>
                 <td>${m.nfe || '-'}</td>
                 <td>R$ ${Number(m.price).toFixed(2)}</td>
                 <td>${m.status}</td>
-              </tr>`).join('')}
+              </tr>`
+              )
+              .join('')}
           </tbody>
         </table>
       </body>
       </html>
     `;
 
-    const filePath = path.join(__dirname, `../../downloads/maintenance-report-${userId}.pdf`);
+    const filePath = path.join(
+      __dirname,
+      `../../downloads/maintenance-report-${userId}.pdf`
+    );
 
     const browser = await chromium.launch();
     const page = await browser.newPage();
@@ -110,6 +105,8 @@ exports.exportMaintenanceReport = async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao gerar relatório de manutenção:', error.message);
-    res.status(500).json({ error: 'Erro ao gerar relatório.', details: error.message });
+    res
+      .status(500)
+      .json({ error: 'Erro ao gerar relatório.', details: error.message });
   }
 };
